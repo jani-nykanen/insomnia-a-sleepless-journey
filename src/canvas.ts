@@ -13,18 +13,53 @@ export const enum Flip {
 };
 
 
-export const getColorString = (r : number, g : number, b : number, a = 1.0) : string =>
+const getColorString = (r : number, g : number, b : number, a = 1.0) : string =>
     "rgba(" + String(r | 0) + "," + 
         String(g | 0) + "," + 
         String(b | 0) + "," + 
         String(clamp(a, 0.0, 1.0));
 
-    
-export const createHtml5Canvas = (width : number, height : number) : HTMLCanvasElement => {
+
+const createCanvasDiv = () : HTMLDivElement => {
 
     let cdiv = document.createElement("div");
     cdiv.setAttribute("style", 
         "position: absolute; top: 0; left: 0; z-index: -1;");
+
+    return cdiv;
+}
+
+
+const drawRoundedRectangle = (ctx : CanvasRenderingContext2D,
+    x : number, y : number, width : number, height : number,
+    radius : number, lineWidth : number) : any => {
+
+    let r = x + width;
+    let b = y + height;
+
+    ctx.lineWidth = lineWidth;
+
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+
+    ctx.lineTo(r - radius, y);
+    ctx.quadraticCurveTo(r, y, r, y + radius);
+
+    ctx.lineTo(r, y + height - radius);
+    ctx.quadraticCurveTo(r, b, r - radius, b);
+
+    ctx.lineTo(x + radius, b);
+    ctx.quadraticCurveTo(x, b, x, b - radius);
+
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+
+    ctx.stroke();
+}
+
+    
+export const createHtml5Canvas = (cdiv : HTMLDivElement,
+    width : number, height : number) : HTMLCanvasElement => {
 
     let canvas = document.createElement("canvas");
     canvas.width = width;
@@ -40,7 +75,6 @@ export const createHtml5Canvas = (width : number, height : number) : HTMLCanvasE
     cdiv.appendChild(canvas);
     document.body.appendChild(cdiv);
     
-
     return canvas;
 }
 
@@ -51,7 +85,9 @@ export class Canvas {
     public readonly height : number;
     public readonly assets : AssetManager;
 
+    private canvasDiv : HTMLDivElement;
     private canvas : HTMLCanvasElement;
+    private canvasOverlay : HTMLCanvasElement;
     private ctx : CanvasRenderingContext2D;
 
     private tintColor : RGBA;
@@ -67,7 +103,10 @@ export class Canvas {
 
         this.translation = new Vector2();
 
-        this.canvas = createHtml5Canvas(width, height);
+        this.canvasDiv = createCanvasDiv();
+        this.canvas = createHtml5Canvas(this.canvasDiv, width, height);
+        this.canvasOverlay = null;
+
         this.ctx = this.canvas.getContext("2d");
         this.ctx.imageSmoothingEnabled = false;
 
@@ -106,6 +145,15 @@ export class Canvas {
         
         c.style.top = top;
         c.style.left = left;
+
+        if (this.canvasOverlay != null) {
+
+            this.canvasOverlay.style.width = c.style.width;
+            this.canvasOverlay.style.height = c.style.height;
+
+            this.canvasOverlay.style.top = c.style.top;
+            this.canvasOverlay.style.left = c.style.left;
+        }
     }
 
 
@@ -331,6 +379,30 @@ export class Canvas {
             "filter: contrast(" + String(contrast | 0) + "%);");
 
         this.tintColor = tintColor.clone();
+    }
+
+
+    public createBlackBorderOverlayEffect(scale : number, radius : number) {
+
+        let w = (this.width * scale) | 0;
+        let h = (this.height * scale) | 0;
+
+        this.canvasOverlay = document.createElement("canvas");
+        this.canvasOverlay.width = w;
+        this.canvasOverlay.height = h;
+
+        this.canvasOverlay.setAttribute("style", 
+            "position: absolute; top: 0; left: 0; z-index: 0;");
+        this.canvasDiv.appendChild(this.canvasOverlay);
+
+        let ctx = this.canvasOverlay.getContext("2d");
+
+        ctx.strokeStyle = "black";
+        
+        let lineWidth = Math.max(w, h) / 32;
+        drawRoundedRectangle(ctx, -lineWidth/2, -lineWidth/2, w+lineWidth, h+lineWidth, radius, lineWidth);
+
+        this.resize(window.innerWidth, window.innerHeight);
     }
 
 

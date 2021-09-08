@@ -22,6 +22,9 @@ export class GameScene implements Scene {
 
         canvas.drawBitmap(canvas.assets.getBitmap("tileset"),
             0, 0);
+
+        canvas.drawText(canvas.assets.getBitmap("font"),
+            "Hello world?", 16, 72, -1, 0);
     }
 
 

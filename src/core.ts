@@ -42,6 +42,9 @@ export class CoreEvent {
 
     public setCanvasFilter = (contrast : number, tintColor : RGBA) : void =>
         this.canvas.setFilter(contrast, tintColor);
+
+    public createBlackBorderOverlayEffect = (scale : number, radius : number) => 
+        this.canvas.createBlackBorderOverlayEffect(scale, radius);
 }
 
 

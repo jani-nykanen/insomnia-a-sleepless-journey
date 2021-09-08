@@ -8,4 +8,5 @@ window.onload = () => (new Core(160, 144))
     event => {
 
         event.setCanvasFilter(133, new RGBA(255, 170, 0, 0.33));
+        event.createBlackBorderOverlayEffect(6, 80);
     });
