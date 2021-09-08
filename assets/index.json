@@ -1,0 +1,22 @@
+{
+    "bitmapPath" : "assets/bitmaps/",
+    "bitmaps" : [
+        {"name": "font", "path": "font.png"},
+        {"name": "player", "path": "player.png"},
+        {"name": "forest", "path": "forest.png"},
+        {"name": "sun", "path": "sun.png"},
+        {"name": "tileset", "path": "tileset.png"}
+    ],
+
+    "samplePath" : "assets/audio/",
+    "samples" : [
+
+        
+    ],
+
+    "tilemapPath" : "assets/stages/",
+    "tilemaps" : [
+     
+    ]
+}
+
