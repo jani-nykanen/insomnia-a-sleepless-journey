@@ -4,6 +4,7 @@ import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { negMod } from "./math.js";
 import { Tilemap } from "./tilemap.js";
+import { ObjectManager } from "./objectmanager.js";
 
 
 export class Stage {
@@ -11,7 +12,6 @@ export class Stage {
 
     private layers : Array<Array<number>>;
     private tilemap : Tilemap;
-
 
     public readonly width : number;
     public readonly height : number;
@@ -45,7 +45,6 @@ export class Stage {
 
         // ...
     }
-
 
 
     public drawBackground(canvas : Canvas, camera : Camera) {
@@ -115,4 +114,32 @@ export class Stage {
         }
     }
 
+
+    public parseObjects(objects : ObjectManager) {
+
+        const START_INDEX = 256;
+
+        let tid : number;
+
+        for (let y = 0; y < this.height; ++ y) {
+
+            for (let x = 0; x < this.width; ++ x) {
+
+                tid = this.tilemap.getTile(3, x, y) - START_INDEX;
+
+                if (tid <= 0) continue;
+
+                switch (tid) {
+
+                case 1:
+
+                    objects.createPlayer(x*16, y*16);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+    }
 }

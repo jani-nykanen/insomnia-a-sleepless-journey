@@ -1,5 +1,6 @@
 import { AssetManager } from "./assets.js";
 import { clamp } from "./math.js";
+import { Sprite } from "./sprite.js";
 import { Bitmap } from "./types.js";
 import { RGBA, Vector2 } from "./vector.js";
 
@@ -367,6 +368,21 @@ export class Canvas {
             if (px2 < this.width)
                 c.fillRect(px2 | 0, y | 0, (this.width-px1) | 0, 1);
         }
+    }
+
+
+    public drawSpriteFrame(spr : Sprite, bmp : Bitmap, 
+        column : number, row : number,
+        dx : number, dy : number, flip = Flip.None) {
+
+        spr.drawFrame(this, bmp, column, row, dx, dy, flip);
+    }
+
+
+    public drawSprite(spr : Sprite, bmp : Bitmap, 
+        dx : number, dy : number, flip = Flip.None) {
+
+        spr.draw(this, bmp, dx, dy, flip);
     }
 
 

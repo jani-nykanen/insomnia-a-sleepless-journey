@@ -1,4 +1,5 @@
 import { Canvas, Flip } from "./canvas.js";
+import { Bitmap } from "./types.js";
 
 
 export class Sprite {
@@ -86,7 +87,7 @@ export class Sprite {
     }
 
 
-    public drawFrame(c : Canvas, bmp : HTMLImageElement, 
+    public drawFrame(c : Canvas, bmp : Bitmap, 
         column : number, row : number, 
         dx : number, dy : number, flip = Flip.None) {
     
@@ -97,7 +98,7 @@ export class Sprite {
     }
 
 
-    public draw(c : Canvas, bmp : HTMLImageElement, 
+    public draw(c : Canvas, bmp : Bitmap, 
         dx : number, dy : number, flip = Flip.None) {
 
         this.drawFrame(c, bmp, 
