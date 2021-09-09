@@ -145,14 +145,14 @@ export class Core {
                 this.initialized = true;
             }
 
-            this.input.updateActions();
+            this.input.preUpdate();
 
             if (this.initialized) {
 
                 this.activeScene.update(this.event);
             }
 
-            this.input.update();
+            this.input.postUpdate();
             this.transition.update(this.event);
 
             this.timeSum -= FRAME_WAIT;

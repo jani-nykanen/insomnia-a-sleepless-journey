@@ -1,7 +1,10 @@
 import { GamePadListener } from "./gamepad.js";
 import { KeyboardListener } from "./keyboard.js";
 import { State } from "./types.js";
+import { Vector2 } from "./vector.js";
 
+
+const INPUT_SPECIAL_EPS = 0.25;
 
 
 class InputAction {
@@ -47,6 +50,9 @@ export class InputListener {
     public readonly gamepad : GamePadListener;
 
     private actions : Array<InputAction>;
+    private stick : Vector2;
+    private oldStick : Vector2;
+    private stickDelta : Vector2;
 
 
     constructor() {
@@ -55,12 +61,23 @@ export class InputListener {
         this.gamepad = new GamePadListener();
     
         this.actions = new Array<InputAction> ();
+
+        this.stick = new Vector2();
+        this.oldStick = new Vector2();
+        this.stickDelta = new Vector2();
+
+        this.addAction("right", "ArrowRight", null, 15)
+            .addAction("up", "ArrowUp", null, 12)
+            .addAction("left", "ArrowLeft", null, 14)
+            .addAction("down", "ArrowDown", null, 13);
     }
 
 
-    public addAction(name : string, key1 : string, key2 = null, button1 = -1, button2 = -1) {
+    public addAction(name : string, key1 : string, key2 = null, button1 = -1, button2 = -1) : InputListener {
 
         this.actions.push(new InputAction(name, key1, key2, button1, button2));
+
+        return this;
     }
 
 
@@ -78,15 +95,54 @@ export class InputListener {
     }
 
 
-    public update() {
+    private updateStick() {
 
-        this.keyboard.update();
-        this.gamepad.update();
+        const DEADZONE = 0.25;
+
+        let padStick = this.gamepad.getStick();
+
+        this.oldStick = this.stick.clone();
+
+        this.stick.zeros();
+        if (Math.abs(padStick.x) >= DEADZONE ||
+            Math.abs(padStick.y) >= DEADZONE) {
+
+            this.stick = padStick;
+        }
+        else {
+        
+            if (this.getAction("right") & State.DownOrPressed) {
+
+                this.stick.x = 1;
+            }
+            else if (this.getAction("left") & State.DownOrPressed) {
+
+                this.stick.x = -1;
+            }
+
+            if (this.getAction("down") & State.DownOrPressed) {
+
+                this.stick.y = 1;
+            }
+            else if (this.getAction("up") & State.DownOrPressed) {
+
+                this.stick.y = -1;
+            }
+
+            // this.stick.normalize();
+        }
+
+        this.stickDelta = new Vector2(
+            this.stick.x - this.oldStick.x,
+            this.stick.y - this.oldStick.y
+        );
     }
 
 
     // To be called before update
-    public updateActions() {
+    public preUpdate() {
+
+        this.gamepad.update();
 
         let s : State;
         for (let a of this.actions) {
@@ -111,6 +167,45 @@ export class InputListener {
 
             a.setState(s);
         }
+
+        this.updateStick();
     }
-    
+
+
+    public postUpdate() {
+
+        this.keyboard.update();
+    }
+
+
+    public upPress() : boolean {
+
+        return this.stick.y < 0 && 
+            this.oldStick.y >= -INPUT_SPECIAL_EPS &&
+            this.stickDelta.y < -INPUT_SPECIAL_EPS;
+    }
+
+
+    public downPress() : boolean {
+
+        return this.stick.y > 0 && 
+            this.oldStick.y <= INPUT_SPECIAL_EPS &&
+            this.stickDelta.y > INPUT_SPECIAL_EPS;
+    }
+
+
+    public leftPress() : boolean {
+
+        return this.stick.x < 0 && 
+            this.oldStick.x >= -INPUT_SPECIAL_EPS &&
+            this.stickDelta.x < -INPUT_SPECIAL_EPS;
+    }
+
+    public rightPress() : boolean {
+
+        return this.stick.x > 0 && 
+            this.oldStick.x <= INPUT_SPECIAL_EPS &&
+            this.stickDelta.x > INPUT_SPECIAL_EPS;
+    }
+
 }

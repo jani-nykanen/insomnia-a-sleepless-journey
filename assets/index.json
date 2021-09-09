@@ -4,7 +4,7 @@
         {"name": "font", "path": "font.png"},
         {"name": "player", "path": "player.png"},
         {"name": "forest", "path": "forest.png"},
-        {"name": "sun", "path": "sun.png"},
+        {"name": "sky", "path": "sky.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
@@ -14,9 +14,9 @@
         
     ],
 
-    "tilemapPath" : "assets/stages/",
+    "tilemapPath" : "assets/tilemaps/",
     "tilemaps" : [
-     
+        {"name": "base", "path": "base.tmx"}
     ]
 }
 
