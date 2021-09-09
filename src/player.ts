@@ -19,7 +19,7 @@ export class Player extends CollisionObject {
         this.spr = new Sprite(16, 16);
 
         this.hitbox = new Vector2(12, 12);
-        this.center = new Vector2();
+        this.center = new Vector2(0, 2);
         this.collisionBox = new Vector2(8, 10);
 
         this.friction = new Vector2(0.1, 0.1);
@@ -31,10 +31,17 @@ export class Player extends CollisionObject {
     }
 
 
+    private control(event : CoreEvent) {
+
+        const BASE_GRAVITY = 2.0;
+
+        this.target.y = BASE_GRAVITY;
+    }
+
 
     protected preMovementEvent(event : CoreEvent) {
 
-        // ...
+        this.control(event);
     }
 
 
@@ -45,7 +52,7 @@ export class Player extends CollisionObject {
         let bmp = canvas.assets.getBitmap("player");
 
         let px = Math.round(this.pos.x - this.spr.width/2);
-        let py = Math.round(this.pos.y - this.spr.height/2) +1;
+        let py = Math.round(this.pos.y - this.spr.height/2);
 
         canvas.drawSprite(this.spr, bmp, px, py, this.flip);
     }

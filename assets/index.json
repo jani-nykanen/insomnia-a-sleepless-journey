@@ -16,6 +16,7 @@
 
     "tilemapPath" : "assets/tilemaps/",
     "tilemaps" : [
+        {"name": "collisionMap", "path": "collision_map.tmx"},
         {"name": "base", "path": "base.tmx"}
     ]
 }

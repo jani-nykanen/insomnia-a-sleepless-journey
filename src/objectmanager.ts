@@ -28,6 +28,7 @@ export class ObjectManager {
     public update(stage : Stage, camera : Camera, event : CoreEvent) {
 
         this.player.update(event);
+        stage.objectCollisions(this.player, event);
     }
 
 
