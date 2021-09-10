@@ -27,13 +27,21 @@ export class ObjectManager {
 
     public update(stage : Stage, camera : Camera, event : CoreEvent) {
 
+        if (camera.isMoving()) {
+
+            this.player.cameraMovement(camera, event);
+            return;
+        }
+
         this.player.update(event);
+        this.player.cameraEvent(camera);
         stage.objectCollisions(this.player, event);
     }
 
 
     public draw(canvas : Canvas) {
 
+        this.player.preDraw(canvas);
         this.player.draw(canvas);
     }
 }

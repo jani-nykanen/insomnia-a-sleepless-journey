@@ -5,6 +5,7 @@
         {"name": "player", "path": "player.png"},
         {"name": "forest", "path": "forest.png"},
         {"name": "sky", "path": "sky.png"},
+        {"name": "dust", "path": "dust.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

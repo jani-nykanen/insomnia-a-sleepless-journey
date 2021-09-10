@@ -95,4 +95,10 @@ export class Camera {
         this.renderPos.x * this.width, 
         this.renderPos.y * this.height);
 
+
+    public getDirection = () : Vector2 => 
+        Vector2.direction(this.pos, this.target);
+    public getSpeed = () : number => this.speed;
+    public isMoving = () : boolean => this.moving;
+
 }
