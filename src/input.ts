@@ -178,6 +178,9 @@ export class InputListener {
     }
 
 
+    public getStick = () : Vector2 => this.stick.clone();
+
+
     public upPress() : boolean {
 
         return this.stick.y < 0 && 

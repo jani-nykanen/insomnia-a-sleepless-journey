@@ -24,7 +24,7 @@ export class GameScene implements Scene {
 
     public update(event : CoreEvent) {
 
-        this.camera.debugControl(event);
+        // this.camera.debugControl(event);
         this.camera.update(event);
         this.stage.update(event);
         this.objects.update(this.stage, this.camera, event);
