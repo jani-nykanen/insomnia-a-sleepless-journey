@@ -18,13 +18,23 @@ export class GamePadListener {
         this.buttons = new Array<number> ();
 
         this.pad = null;
-        this.index = 0;
+        this.index = -1;
 
         window.addEventListener("gamepadconnected", (ev : GamepadEvent) => {
 
-            console.log("Gamepad with index " + 
-                String(ev["gamepad"].index) + 
-                " connected.");
+            if (this.index < 0) {
+
+                console.log("Gamepad with index " + 
+                    String(ev["gamepad"].index) + 
+                    " connected.");
+            }
+            else {
+
+                console.log("Gamepad with index " + 
+                    String(ev["gamepad"].index) + 
+                    " connected but ignored due to some weird technical reasons.");
+                return;
+            }
 
             let gp = navigator.getGamepads()[ev["gamepad"].index];
             this.index = ev["gamepad"].index;

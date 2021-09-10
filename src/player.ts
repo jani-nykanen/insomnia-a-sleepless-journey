@@ -141,7 +141,6 @@ export class Player extends CollisionObject {
 
     private updateJump(event : CoreEvent) {
 
-
         if (this.jumpMargin > 0) {
 
             this.jumpMargin -= event.step;
@@ -272,7 +271,7 @@ export class Player extends CollisionObject {
 
     protected verticalCollisionEvent(dir : number, event : CoreEvent) {
 
-        const JUMP_MARGIN = 15;
+        const JUMP_MARGIN = 12;
 
         if (dir == 1) {
 
