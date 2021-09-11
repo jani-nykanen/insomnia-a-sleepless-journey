@@ -198,6 +198,37 @@ export class Stage {
     }
 
 
+    private handleSpecialTileCollision(o : CollisionObject, 
+        layer : number, x : number, y : number, 
+        colId : number, event : CoreEvent) {
+    
+        const LADDER_WIDTH = 8;
+
+        let ladderOff = (16 - LADDER_WIDTH) / 2;
+            
+        switch (colId) {
+
+        // Ladder top
+        case 15:
+
+            o.ladderCollision(x*16 + ladderOff, y*16 + 15, 
+                    LADDER_WIDTH, 1, true, event);
+            o.verticalCollision(x*16, (y+1)*16, 16, 1, event);
+
+            break;
+        // Ladder bottom
+        case 31:
+
+            o.ladderCollision(x*16 + ladderOff, y*16+1, 
+                LADDER_WIDTH, 15, false, event);
+            break;
+        
+        default:
+            break;
+        }
+    } 
+
+
     public objectCollisions(o : CollisionObject, event : CoreEvent) {
 
         const RADIUS = 2;
@@ -226,7 +257,11 @@ export class Stage {
 
                     if (colId <= BASE_TILE_MAX) {
 
-                        this.handleBaseTileCollision(o, layer,  x, y, colId-1, event);
+                        this.handleBaseTileCollision(o, layer, x, y, colId-1, event);
+                    }
+                    else {
+
+                        this.handleSpecialTileCollision(o, layer, x, y, colId-1, event);
                     }
                 }
             }
