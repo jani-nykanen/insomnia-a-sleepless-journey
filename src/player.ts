@@ -30,6 +30,10 @@ export class Player extends CollisionObject {
     private touchLadder : boolean;
     private isLadderTop : boolean;
     private climbX : number;
+    private climbFrame : number;
+
+    private throwing : boolean;
+    private canThrow : boolean;
 
 
     constructor(x : number, y : number) {
@@ -63,6 +67,10 @@ export class Player extends CollisionObject {
         this.climbing = false;
         this.touchLadder = false;
         this.isLadderTop = false;
+
+        this.throwing = false;
+        this.canThrow = false;
+        this.climbFrame = 0;
     }
 
 
@@ -94,16 +102,22 @@ export class Player extends CollisionObject {
         const CLIB_JUMP_TIME = 10;
 
         this.target.x = 0;
+
+        let sx = event.input.getStick().x;
+        if (Math.abs(sx) > EPS)
+            this.faceDir = sx > 0 ? 1 : -1;
+            
+        this.flip = Flip.None;
         
         let s = event.input.getAction("fire2");
-
-        this.flip = Flip.None;
 
         if (!this.touchLadder) {
 
             this.climbing = false;
         }
         else {
+
+            this.canThrow = true;
 
             this.target.y = CLIMB_SPEED * event.input.getStick().y;
             if (s == State.Pressed) {
@@ -116,6 +130,33 @@ export class Player extends CollisionObject {
                 }
             }
         }
+    }
+
+
+    private throwRock(event : CoreEvent) : boolean {
+
+        if (this.throwing) return true;
+
+        if (this.canThrow &&
+            event.input.getAction("fire3") == State.Pressed) {
+
+            this.throwing = true;
+            this.canThrow = false;
+
+            this.flip = this.faceDir > 0 ? Flip.None : Flip.Horizontal;
+
+            if (this.climbing) {
+
+                this.climbFrame = this.spr.getColumn();
+            }
+
+            this.spr.setFrame(0, 3);
+
+            this.stopMovement();
+
+            return true;
+        }
+        return false;
     }
 
 
@@ -133,6 +174,11 @@ export class Player extends CollisionObject {
 
         let stick = event.input.getStick();
 
+        if (this.throwRock(event)) {
+
+            return;
+        }
+        
         this.startClimbing(event);
         if (this.climbing) {
 
@@ -198,6 +244,24 @@ export class Player extends CollisionObject {
         let animSpeed : number;
         let frame : number;
         let row : number;
+
+        if (this.throwing) {
+
+            this.spr.animate(3, 0, 2, this.spr.getColumn() == 1 ? 12 : 6, event.step);
+            if (this.spr.getColumn() == 2) {
+
+                if (this.climbing)
+                    this.spr.setFrame(this.climbFrame, 2);
+                else
+                    this.spr.setFrame(0, 0);
+                
+                this.throwing = false;
+            }
+            else {
+
+                return;
+            }
+        }
 
         if (this.climbing) {
 
@@ -382,8 +446,8 @@ export class Player extends CollisionObject {
             this.jumpMargin = JUMP_MARGIN;
 
             this.doubleJump = false;
-
             this.climbing = false;
+            this.canThrow = true;
         }
     }
 
