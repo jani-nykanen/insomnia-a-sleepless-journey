@@ -3,6 +3,7 @@ import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { Dust } from "./dust.js";
 import { boxOverlay, CollisionObject, nextObject } from "./gameobject.js";
+import { SpawnProjectileCallback } from "./objectmanager.js";
 import { Sprite } from "./sprite.js";
 import { State } from "./types.js";
 import { Vector2 } from "./vector.js";
@@ -35,8 +36,13 @@ export class Player extends CollisionObject {
     private throwing : boolean;
     private canThrow : boolean;
 
+    private sliding : boolean;
+    private slideTimer : number;
 
-    constructor(x : number, y : number) {
+    private projectileCb : SpawnProjectileCallback;
+
+
+    constructor(x : number, y : number, projectileCb : SpawnProjectileCallback) {
 
         super(x, y);
 
@@ -71,6 +77,11 @@ export class Player extends CollisionObject {
         this.throwing = false;
         this.canThrow = false;
         this.climbFrame = 0;
+
+        this.sliding = false;
+        this.slideTimer = 0;
+
+        this.projectileCb = projectileCb;
     }
 
 
@@ -135,9 +146,13 @@ export class Player extends CollisionObject {
 
     private throwRock(event : CoreEvent) : boolean {
 
+        const ROCK_SPEED_X = 3.0;
+        const ROCK_JUMP = -1.0;
+
         if (this.throwing) return true;
 
-        if (this.canThrow &&
+        if (!this.sliding &&
+            this.canThrow &&
             event.input.getAction("fire3") == State.Pressed) {
 
             this.throwing = true;
@@ -153,6 +168,48 @@ export class Player extends CollisionObject {
             this.spr.setFrame(0, 3);
 
             this.stopMovement();
+
+            this.projectileCb(
+                this.pos.x + this.faceDir*6, this.pos.y-2,
+                this.faceDir * ROCK_SPEED_X, ROCK_JUMP, true, 0, true);
+
+            return true;
+        }
+        return false;
+    }
+
+
+    private slide(event : CoreEvent) {
+
+        const EPS = 0.25;
+        const SLIDE_TIME = 20;
+        const SLIDE_SPEED = 3.0;
+
+        let s = event.input.getAction("fire2");
+
+        if (this.sliding) {
+
+            if ((this.slideTimer -= event.step) <= 0 ||
+                (s & State.DownOrPressed) == 0) {
+
+                this.sliding = false;
+                return false;
+            }
+            return true;
+        }
+
+        if (!this.canJump) return false;
+
+        if (event.input.getStick().y > EPS &&
+            s == State.Pressed) {
+
+            this.slideTimer = SLIDE_TIME;
+            this.target.x = 0;
+            this.speed.x = SLIDE_SPEED * this.faceDir;
+
+            this.dustTimer = 0;
+
+            this.sliding = true;
 
             return true;
         }
@@ -175,6 +232,11 @@ export class Player extends CollisionObject {
         let stick = event.input.getStick();
 
         if (this.throwRock(event)) {
+
+            return;
+        }
+
+        if (this.slide(event)) {
 
             return;
         }
@@ -244,6 +306,12 @@ export class Player extends CollisionObject {
         let animSpeed : number;
         let frame : number;
         let row : number;
+
+        if (this.sliding) {
+
+            this.spr.setFrame(0, 1);
+            return;
+        }
 
         if (this.throwing) {
 
@@ -338,7 +406,8 @@ export class Player extends CollisionObject {
             d.update(event);
         }
 
-        if (!this.canJump || Math.abs(this.speed.x) <= EPS) return;
+        if (this.sliding || !this.canJump || 
+            Math.abs(this.speed.x) <= EPS) return;
 
         let genTime = DUST_GEN_TIME_BASE / Math.abs(this.speed.x);
 
@@ -449,6 +518,13 @@ export class Player extends CollisionObject {
             this.climbing = false;
             this.canThrow = true;
         }
+    }
+
+
+    protected wallCollisionEvent(dir : number, event : CoreEvent) {
+
+        this.sliding = false;
+        this.slideTimer = 0;
     }
 
 
