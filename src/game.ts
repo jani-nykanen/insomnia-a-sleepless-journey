@@ -16,17 +16,16 @@ export class GameScene implements Scene {
 
     constructor(param : any, event : CoreEvent) {
 
-        this.camera = new Camera(0, 1, 160, 144);
+        this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(event);
-        this.objects = new ObjectManager(this.stage);
+        this.objects = new ObjectManager(this.stage, this.camera);
     }
 
 
     public update(event : CoreEvent) {
 
-        // this.camera.debugControl(event);
         this.camera.update(event);
-        this.stage.update(event);
+        this.stage.update(this.camera, event);
         this.objects.update(this.stage, this.camera, event);
     }
 
@@ -41,7 +40,7 @@ export class GameScene implements Scene {
         this.camera.use(canvas);
         canvas.applyShake();
 
-        this.stage.drawTileLayers(canvas, this.camera);
+        this.stage.draw(canvas, this.camera);
         this.objects.draw(canvas);
     }
 

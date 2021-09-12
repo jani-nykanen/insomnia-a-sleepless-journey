@@ -23,7 +23,7 @@ export class ObjectManager {
     private projectileCb : SpawnProjectileCallback;
 
 
-    constructor(stage : Stage) {
+    constructor(stage : Stage, camera : Camera) {
         
         this.player = null;
     
@@ -38,6 +38,8 @@ export class ObjectManager {
         };
 
         stage.parseObjects(this);
+
+        camera.focusOnObject(this.player);
     }
 
 

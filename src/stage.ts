@@ -5,7 +5,9 @@ import { CoreEvent } from "./core.js";
 import { negMod } from "./math.js";
 import { Tilemap } from "./tilemap.js";
 import { ObjectManager } from "./objectmanager.js";
-import { CollisionObject } from "./gameobject.js";
+import { CollisionObject, nextObject } from "./gameobject.js";
+import { Particle } from "./particle.js";
+import { Vector2 } from "./vector.js";
 
 
 const COLLISION_DOWN = 0b0001;
@@ -41,6 +43,8 @@ export class Stage {
     private tilemap : Tilemap;
     private collisionMap : Tilemap;
 
+    private particles : Array<Particle>;
+
     public readonly width : number;
     public readonly height : number;
 
@@ -54,6 +58,8 @@ export class Stage {
         this.height = this.tilemap.height;
 
         this.layers = this.tilemap.cloneLayers(3);
+
+        this.particles = new Array<Particle> ();
     }
 
 
@@ -70,9 +76,26 @@ export class Stage {
     }
 
 
-    public update(event : CoreEvent) {
+    private setTile(val : number, layer : number, x : number, y : number, loopx = false, loopy = false) {
 
-        // ...
+        if (loopx) x = negMod(x, this.width);
+        if (loopy) y = negMod(y, this.height);
+
+        if ((!loopx && (x < 0 || x >= this.width)) ||
+            (!loopy && (y < 0 || y >= this.height)))
+            return 0;
+
+        this.layers[layer][y*this.width + x] = val;
+    }
+
+
+    public update(camera : Camera, event : CoreEvent) {
+
+        for (let p of this.particles) {
+
+            p.update(event);
+            p.cameraCheck(camera);
+        }
     }
 
 
@@ -125,7 +148,7 @@ export class Stage {
     }
 
 
-    public drawTileLayers(canvas : Canvas, camera : Camera) {
+    public draw(canvas : Canvas, camera : Camera) {
 
         let bmp = canvas.assets.getBitmap("tileset");
 
@@ -140,6 +163,11 @@ export class Stage {
         for (let layer = 0; layer < this.layers.length; ++ layer) {
 
             this.drawLayer(canvas, layer, bmp, sx, sy, ex, ey);
+        }
+
+        for (let p of this.particles) {
+
+            p.draw(canvas);
         }
     }
 
@@ -173,15 +201,39 @@ export class Stage {
     }
 
 
+    private spawnParticles(x : number, y : number, 
+        count : number, speedAmount : number, angleOffset = 0) {
+
+        const BASE_JUMP = -1.75;
+        const GRAVITY = 0.15;
+
+        let angle : number;
+        let speed : Vector2;
+
+        for (let i = 0; i < count; ++ i) {
+
+            angle = Math.PI * 2 / count * i + angleOffset;
+
+            speed = new Vector2(
+                Math.cos(angle) * speedAmount,
+                Math.sin(angle) * speedAmount + BASE_JUMP * speedAmount);
+
+            nextObject(this.particles, Particle)
+                .spawn(x, y, speed, GRAVITY, 0);
+        }
+    }
+
+
     private handleBaseTileCollision(o : CollisionObject, 
         layer : number, x : number, y : number, 
-        colId : number, event : CoreEvent) {
+        colId : number, event : CoreEvent) : boolean {
 
         let c = COLLISION_TABLE[colId];
+        let ret = false;
 
         if ((c & COLLISION_DOWN) == COLLISION_DOWN) {
 
-            o.verticalCollision(x*16, y*16, 16, 1, event);
+            ret = o.verticalCollision(x*16, y*16, 16, 1, event);
         }
         if ((c & COLLISION_UP) == COLLISION_UP) {
 
@@ -195,6 +247,8 @@ export class Stage {
 
             o.wallCollision(x*16, y*16, 16, 1, event);
         }
+
+        return ret;
     }
 
 
@@ -203,6 +257,8 @@ export class Stage {
         colId : number, event : CoreEvent) {
     
         const LADDER_WIDTH = 8;
+        const BREAK_COL_Y_OFF = 4;
+        const BREAK_COL_WIDTH = 14;
 
         let ladderOff = (16 - LADDER_WIDTH) / 2;
             
@@ -223,6 +279,24 @@ export class Stage {
                 LADDER_WIDTH, 15, false, event);
             break;
         
+        // Breaking tiles
+        case 16:
+
+            if (o.breakCollision(
+                    x*16 + (16 - BREAK_COL_WIDTH)/2, 
+                    y*16 - BREAK_COL_Y_OFF, 
+                    BREAK_COL_WIDTH, 16, event)) {
+
+                this.setTile(0, layer, x, y);
+
+                this.spawnParticles(x*16 + 8, y*16 + 8, 6, 1.5, Math.PI/3);
+            }
+            else {
+
+                this.handleBaseTileCollision(o, layer, x, y, 14, event)
+            }
+            break;
+
         default:
             break;
         }

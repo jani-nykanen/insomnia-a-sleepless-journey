@@ -7,6 +7,7 @@
         {"name": "sky", "path": "sky.png"},
         {"name": "dust", "path": "dust.png"},
         {"name": "projectile", "path": "projectile.png"},
+        {"name": "particles", "path": "particles.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

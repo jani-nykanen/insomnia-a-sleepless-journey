@@ -579,6 +579,10 @@ export class Player extends CollisionObject {
                 event.shake(HIT_WAIT, HIT_MAGNITUDE);
             }
         }
+        else {
+
+            this.jumpTimer = 0;
+        }
     }
 
 
@@ -603,4 +607,12 @@ export class Player extends CollisionObject {
         return false;
     }
 
+
+    public breakCollision(x : number, y : number, w : number, h : number, event : CoreEvent) : boolean {
+
+        if (!this.downAttacking || this.speed.y <= 0)
+            return false;
+
+        return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);
+    }
 }

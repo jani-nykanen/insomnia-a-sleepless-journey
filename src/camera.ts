@@ -1,5 +1,6 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
+import { WeakGameObject } from "./gameobject.js";
 import { Vector2 } from "./vector.js";
 
 
@@ -30,27 +31,6 @@ export class Camera {
         this.width = width;
         this.height = height;
     }
-
-
-    public debugControl(event : CoreEvent) {
-
-        if (this.moving) return;
-
-        let dx = 0;
-        let dy = 0;
-
-        if (event.input.upPress())
-            dy = -1;
-        else if (event.input.downPress())
-            dy = 1;
-        else if (event.input.leftPress())
-            dx = -1;
-        else if (event.input.rightPress())
-            dx = 1;
-        
-        this.move(dx, dy, 1.0/30.0);
-    }
-
 
 
     public update(event : CoreEvent) {
@@ -88,6 +68,16 @@ export class Camera {
         canvas.move(
             -Math.round(this.renderPos.x * this.width), 
             -Math.round(this.renderPos.y * this.height));
+    }
+
+
+    public focusOnObject(o : WeakGameObject) {
+
+        this.pos.x = (o.getPos().x / this.width) | 0;
+        this.pos.y = (o.getPos().y / this.height) | 0;
+        
+        this.target = this.pos.clone();
+        this.renderPos = this.pos.clone();
     }
 
 
