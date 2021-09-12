@@ -39,6 +39,8 @@ export class GameScene implements Scene {
         this.stage.drawBackground(canvas, this.camera);
 
         this.camera.use(canvas);
+        canvas.applyShake();
+
         this.stage.drawTileLayers(canvas, this.camera);
         this.objects.draw(canvas);
     }

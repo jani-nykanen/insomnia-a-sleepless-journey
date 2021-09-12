@@ -39,6 +39,9 @@ export class Player extends CollisionObject {
     private sliding : boolean;
     private slideTimer : number;
 
+    private downAttacking : boolean;
+    private downAttackWaitTimer : number;
+
     private projectileCb : SpawnProjectileCallback;
 
 
@@ -80,6 +83,9 @@ export class Player extends CollisionObject {
 
         this.sliding = false;
         this.slideTimer = 0;
+
+        this.downAttackWaitTimer = 0;
+        this.downAttacking = false;
 
         this.projectileCb = projectileCb;
     }
@@ -217,30 +223,48 @@ export class Player extends CollisionObject {
     }
 
 
+    private waitDownAttack(event : CoreEvent) : boolean {
+
+        if (this.downAttackWaitTimer > 0) {
+
+            this.downAttackWaitTimer -= event.step;
+
+            return this.downAttackWaitTimer > 0;
+        }
+
+        return this.downAttacking;
+    }
+
+
     private control(event : CoreEvent) {
 
+        const BASE_FRICTION_Y = 0.15;
         const BASE_GRAVITY = 3.0;
         const MOVE_SPEED = 0.75;
         const RUN_MOD = 1.66667;
+
         const EPS = 0.01;
+        const DOWN_EPS = 0.25;
 
         const JUMP_TIME = 12;
         const DOUBLE_JUMP_TIME = 8;
         const BASE_JUMP_SPEED = 2.0;
         const BASE_JUMP_MOD = 0.25;
+        const DOWN_ATTACK_JUMP = -1.5;
+        const DOWN_ATTACK_GRAVITY = 6.0;
+        const DOWN_ATTACK_FRICTION = 0.30;
 
         let stick = event.input.getStick();
 
-        if (this.throwRock(event)) {
+        this.friction.y = this.downAttacking ? DOWN_ATTACK_FRICTION : BASE_FRICTION_Y;
+
+        if (this.waitDownAttack(event) ||
+            this.throwRock(event) ||
+            this.slide(event)) {
 
             return;
         }
 
-        if (this.slide(event)) {
-
-            return;
-        }
-        
         this.startClimbing(event);
         if (this.climbing) {
 
@@ -258,6 +282,21 @@ export class Player extends CollisionObject {
         }
     
         let s = event.input.getAction("fire2");
+
+        if (!this.canJump && 
+            stick.y > DOWN_EPS &&
+            s == State.Pressed) {
+
+            this.downAttacking = true;
+            this.downAttackWaitTimer = 0;
+
+            this.stopMovement();
+
+            this.speed.y = DOWN_ATTACK_JUMP;
+            this.target.y = DOWN_ATTACK_GRAVITY;
+
+            return;
+        }
 
         if (this.jumpTimer <= 0 &&
             (this.jumpMargin > 0 || !this.doubleJump) &&
@@ -302,10 +341,22 @@ export class Player extends CollisionObject {
         const DOUBLE_JUMP_SPEED = 4;
         const SPIN_EPS = 1.0;
         const CLIMB_SPEED = 10;
+        const DOWN_ATTACK_SPEED = 4;
 
         let animSpeed : number;
         let frame : number;
         let row : number;
+
+        if (this.downAttacking) {
+
+            this.spr.animate(5, 0, 3, DOWN_ATTACK_SPEED, event.step);
+            return;
+        }
+        else if (this.downAttackWaitTimer > 0) {
+
+            this.spr.setFrame(0, 5);
+            return;
+        }
 
         if (this.sliding) {
 
@@ -508,6 +559,8 @@ export class Player extends CollisionObject {
     protected verticalCollisionEvent(dir : number, event : CoreEvent) {
 
         const JUMP_MARGIN = 12;
+        const HIT_WAIT = 30;
+        const HIT_MAGNITUDE = 2;
 
         if (dir == 1) {
 
@@ -517,6 +570,14 @@ export class Player extends CollisionObject {
             this.doubleJump = false;
             this.climbing = false;
             this.canThrow = true;
+
+            if (this.downAttacking) {
+
+                this.downAttacking = false;
+                this.downAttackWaitTimer = HIT_WAIT;
+
+                event.shake(HIT_WAIT, HIT_MAGNITUDE);
+            }
         }
     }
 

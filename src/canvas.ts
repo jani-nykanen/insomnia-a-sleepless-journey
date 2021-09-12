@@ -1,4 +1,5 @@
 import { AssetManager } from "./assets.js";
+import { CoreEvent } from "./core.js";
 import { clamp } from "./math.js";
 import { Sprite } from "./sprite.js";
 import { Bitmap } from "./types.js";
@@ -95,6 +96,9 @@ export class Canvas {
 
     private translation : Vector2;
 
+    private shakeTimer : number;
+    private shakeMagnitude : number;
+
 
     constructor(width : number, height : number, assets : AssetManager) {
 
@@ -116,6 +120,9 @@ export class Canvas {
         this.resize(window.innerWidth, window.innerHeight);
 
         this.tintColor = null;
+
+        this.shakeTimer = 0;
+        this.shakeMagnitude = 0;
     }
 
 
@@ -434,5 +441,32 @@ export class Canvas {
             this.tintColor.b, 
             this.tintColor.a);
         this.fillRect(0, 0, this.width, this.height);
+    }
+
+
+    public update(event : CoreEvent) {
+
+        if (this.shakeTimer > 0) {
+
+            this.shakeTimer -= event.step;
+        }
+    }
+
+
+    public applyShake() {
+
+        if (this.shakeTimer <= 0) return;
+
+        let x = Math.round((Math.random() * (this.shakeMagnitude*2)) - this.shakeMagnitude);
+        let y = Math.round((Math.random() * (this.shakeMagnitude*2)) - this.shakeMagnitude);
+
+        this.move(x, y);
+    }
+
+
+    public shake(time : number, magnitude : number) {
+
+        this.shakeTimer = time;
+        this.shakeMagnitude = magnitude;
     }
 }

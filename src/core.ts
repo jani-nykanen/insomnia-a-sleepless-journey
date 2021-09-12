@@ -45,6 +45,9 @@ export class CoreEvent {
 
     public createBlackBorderOverlayEffect = (scale : number, radius : number) => 
         this.canvas.createBlackBorderOverlayEffect(scale, radius);
+
+    public shake = (time : number, magnitude : number) : void =>
+        this.canvas.shake(time, magnitude);
 }
 
 
@@ -154,6 +157,7 @@ export class Core {
 
             this.input.postUpdate();
             this.transition.update(this.event);
+            this.canvas.update(this.event);
 
             this.timeSum -= FRAME_WAIT;
         }
