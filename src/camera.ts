@@ -1,6 +1,8 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { WeakGameObject } from "./gameobject.js";
+import { negMod } from "./math.js";
+import { Stage } from "./stage.js";
 import { Vector2 } from "./vector.js";
 
 
@@ -33,9 +35,9 @@ export class Camera {
     }
 
 
-    public update(event : CoreEvent) {
+    public update(event : CoreEvent) : boolean {
 
-        if (!this.moving) return;
+        if (!this.moving) return false;
 
         if ((this.timer += this.speed * event.step) >= 1.0) {
 
@@ -43,10 +45,12 @@ export class Camera {
             this.renderPos = this.pos.clone();
             this.moving = false;
 
-            return;
+            return true;
         }
 
         this.renderPos = Vector2.lerp(this.pos, this.target, this.timer);
+
+        return false;
     }
 
 
@@ -91,4 +95,13 @@ export class Camera {
     public getSpeed = () : number => this.speed;
     public isMoving = () : boolean => this.moving;
 
+
+    public checkLoop(stage : Stage) {
+
+        let w = stage.width / (this.width/16);
+
+        this.pos.x = negMod(this.pos.x, w);
+        this.target.x = this.pos.x;
+        this.renderPos.x = this.pos.x;
+    }
 }

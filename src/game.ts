@@ -19,12 +19,18 @@ export class GameScene implements Scene {
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(event);
         this.objects = new ObjectManager(this.stage, this.camera);
+
+        this.objects.cameraCheck(this.camera);
     }
 
 
     public update(event : CoreEvent) {
 
-        this.camera.update(event);
+        if (this.camera.update(event)) {
+
+            this.objects.checkLoop(this.stage);
+            this.camera.checkLoop(this.stage);
+        }
         this.stage.update(this.camera, event);
         this.objects.update(this.stage, this.camera, event);
     }

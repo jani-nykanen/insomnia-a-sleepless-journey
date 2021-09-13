@@ -5,6 +5,7 @@ import { nextObject } from "./gameobject.js";
 import { Player } from "./player.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
+import { Switch } from "./switch.js";
 
 
 export type SpawnProjectileCallback = 
@@ -19,6 +20,7 @@ export class ObjectManager {
 
     private projectiles : Array<Projectile>;
     private player : Player;
+    private switches : Array<Switch>;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -37,6 +39,8 @@ export class ObjectManager {
                 .spawn(x, y, speedx, speedy, getGravity, id, friendly);
         };
 
+        this.switches = new Array<Switch> ();
+
         stage.parseObjects(this);
 
         camera.focusOnObject(this.player);
@@ -49,10 +53,37 @@ export class ObjectManager {
     }
 
 
+    public addSwitch(x : number, y : number) {
+
+        this.switches.push(new Switch(x+8, y+16));
+    }
+
+
+    public cameraCheck(camera : Camera) {
+
+        for (let s of this.switches) {
+
+            s.cameraCheck(camera);
+        }
+    }
+
+
+    public resetSwitches(omit : Switch) {
+
+        for (let s of this.switches) {
+
+            if (s === omit) continue;
+
+            s.reset();
+        }
+    }
+
+
     public update(stage : Stage, camera : Camera, event : CoreEvent) {
 
         if (camera.isMoving()) {
 
+            this.cameraCheck(camera);
             this.player.cameraMovement(camera, event);
             return;
         }
@@ -70,10 +101,26 @@ export class ObjectManager {
                 stage.objectCollisions(p, event);
             }
         } 
+
+        for (let s of this.switches) {
+
+            s.cameraCheck(camera);
+            s.update(event);
+            
+            if (s.playerCollision(this.player, stage, event)) {
+
+                this.resetSwitches(s);
+            }
+        }
     }
 
 
     public draw(canvas : Canvas) {
+
+        for (let s of this.switches) {
+
+            s.draw(canvas);
+        }
 
         this.player.preDraw(canvas);
         this.player.draw(canvas);
@@ -82,5 +129,11 @@ export class ObjectManager {
 
             p.draw(canvas);
         }
+    }
+
+
+    public checkLoop(stage : Stage) {
+
+        this.player.checkLoop(stage);
     }
 }

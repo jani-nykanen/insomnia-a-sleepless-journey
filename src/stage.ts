@@ -188,9 +188,14 @@ export class Stage {
 
                 switch (tid) {
 
+                // Player
                 case 1:
-
                     objects.createPlayer(x*16, y*16);
+                    break;
+
+                // Switch
+                case 2:
+                    objects.addSwitch(x*16, y*16);
                     break;
 
                 default:
@@ -323,7 +328,7 @@ export class Stage {
 
                 for (let x = px - RADIUS; x <= px + RADIUS; ++ x) {
 
-                    tid = this.getTile(layer, x, y);
+                    tid = this.getTile(layer, x, y, true, false);
                     if (tid <= 0) continue;
 
                     colId = this.collisionMap.getIndexedTile(0, tid-1);
@@ -340,5 +345,22 @@ export class Stage {
                 }
             }
         }
+    }
+
+
+    public toggleSpecialBlocks() {
+
+        let tid : number;
+        for (let layer = 0; layer < 3; ++ layer) {
+
+            for (let i = 0; i < this.width*this.height; ++ i) {
+
+                tid = this.layers[layer][i];
+                if (tid == 13)
+                    this.layers[layer][i] = 14;
+                else if (tid == 14)
+                    this.layers[layer][i] = 13;
+            }
+        }   
     }
 }

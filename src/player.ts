@@ -3,11 +3,15 @@ import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { Dust } from "./dust.js";
 import { boxOverlay, CollisionObject, nextObject } from "./gameobject.js";
+import { negMod } from "./math.js";
 import { SpawnProjectileCallback } from "./objectmanager.js";
 import { Sprite } from "./sprite.js";
+import { Stage } from "./stage.js";
 import { State } from "./types.js";
 import { Vector2 } from "./vector.js";
 
+
+const BASE_JUMP_SPEED = 2.0;
 
 
 export class Player extends CollisionObject {
@@ -248,7 +252,6 @@ export class Player extends CollisionObject {
 
         const JUMP_TIME = 12;
         const DOUBLE_JUMP_TIME = 8;
-        const BASE_JUMP_SPEED = 2.0;
         const BASE_JUMP_MOD = 0.25;
         const DOWN_ATTACK_JUMP = -1.5;
         const DOWN_ATTACK_GRAVITY = 6.0;
@@ -614,5 +617,17 @@ export class Player extends CollisionObject {
             return false;
 
         return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);
+    }
+
+
+    public makeJump(speed : number) {
+
+        this.speed.y = speed;
+    }
+
+
+    public checkLoop(stage : Stage) {
+
+        this.pos.x = negMod(this.pos.x, stage.width*16);
     }
 }
