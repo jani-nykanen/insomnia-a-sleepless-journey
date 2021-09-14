@@ -46,6 +46,12 @@ export class Player extends CollisionObject {
     private downAttacking : boolean;
     private downAttackWaitTimer : number;
 
+    private invulnerabilityTimer : number;
+    private spawnPos : Vector2
+    private spawnPosSet : boolean;
+    private initialSpawnPosSet : boolean;
+    private spawning : boolean;
+
     private projectileCb : SpawnProjectileCallback;
 
 
@@ -90,6 +96,12 @@ export class Player extends CollisionObject {
 
         this.downAttackWaitTimer = 0;
         this.downAttacking = false;
+
+        this.invulnerabilityTimer = 0;
+        this.spawnPos = this.pos.clone();
+        this.spawnPosSet = true;
+        this.initialSpawnPosSet = true;
+        this.spawning = false;
 
         this.projectileCb = projectileCb;
     }
@@ -478,7 +490,35 @@ export class Player extends CollisionObject {
     }
 
 
+    private spawn(event : CoreEvent) {
+
+        const INV_TIME = 60;
+        const SPAWN_ANIM_SPEED = 5;
+
+        this.spr.animate(7, 0, 5, SPAWN_ANIM_SPEED, event.step);
+        if (this.spr.getColumn() == 5) {
+
+            this.spr.setFrame(0, 0);
+            this.spawning = false;
+
+            this.invulnerabilityTimer = INV_TIME;
+        }
+    }
+
+
     protected preMovementEvent(event : CoreEvent) {
+
+        if (this.spawning) {
+
+            this.spawn(event);
+            return;
+        }
+
+        if (!this.initialSpawnPosSet) {
+
+            this.spawnPos = this.pos.clone();
+            this.initialSpawnPosSet = true;
+        }
 
         this.control(event);
         this.animate(event);
@@ -488,6 +528,47 @@ export class Player extends CollisionObject {
         this.canJump = false;
         this.touchLadder = false;
         this.isLadderTop = false;
+
+        if (this.invulnerabilityTimer > 0) {
+
+            this.invulnerabilityTimer -= event.step;
+        }
+    }
+
+
+    private resetProperties() {
+
+        this.stopMovement();
+
+        this.doubleJump = false;
+        this.downAttacking = false;
+        this.downAttackWaitTimer = 0;
+
+        this.jumpTimer = 0;
+        this.throwing = false;
+        this.climbing = false;
+        this.touchLadder = false;
+        this.running = false;
+    }
+
+
+    protected die(event : CoreEvent) : boolean {
+
+        const DEATH_ANIM_SPEED = 5;
+
+        this.spr.animate(6, 0, 4, DEATH_ANIM_SPEED, event.step);
+        if (this.spr.getColumn() == 4) {
+
+            this.spr.setFrame(0, 7);
+            this.dying = false;
+            this.spawning = true;
+
+            this.pos = this.spawnPos.clone();
+            
+            this.resetProperties();
+        }
+
+        return false;
     }
 
 
@@ -533,6 +614,9 @@ export class Player extends CollisionObject {
         if (dirx != 0 || diry != 0) {
 
             camera.move(dirx, diry, CAMERA_MOVE_SPEED);
+
+            this.spawnPosSet = false;
+            this.initialSpawnPosSet = false;
         }
     }
 
@@ -548,7 +632,9 @@ export class Player extends CollisionObject {
 
     public draw(canvas : Canvas) {
 
-        if (!this.exist) return;
+        if (!this.exist ||
+            (this.invulnerabilityTimer > 0 &&
+            Math.floor(this.invulnerabilityTimer/4) % 2 == 0)) return;
 
         let bmp = canvas.assets.getBitmap("player");
 
@@ -566,6 +652,12 @@ export class Player extends CollisionObject {
         const HIT_MAGNITUDE = 2;
 
         if (dir == 1) {
+
+            if (!this.spawnPosSet) {
+
+                this.spawnPos = this.pos.clone();
+                this.spawnPosSet = true;
+            }
 
             this.canJump = true;
             this.jumpMargin = JUMP_MARGIN;
@@ -617,6 +709,23 @@ export class Player extends CollisionObject {
             return false;
 
         return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);
+    }
+    
+
+    public hurtCollision(x : number, y : number, w : number, h : number, event : CoreEvent) : boolean {
+
+        if (this.spawning || this.dying ||
+            this.invulnerabilityTimer > 0) return false;
+
+        if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
+
+            this.dying = true;
+            this.spr.setFrame(0, 6);
+            
+            return true;
+        }
+
+        return false;
     }
 
 

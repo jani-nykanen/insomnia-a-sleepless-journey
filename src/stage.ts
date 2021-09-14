@@ -261,12 +261,17 @@ export class Stage {
         layer : number, x : number, y : number, 
         colId : number, event : CoreEvent) {
     
+        const HURT_X = [4, 0, 4, 12];
+        const HURT_Y = [12, 4, 0, 4];
+        const HURT_WIDTH = [8, 4, 8, 4];
+        const HURT_HEIGHT = [4, 8, 6, 8];
+
         const LADDER_WIDTH = 8;
         const BREAK_COL_Y_OFF = 4;
         const BREAK_COL_WIDTH = 14;
 
         let ladderOff = (16 - LADDER_WIDTH) / 2;
-            
+
         switch (colId) {
 
         // Ladder top
@@ -300,6 +305,20 @@ export class Stage {
 
                 this.handleBaseTileCollision(o, layer, x, y, 14, event)
             }
+            break;
+
+        // Hurt collision
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+
+            o.hurtCollision(
+                x*16 + HURT_X[colId-17],
+                y*16 + HURT_Y[colId-17],
+                HURT_WIDTH[colId-17],
+                HURT_HEIGHT[colId-17], event);
+
             break;
 
         default:

@@ -346,8 +346,7 @@ export abstract class CollisionObject extends GameObject {
     }
 
 
-    public hurtCollision(x : number, y : number, w : number, h : number, 
-        dmg : number, knockback : number, event : CoreEvent) : boolean {
+    public hurtCollision(x : number, y : number, w : number, h : number, event : CoreEvent) : boolean {
 
         return false;
     }
