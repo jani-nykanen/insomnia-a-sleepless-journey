@@ -51,6 +51,7 @@ export class Player extends CollisionObject {
     private spawnPosSet : boolean;
     private initialSpawnPosSet : boolean;
     private spawning : boolean;
+    private spawnClimbing : boolean;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -102,6 +103,7 @@ export class Player extends CollisionObject {
         this.spawnPosSet = true;
         this.initialSpawnPosSet = true;
         this.spawning = false;
+        this.spawnClimbing = false;
 
         this.projectileCb = projectileCb;
     }
@@ -502,6 +504,11 @@ export class Player extends CollisionObject {
             this.spawning = false;
 
             this.invulnerabilityTimer = INV_TIME;
+
+            if (this.climbing) {
+
+                this.spr.setFrame(3, 2);
+            }
         }
     }
 
@@ -518,6 +525,11 @@ export class Player extends CollisionObject {
 
             this.spawnPos = this.pos.clone();
             this.initialSpawnPosSet = true;
+
+            if (this.spawnClimbing) {
+
+                this.spawnPosSet = true;
+            }
         }
 
         this.control(event);
@@ -546,7 +558,7 @@ export class Player extends CollisionObject {
 
         this.jumpTimer = 0;
         this.throwing = false;
-        this.climbing = false;
+        this.climbing = this.spawnClimbing;
         this.touchLadder = false;
         this.running = false;
     }
@@ -617,6 +629,8 @@ export class Player extends CollisionObject {
 
             this.spawnPosSet = false;
             this.initialSpawnPosSet = false;
+
+            this.spawnClimbing = this.climbing;
         }
     }
 
@@ -721,6 +735,8 @@ export class Player extends CollisionObject {
 
             this.dying = true;
             this.spr.setFrame(0, 6);
+
+            this.spawnPosSet = true;
             
             return true;
         }
