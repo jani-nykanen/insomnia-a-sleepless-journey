@@ -58,7 +58,7 @@ export class Player extends CollisionObject {
 
         this.spr = new Sprite(16, 16);
 
-        this.hitbox = new Vector2(12, 12);
+        this.hitbox = new Vector2(9, 11);
         this.center = new Vector2(0, 2);
         this.collisionBox = new Vector2(8, 10);
 
@@ -467,6 +467,7 @@ export class Player extends CollisionObject {
         }
 
         if (this.sliding || !this.canJump || 
+            this.knockbackTimer > 0 ||
             Math.abs(this.speed.x) <= EPS) return;
 
         let genTime = DUST_GEN_TIME_BASE / Math.abs(this.speed.x);
@@ -513,10 +514,13 @@ export class Player extends CollisionObject {
         }
     }
 
-/*
-    private resetProperties() {
 
-        this.stopMovement();
+    private resetProperties(stop : boolean) {
+
+        if (stop) {
+
+            this.stopMovement();
+        }
 
         this.doubleJump = false;
         this.downAttacking = false;
@@ -524,11 +528,11 @@ export class Player extends CollisionObject {
 
         this.jumpTimer = 0;
         this.throwing = false;
-        this.climbing = this.spawnClimbing;
+        this.climbing = false;
         this.touchLadder = false;
         this.running = false;
     }
-*/
+
 
     public cameraMovement(camera : Camera, event : CoreEvent) {
 
@@ -688,6 +692,8 @@ export class Player extends CollisionObject {
             
             this.target.x = 0;
             this.speed.x = KNOCKBACK_SPEED * dir;
+
+            this.resetProperties(false);
             
             return true;
         }

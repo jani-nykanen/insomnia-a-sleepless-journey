@@ -257,14 +257,26 @@ export class Stage {
     }
 
 
+    private boxCollision(o : CollisionObject, 
+        x : number, y : number, 
+        w : number, h : number, 
+        event : CoreEvent) {
+
+        o.verticalCollision(x, y, w, 1, event);
+        o.verticalCollision(x, y+h, w, -1, event);
+        o.wallCollision(x + w, y, h, -1, event);
+        o.wallCollision(x, y, h, 1, event);
+    }
+
+
     private handleSpecialTileCollision(o : CollisionObject, 
         layer : number, x : number, y : number, 
         colId : number, event : CoreEvent) {
     
-        const HURT_X = [4, 0, 4, 12];
-        const HURT_Y = [12, 4, 0, 4];
-        const HURT_WIDTH = [8, 4, 8, 4];
-        const HURT_HEIGHT = [4, 8, 6, 8];
+        const HURT_X = [2, 0, 2, 9];
+        const HURT_Y = [9, 2, 0, 2];
+        const HURT_WIDTH = [12, 7, 12, 7];
+        const HURT_HEIGHT = [7, 12, 7, 12];
         const HURT_DIR = [0, 1, 0, -1];
 
         const LADDER_WIDTH = 8;
@@ -272,6 +284,11 @@ export class Stage {
         const BREAK_COL_WIDTH = 14;
 
         let ladderOff = (16 - LADDER_WIDTH) / 2;
+
+        let dx : number;
+        let dy : number;
+        let w : number;
+        let h : number;
 
         switch (colId) {
 
@@ -314,13 +331,13 @@ export class Stage {
         case 19:
         case 20:
 
-            o.hurtCollision(
-                x*16 + HURT_X[colId-17],
-                y*16 + HURT_Y[colId-17],
-                HURT_WIDTH[colId-17],
-                HURT_HEIGHT[colId-17], 
-                HURT_DIR[colId-17],
-                event);
+            dx = x*16 + HURT_X[colId-17];
+            dy = y*16 + HURT_Y[colId-17];
+            w = HURT_WIDTH[colId-17];
+            h = HURT_HEIGHT[colId-17];
+
+            o.hurtCollision(dx, dy, w, h, HURT_DIR[colId-17], event);
+            this.boxCollision(o, dx, dy, w, h, event);
 
             break;
 
