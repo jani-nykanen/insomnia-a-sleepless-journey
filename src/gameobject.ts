@@ -253,6 +253,8 @@ export abstract class CollisionObject extends GameObject {
     protected collisionBox : Vector2;
     protected disableCollisions : boolean;
 
+    protected ignoreFenceCollisions : boolean;
+
 
     constructor(x : number, y : number, exist = true) {
 
@@ -260,6 +262,7 @@ export abstract class CollisionObject extends GameObject {
 
         this.collisionBox = new Vector2();
         this.disableCollisions = false;
+        this.ignoreFenceCollisions = false;
     }
 
 
@@ -361,12 +364,15 @@ export abstract class CollisionObject extends GameObject {
     }
 
 
-    public breakCollision(x : number, y : number, w : number, h : number,  event : CoreEvent) : boolean {
+    public breakCollision(x : number, y : number, 
+        w : number, h : number, 
+        level : number, event : CoreEvent) : boolean {
 
         return false;
     }
 
 
     public getCollisionBox = () : Vector2 => this.collisionBox.clone();
+    public doesIgnoreFenceCollisions = () : boolean => this.ignoreFenceCollisions;
 }
 

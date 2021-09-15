@@ -90,7 +90,7 @@ export class ObjectManager {
 
         this.player.update(event);
         this.player.cameraEvent(camera, event);
-        stage.objectCollisions(this.player, event);
+        stage.objectCollisions(this.player, camera, event);
 
         for (let p of this.projectiles) {
 
@@ -98,7 +98,7 @@ export class ObjectManager {
             if (p.doesExist() && p.isInCamera()) {
 
                 p.update(event);
-                stage.objectCollisions(p, event);
+                stage.objectCollisions(p, camera, event);
             }
         } 
 

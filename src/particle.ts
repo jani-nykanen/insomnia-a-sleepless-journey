@@ -23,14 +23,14 @@ export class Particle extends WeakGameObject {
     }
 
 
-    public spawn(x : number, y : number, speed : Vector2, gravity = 0, id = 0) {
+    public spawn(x : number, y : number, speed : Vector2, gravity = 0, id = 0, frame = 0) {
 
         this.pos = new Vector2(x, y);
         this.speed = speed.clone();
         this.gravity = gravity;
 
         this.spr = new Sprite(16, 16);
-        this.spr.setFrame((Math.random() * 4) | 0, id);
+        this.spr.setFrame(frame, id);
 
         this.dying = false;
         this.exist = true;

@@ -662,9 +662,14 @@ export class Player extends CollisionObject {
     }
 
 
-    public breakCollision(x : number, y : number, w : number, h : number, event : CoreEvent) : boolean {
+    public breakCollision(x : number, y : number, w : number, h : number, 
+        level : number, event : CoreEvent) : boolean {
 
-        if (!this.downAttacking || this.speed.y <= 0)
+        const Y_OFF = -4;
+
+        y += Y_OFF;
+
+        if (!this.downAttacking || this.speed.y <= 0 || level == 1)
             return false;
 
         return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);

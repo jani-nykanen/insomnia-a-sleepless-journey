@@ -8,6 +8,7 @@ import { ObjectManager } from "./objectmanager.js";
 import { CollisionObject, nextObject } from "./gameobject.js";
 import { Particle } from "./particle.js";
 import { Vector2 } from "./vector.js";
+import { Sprite } from "./sprite.js";
 
 
 const COLLISION_DOWN = 0b0001;
@@ -45,6 +46,8 @@ export class Stage {
 
     private particles : Array<Particle>;
 
+    private sprFence : Sprite;
+
     public readonly width : number;
     public readonly height : number;
 
@@ -60,6 +63,8 @@ export class Stage {
         this.layers = this.tilemap.cloneLayers(3);
 
         this.particles = new Array<Particle> ();
+
+        this.sprFence = new Sprite(16, 16);
     }
 
 
@@ -91,11 +96,15 @@ export class Stage {
 
     public update(camera : Camera, event : CoreEvent) {
 
+        const FENCE_ANIM_SPEED = 4;
+
         for (let p of this.particles) {
 
             p.update(event);
             p.cameraCheck(camera);
         }
+
+        this.sprFence.animate(0, 0, 3, FENCE_ANIM_SPEED, event.step);
     }
 
 
@@ -137,12 +146,26 @@ export class Stage {
 
                 -- tid;
 
-                srcx = (tid % 16) | 0;
-                srcy = (tid / 16) | 0;
+                switch (tid) {
 
-                canvas.drawBitmapRegion(bmp,
-                    srcx*16, srcy*16, 16, 16,
-                    x*16, y*16);
+                // Fence
+                case 94:
+                case 95:
+                    canvas.drawSpriteFrame(this.sprFence,
+                        canvas.assets.getBitmap("fence"),
+                        this.sprFence.getColumn(), tid-94,
+                        x*16, y*16);
+                    break;
+
+                default:
+                    srcx = (tid % 16) | 0;
+                    srcy = (tid / 16) | 0;
+
+                    canvas.drawBitmapRegion(bmp,
+                        srcx*16, srcy*16, 16, 16,
+                        x*16, y*16);
+                    break;
+                }
             }
         }
     }
@@ -207,7 +230,8 @@ export class Stage {
 
 
     private spawnParticles(x : number, y : number, 
-        count : number, speedAmount : number, angleOffset = 0) {
+        count : number, speedAmount : number, angleOffset = 0,
+        ordered = false, row = 0) {
 
         const BASE_JUMP = -1.75;
         const GRAVITY = 0.15;
@@ -221,10 +245,11 @@ export class Stage {
 
             speed = new Vector2(
                 Math.cos(angle) * speedAmount,
-                Math.sin(angle) * speedAmount + BASE_JUMP * speedAmount);
+                -Math.sin(angle) * speedAmount + BASE_JUMP * speedAmount);
 
             nextObject(this.particles, Particle)
-                .spawn(x, y, speed, GRAVITY, 0);
+                .spawn(x, y, speed, GRAVITY, row, 
+                    ordered ? i : ((Math.random() * 4) | 0));
         }
     }
 
@@ -269,18 +294,51 @@ export class Stage {
     }
 
 
+    private removeFences(camera : Camera) {
+
+        let p = camera.getPosition();
+
+        let sx = (p.x / camera.width) | 0;
+        let sy = (p.y / camera.height) | 0;
+
+        let w = (camera.width / 16) | 0;
+        let h = (camera.height / 16) | 0;
+
+        sx *= w;
+        sy *= h;
+
+        let tid : number;
+
+        for (let layer = 0; layer < 3; ++ layer) {
+
+            for (let y = sy; y < sy + h; ++ y) {
+
+                for (let x = sx; x < sx + w; ++ x) {
+
+                    tid = this.getTile(layer, x, y);
+
+                    if (tid == 95 || tid == 96) {
+
+                        this.setTile(0, layer, x, y);
+                    }
+                }
+            }
+        }
+    }
+
+
     private handleSpecialTileCollision(o : CollisionObject, 
         layer : number, x : number, y : number, 
-        colId : number, event : CoreEvent) {
+        colId : number, camera : Camera, event : CoreEvent) {
     
-        const HURT_X = [2, 0, 2, 9];
-        const HURT_Y = [9, 2, 0, 2];
-        const HURT_WIDTH = [12, 7, 12, 7];
-        const HURT_HEIGHT = [7, 12, 7, 12];
-        const HURT_DIR = [0, 1, 0, -1];
+        const HURT_START = 18;
+        const HURT_X = [2, 0, 2, 9, 5, 0];
+        const HURT_Y = [9, 2, 0, 2, 0, 5];
+        const HURT_WIDTH = [12, 7, 12, 7, 6, 16];
+        const HURT_HEIGHT = [7, 12, 7, 12, 16, 6];
+        const HURT_DIR = [0, 1, 0, -1, 0, 0];
 
         const LADDER_WIDTH = 8;
-        const BREAK_COL_Y_OFF = 4;
         const BREAK_COL_WIDTH = 14;
 
         let ladderOff = (16 - LADDER_WIDTH) / 2;
@@ -309,15 +367,22 @@ export class Stage {
         
         // Breaking tiles
         case 16:
+        case 17:
 
             if (o.breakCollision(
-                    x*16 + (16 - BREAK_COL_WIDTH)/2, 
-                    y*16 - BREAK_COL_Y_OFF, 
-                    BREAK_COL_WIDTH, 16, event)) {
+                    x*16 + (16 - BREAK_COL_WIDTH)/2, y*16, 
+                    BREAK_COL_WIDTH, 16, colId-16, event)) {
 
                 this.setTile(0, layer, x, y);
+                this.spawnParticles(x*16 + 8, y*16 + 8, 
+                    colId == 16 ? 6 : 4, 1.5, 
+                    colId == 16 ? Math.PI/3 : Math.PI/4, 
+                    colId == 17, colId-16);
 
-                this.spawnParticles(x*16 + 8, y*16 + 8, 6, 1.5, Math.PI/3);
+                if (colId == 17) {
+
+                    this.removeFences(camera);
+                }
             }
             else {
 
@@ -326,17 +391,22 @@ export class Stage {
             break;
 
         // Hurt collision
-        case 17:
         case 18:
         case 19:
         case 20:
+        case 21:
+        case 22:
+        case 23:
 
-            dx = x*16 + HURT_X[colId-17];
-            dy = y*16 + HURT_Y[colId-17];
-            w = HURT_WIDTH[colId-17];
-            h = HURT_HEIGHT[colId-17];
+            if (colId >= 21 && o.doesIgnoreFenceCollisions())
+                break;
 
-            o.hurtCollision(dx, dy, w, h, HURT_DIR[colId-17], event);
+            dx = x*16 + HURT_X[colId - HURT_START];
+            dy = y*16 + HURT_Y[colId - HURT_START];
+            w = HURT_WIDTH[colId - HURT_START];
+            h = HURT_HEIGHT[colId - HURT_START];
+
+            o.hurtCollision(dx, dy, w, h, HURT_DIR[colId - HURT_START], event);
             this.boxCollision(o, dx, dy, w, h, event);
 
             break;
@@ -347,7 +417,7 @@ export class Stage {
     } 
 
 
-    public objectCollisions(o : CollisionObject, event : CoreEvent) {
+    public objectCollisions(o : CollisionObject, camera : Camera, event : CoreEvent) {
 
         const RADIUS = 2;
         const BASE_TILE_MAX = 15;
@@ -379,7 +449,8 @@ export class Stage {
                     }
                     else {
 
-                        this.handleSpecialTileCollision(o, layer, x, y, colId-1, event);
+                        this.handleSpecialTileCollision(o, layer, x, y, 
+                            colId-1, camera, event);
                     }
                 }
             }

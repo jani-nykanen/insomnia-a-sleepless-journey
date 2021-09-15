@@ -1,6 +1,6 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
-import { CollisionObject } from "./gameobject.js";
+import { boxOverlay, CollisionObject } from "./gameobject.js";
 import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
 
@@ -25,6 +25,8 @@ export class Projectile extends CollisionObject {
         this.collisionBox = new Vector2(2, 2);
 
         this.friction = new Vector2(0.1, 0.1);
+
+        this.ignoreFenceCollisions = true;
     }
 
 
@@ -99,6 +101,23 @@ export class Projectile extends CollisionObject {
     protected verticalCollisionEvent(dir : number, event : CoreEvent) {
 
         this.killSelf(event);
+    }
+
+
+    public breakCollision(x : number, y : number, w : number, h : number, 
+        level : number, event : CoreEvent) : boolean {
+
+        if (!this.exist || this.dying) return false;
+
+        if (level == 0)
+            return false;
+
+        if (boxOverlay(this.pos, this.center, new Vector2(8, 8), x, y, w, h)) {
+
+            this.killSelf(event);
+            return true;
+        }
+        return false;
     }
 
 
