@@ -47,11 +47,7 @@ export class Player extends CollisionObject {
     private downAttackWaitTimer : number;
 
     private invulnerabilityTimer : number;
-    private spawnPos : Vector2
-    private spawnPosSet : boolean;
-    private initialSpawnPosSet : boolean;
-    private spawning : boolean;
-    private spawnClimbing : boolean;
+    private knockbackTimer : number;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -99,11 +95,7 @@ export class Player extends CollisionObject {
         this.downAttacking = false;
 
         this.invulnerabilityTimer = 0;
-        this.spawnPos = this.pos.clone();
-        this.spawnPosSet = true;
-        this.initialSpawnPosSet = true;
-        this.spawning = false;
-        this.spawnClimbing = false;
+        this.knockbackTimer = 0;
 
         this.projectileCb = projectileCb;
     }
@@ -492,50 +484,24 @@ export class Player extends CollisionObject {
     }
 
 
-    private spawn(event : CoreEvent) {
-
-        const INV_TIME = 60;
-        const SPAWN_ANIM_SPEED = 5;
-
-        this.spr.animate(7, 0, 5, SPAWN_ANIM_SPEED, event.step);
-        if (this.spr.getColumn() == 5) {
-
-            this.spr.setFrame(0, 0);
-            this.spawning = false;
-
-            this.invulnerabilityTimer = INV_TIME;
-
-            if (this.climbing) {
-
-                this.spr.setFrame(3, 2);
-            }
-        }
-    }
-
-
     protected preMovementEvent(event : CoreEvent) {
 
-        if (this.spawning) {
+        const INV_TIME = 60;
 
-            this.spawn(event);
-            return;
-        }
+        this.updateDust(event);
 
-        if (!this.initialSpawnPosSet) {
+        if (this.knockbackTimer > 0) {
 
-            this.spawnPos = this.pos.clone();
-            this.initialSpawnPosSet = true;
+            if ((this.knockbackTimer -= event.step) <= 0) {
 
-            if (this.spawnClimbing) {
-
-                this.spawnPosSet = true;
+                this.invulnerabilityTimer = INV_TIME;
             }
+            return;
         }
 
         this.control(event);
         this.animate(event);
         this.updateJump(event);
-        this.updateDust(event);
 
         this.canJump = false;
         this.touchLadder = false;
@@ -547,7 +513,7 @@ export class Player extends CollisionObject {
         }
     }
 
-
+/*
     private resetProperties() {
 
         this.stopMovement();
@@ -562,27 +528,7 @@ export class Player extends CollisionObject {
         this.touchLadder = false;
         this.running = false;
     }
-
-
-    protected die(event : CoreEvent) : boolean {
-
-        const DEATH_ANIM_SPEED = 5;
-
-        this.spr.animate(6, 0, 4, DEATH_ANIM_SPEED, event.step);
-        if (this.spr.getColumn() == 4) {
-
-            this.spr.setFrame(0, 7);
-            this.dying = false;
-            this.spawning = true;
-
-            this.pos = this.spawnPos.clone();
-            
-            this.resetProperties();
-        }
-
-        return false;
-    }
-
+*/
 
     public cameraMovement(camera : Camera, event : CoreEvent) {
 
@@ -598,13 +544,19 @@ export class Player extends CollisionObject {
     }
 
 
-    public cameraEvent(camera : Camera) {
+    public cameraEvent(camera : Camera, event : CoreEvent) {
 
         const CAMERA_MOVE_SPEED = 1.0/20.0;
         const HIT_RANGE_X = 4;
         const HIT_RANGE_Y = 4; 
 
         let p = camera.getPosition();
+
+        if (this.knockbackTimer > 0) {
+
+            this.wallCollision(p.x, p.y, camera.height, -1, event, true);
+            this.wallCollision(p.x+160, p.y, camera.height, 1, event, true);
+        }
 
         let x1 = p.x;
         let y1 = p.y;
@@ -618,7 +570,7 @@ export class Player extends CollisionObject {
             dirx = -1;
         else if (this.pos.x + HIT_RANGE_X > x2)
             dirx = 1;
-        else if (this.pos.y - HIT_RANGE_Y < y1) 
+        else if (this.pos.y - HIT_RANGE_Y < y1 && !this.downAttacking) 
             diry = -1;
         else if (this.pos.y + HIT_RANGE_Y > y2)
             diry = 1;
@@ -626,11 +578,6 @@ export class Player extends CollisionObject {
         if (dirx != 0 || diry != 0) {
 
             camera.move(dirx, diry, CAMERA_MOVE_SPEED);
-
-            this.spawnPosSet = false;
-            this.initialSpawnPosSet = false;
-
-            this.spawnClimbing = this.climbing;
         }
     }
 
@@ -666,12 +613,6 @@ export class Player extends CollisionObject {
         const HIT_MAGNITUDE = 2;
 
         if (dir == 1) {
-
-            if (!this.spawnPosSet) {
-
-                this.spawnPos = this.pos.clone();
-                this.spawnPosSet = true;
-            }
 
             this.canJump = true;
             this.jumpMargin = JUMP_MARGIN;
@@ -726,17 +667,27 @@ export class Player extends CollisionObject {
     }
     
 
-    public hurtCollision(x : number, y : number, w : number, h : number, event : CoreEvent) : boolean {
+    public hurtCollision(x : number, y : number, 
+        w : number, h : number, dir : number, 
+        event : CoreEvent) : boolean {
 
-        if (this.spawning || this.dying ||
-            this.invulnerabilityTimer > 0) return false;
+        const KNOCKBACK_TIME = 30;
+        const KNOCKBACK_SPEED = 2.0;
+
+        if (this.dying ||
+            this.invulnerabilityTimer > 0 ||
+            this.knockbackTimer > 0) return false;
 
         if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
 
-            this.dying = true;
-            this.spr.setFrame(0, 6);
+            this.spr.setFrame(4, 3);
+            this.knockbackTimer = KNOCKBACK_TIME;
 
-            this.spawnPosSet = true;
+            if (dir == 0) 
+                dir = -this.faceDir;
+            
+            this.target.x = 0;
+            this.speed.x = KNOCKBACK_SPEED * dir;
             
             return true;
         }

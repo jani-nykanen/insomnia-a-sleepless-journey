@@ -265,6 +265,7 @@ export class Stage {
         const HURT_Y = [12, 4, 0, 4];
         const HURT_WIDTH = [8, 4, 8, 4];
         const HURT_HEIGHT = [4, 8, 6, 8];
+        const HURT_DIR = [0, 1, 0, -1];
 
         const LADDER_WIDTH = 8;
         const BREAK_COL_Y_OFF = 4;
@@ -317,7 +318,9 @@ export class Stage {
                 x*16 + HURT_X[colId-17],
                 y*16 + HURT_Y[colId-17],
                 HURT_WIDTH[colId-17],
-                HURT_HEIGHT[colId-17], event);
+                HURT_HEIGHT[colId-17], 
+                HURT_DIR[colId-17],
+                event);
 
             break;
 
