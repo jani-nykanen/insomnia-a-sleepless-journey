@@ -22,6 +22,7 @@ export class Player extends CollisionObject {
     private canJump : boolean;
     private jumpSpeed : number;
     private doubleJump : boolean;
+    private jumpReleased : boolean;
 
     private faceDir : number;
     private flip : Flip;
@@ -49,6 +50,8 @@ export class Player extends CollisionObject {
     private invulnerabilityTimer : number;
     private knockbackTimer : number;
 
+    private flapping : boolean;
+
     private projectileCb : SpawnProjectileCallback;
 
 
@@ -70,6 +73,7 @@ export class Player extends CollisionObject {
         this.canJump = false;
         this.jumpSpeed = 0.0;
         this.doubleJump = false;
+        this.jumpReleased = false;
 
         this.faceDir = 1;
         this.flip = Flip.None;
@@ -96,6 +100,8 @@ export class Player extends CollisionObject {
 
         this.invulnerabilityTimer = 0;
         this.knockbackTimer = 0;
+
+        this.flapping = false;
 
         this.projectileCb = projectileCb;
     }
@@ -246,14 +252,8 @@ export class Player extends CollisionObject {
     }
 
 
-    private control(event : CoreEvent) {
+    private jump(event : CoreEvent) {
 
-        const BASE_FRICTION_Y = 0.15;
-        const BASE_GRAVITY = 3.0;
-        const MOVE_SPEED = 0.75;
-        const RUN_MOD = 1.66667;
-
-        const EPS = 0.01;
         const DOWN_EPS = 0.25;
 
         const JUMP_TIME = 12;
@@ -261,39 +261,13 @@ export class Player extends CollisionObject {
         const BASE_JUMP_MOD = 0.25;
         const DOWN_ATTACK_JUMP = -1.5;
         const DOWN_ATTACK_GRAVITY = 6.0;
-        const DOWN_ATTACK_FRICTION = 0.30;
 
-        let stick = event.input.getStick();
+        const FLAP_GRAVITY = 0.5;
 
-        this.friction.y = this.downAttacking ? DOWN_ATTACK_FRICTION : BASE_FRICTION_Y;
-
-        if (this.waitDownAttack(event) ||
-            this.throwRock(event) ||
-            this.slide(event)) {
-
-            return;
-        }
-
-        this.startClimbing(event);
-        if (this.climbing) {
-
-            this.climb(event);
-            return;
-        }
-
-        this.target.x = stick.x * MOVE_SPEED;
-        this.target.y = BASE_GRAVITY;
-
-        if (Math.abs(stick.x) > EPS) {
-
-            this.flip = stick.x > 0 ? Flip.None : Flip.Horizontal;
-            this.faceDir = stick.x > 0 ? 1 : -1;
-        }
-    
         let s = event.input.getAction("fire2");
 
         if (!this.canJump && 
-            stick.y > DOWN_EPS &&
+            event.input.getStick().y > DOWN_EPS &&
             s == State.Pressed) {
 
             this.downAttacking = true;
@@ -325,12 +299,70 @@ export class Player extends CollisionObject {
                 this.doubleJump = true;
             }
             this.canJump = false;
+            this.jumpReleased = false;
         }
         else if (this.jumpTimer > 0 && 
             (s & State.DownOrPressed) == 0) {
 
             this.jumpTimer = 0;
         }
+
+        if (!this.flapping &&
+            !this.jumpReleased && 
+            (s & State.DownOrPressed) == 0) {
+            
+            this.jumpReleased = true;
+        }
+
+        this.flapping = this.jumpReleased &&
+            this.jumpTimer <= 0 &&
+            this.doubleJump && 
+            (s & State.DownOrPressed) == 1;
+        if (this.flapping) {
+
+            this.speed.y = FLAP_GRAVITY;
+            this.target.y = this.speed.y;
+        }
+    }
+
+
+    private control(event : CoreEvent) {
+
+        const BASE_FRICTION_Y = 0.15;
+        const BASE_GRAVITY = 3.0;
+        const MOVE_SPEED = 0.75;
+        const RUN_MOD = 1.66667;
+        const EPS = 0.01;
+        const DOWN_ATTACK_FRICTION = 0.30;
+
+        let stick = event.input.getStick();
+
+        this.friction.y = this.downAttacking ? DOWN_ATTACK_FRICTION : BASE_FRICTION_Y;
+
+        if (this.waitDownAttack(event) ||
+            this.throwRock(event) ||
+            this.slide(event)) {
+
+            return;
+        }
+
+        this.startClimbing(event);
+        if (this.climbing) {
+
+            this.climb(event);
+            return;
+        }
+
+        this.target.x = stick.x * MOVE_SPEED;
+        this.target.y = BASE_GRAVITY;
+
+        if (Math.abs(stick.x) > EPS) {
+
+            this.flip = stick.x > 0 ? Flip.None : Flip.Horizontal;
+            this.faceDir = stick.x > 0 ? 1 : -1;
+        }
+
+        this.jump(event);
 
         this.running = Math.abs(this.target.x) > EPS &&
             ((event.input.getAction("fire1") & State.DownOrPressed) == 1);
@@ -351,6 +383,7 @@ export class Player extends CollisionObject {
         const SPIN_EPS = 1.0;
         const CLIMB_SPEED = 10;
         const DOWN_ATTACK_SPEED = 4;
+        const FLAP_SPEED = 3;
 
         let animSpeed : number;
         let frame : number;
@@ -415,7 +448,11 @@ export class Player extends CollisionObject {
         }
         else {
 
-            if (this.doubleJump && this.speed.y < SPIN_EPS) {
+            if (this.flapping) {
+
+                this.spr.animate(6, 0, 3, FLAP_SPEED, event.step);
+            }
+            else if (this.doubleJump && this.speed.y < SPIN_EPS) {
 
                 this.spr.animate(4, 0, 3, DOUBLE_JUMP_SPEED, event.step);
             }
@@ -710,6 +747,10 @@ export class Player extends CollisionObject {
     public makeJump(speed : number) {
 
         this.speed.y = speed;
+
+        this.flapping = false;
+        this.jumpReleased = false;
+        this.doubleJump = false;
     }
 
 
