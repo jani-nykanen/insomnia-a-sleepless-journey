@@ -372,6 +372,13 @@ export abstract class CollisionObject extends GameObject {
     }
 
 
+    public windCollision(x : number, y : number, w : number, h : number, 
+        event : CoreEvent) : boolean {
+
+        return false;
+    }
+
+
     public getCollisionBox = () : Vector2 => this.collisionBox.clone();
     public doesIgnoreFenceCollisions = () : boolean => this.ignoreFenceCollisions;
 }

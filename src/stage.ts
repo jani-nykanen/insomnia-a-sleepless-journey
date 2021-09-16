@@ -130,6 +130,23 @@ export class Stage {
     }
 
 
+
+    private drawWind(canvas : Canvas, dx : number, dy : number, h : number) {
+
+        let bmp = canvas.assets.getBitmap("propeller");
+
+        let y : number;
+        for (let j = 0; j < h; ++ j) {
+
+            y = dy - j*16;
+
+            canvas.drawSpriteFrame(this.sprFence,bmp,
+                this.sprFence.getColumn(), 1,
+                dx, y);
+        }
+    }
+
+
     private drawLayer(canvas : Canvas, index : number, bmp : Bitmap,
         sx = 0, sy = 0, ex = this.width, ey = this.height) {
 
@@ -147,6 +164,17 @@ export class Stage {
                 -- tid;
 
                 switch (tid) {
+
+                // Propeller
+                case 15:
+
+                    this.drawWind(canvas, x*16, y*16-8, 3);
+
+                    canvas.drawSprite(this.sprFence,
+                        canvas.assets.getBitmap("propeller"),
+                        x*16, y*16);
+                        
+                    break;
 
                 // Fence
                 case 94:
@@ -341,6 +369,10 @@ export class Stage {
         const LADDER_WIDTH = 8;
         const BREAK_COL_WIDTH = 14;
 
+        const WIND_WIDTH = 16;
+        const WIND_HEIGHT = 48;
+        const WIND_OFFSET = 8;
+
         let ladderOff = (16 - LADDER_WIDTH) / 2;
 
         let dx : number;
@@ -409,6 +441,13 @@ export class Stage {
             o.hurtCollision(dx, dy, w, h, HURT_DIR[colId - HURT_START], event);
             this.boxCollision(o, dx, dy, w, h, event);
 
+            break;
+
+        // Propeller
+        case 24:
+
+            o.windCollision(x*16, y*16+WIND_OFFSET - WIND_HEIGHT,
+                WIND_WIDTH, WIND_HEIGHT, event);
             break;
 
         default:

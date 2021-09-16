@@ -10,6 +10,7 @@
         {"name": "particles", "path": "particles.png"},
         {"name": "switch", "path": "switch.png"},
         {"name": "fence", "path": "fence.png"},
+        {"name": "propeller", "path": "propeller.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

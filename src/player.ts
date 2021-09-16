@@ -744,6 +744,22 @@ export class Player extends CollisionObject {
     }
 
 
+    public windCollision(x : number, y : number, w : number, h : number, 
+        event : CoreEvent) : boolean {
+
+        const SPEED_DOWN = -0.5;
+        const MIN_SPEED = -3.0; 
+
+        if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
+
+            this.jumpReleased = false;
+            this.speed.y = Math.max(MIN_SPEED, this.speed.y + SPEED_DOWN * event.step);
+            return true;
+        }
+        return false;
+    }
+
+
     public makeJump(speed : number) {
 
         this.speed.y = speed;
