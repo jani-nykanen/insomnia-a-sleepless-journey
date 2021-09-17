@@ -241,20 +241,26 @@ export class Stage {
 
                 // Player
                 case 1:
-                    objects.createPlayer(x*16, y*16);
+                    objects.createPlayer(x, y);
                     break;
 
                 // Switch
                 case 2:
-                    objects.addSwitch(x*16, y*16);
+                    objects.addSwitch(x, y);
                     break;
 
                 // Coin
                 case 3:
-                    objects.addCoin(x*16, y*16);
+                    objects.addCoin(x, y);
                     break;
 
                 default:
+
+                    if (tid >= 16) {
+
+                        objects.addEnemy(x, y, tid-16);
+                    }
+
                     break;
                 }
             }

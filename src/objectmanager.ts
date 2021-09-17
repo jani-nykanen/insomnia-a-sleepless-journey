@@ -2,6 +2,7 @@ import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { Coin } from "./coin.js";
 import { CoreEvent } from "./core.js";
+import { Enemy, getEnemyType } from "./enemy.js";
 import { nextObject } from "./gameobject.js";
 import { WeakInteractionTarget } from "./interactiontarget.js";
 import { Player } from "./player.js";
@@ -24,6 +25,7 @@ export class ObjectManager {
     private player : Player;
     private switches : Array<Switch>;
     private weakInteractionTargets : Array<WeakInteractionTarget>;
+    private enemies : Array<Enemy>;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -44,6 +46,7 @@ export class ObjectManager {
 
         this.switches = new Array<Switch> ();
         this.weakInteractionTargets = new Array<Coin> ();
+        this.enemies = new Array<Enemy> ();
 
         stage.parseObjects(this);
 
@@ -53,19 +56,25 @@ export class ObjectManager {
 
     public createPlayer(x : number, y : number) {
 
-        this.player = new Player(x+8, y+8, this.projectileCb);
+        this.player = new Player(x*16+8, y*16+8, this.projectileCb);
     }
 
 
     public addSwitch(x : number, y : number) {
 
-        this.switches.push(new Switch(x+8, y+16));
+        this.switches.push(new Switch(x*16+8, y*16+16));
     }
 
 
     public addCoin(x : number, y : number) {
 
-        this.weakInteractionTargets.push(new Coin(x+8, y+8));
+        this.weakInteractionTargets.push(new Coin(x*16+8, y*16+8));
+    }
+
+
+    public addEnemy(x : number, y : number, id : number) {
+
+        this.enemies.push(new (getEnemyType(id)).prototype.constructor(x*16+8, y*16+8));
     }
 
 
@@ -79,6 +88,11 @@ export class ObjectManager {
         for (let c of this.weakInteractionTargets) {
 
             c.cameraCheck(camera);
+        }
+
+        for (let e of this.enemies) {
+
+            e.cameraCheck(camera);
         }
     }
 
@@ -134,6 +148,13 @@ export class ObjectManager {
             c.update(event);
             c.playerCollision(this.player, event);
         }
+
+        for (let e of this.enemies) {
+
+            e.cameraCheck(camera);
+            e.update(event);
+            e.playerCollision(this.player, event);
+        }
     }
 
 
@@ -147,6 +168,11 @@ export class ObjectManager {
         for (let c of this.weakInteractionTargets) {
 
             c.draw(canvas);
+        }
+
+        for (let e of this.enemies) {
+
+            e.draw(canvas);
         }
 
         this.player.preDraw(canvas);

@@ -227,7 +227,7 @@ export abstract class GameObject extends WeakGameObject {
     }
 
 
-    public updateLogic(event : CoreEvent) {
+    protected updateLogic(event : CoreEvent) {
 
         this.preMovementEvent(event);
         this.updateMovement(event);
