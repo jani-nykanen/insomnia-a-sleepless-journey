@@ -1,7 +1,9 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
+import { Coin } from "./coin.js";
 import { CoreEvent } from "./core.js";
 import { nextObject } from "./gameobject.js";
+import { WeakInteractionTarget } from "./interactiontarget.js";
 import { Player } from "./player.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
@@ -21,6 +23,7 @@ export class ObjectManager {
     private projectiles : Array<Projectile>;
     private player : Player;
     private switches : Array<Switch>;
+    private weakInteractionTargets : Array<WeakInteractionTarget>;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -40,6 +43,7 @@ export class ObjectManager {
         };
 
         this.switches = new Array<Switch> ();
+        this.weakInteractionTargets = new Array<Coin> ();
 
         stage.parseObjects(this);
 
@@ -59,11 +63,22 @@ export class ObjectManager {
     }
 
 
+    public addCoin(x : number, y : number) {
+
+        this.weakInteractionTargets.push(new Coin(x+8, y+8));
+    }
+
+
     public cameraCheck(camera : Camera) {
 
         for (let s of this.switches) {
 
             s.cameraCheck(camera);
+        }
+
+        for (let c of this.weakInteractionTargets) {
+
+            c.cameraCheck(camera);
         }
     }
 
@@ -112,6 +127,13 @@ export class ObjectManager {
                 this.resetSwitches(s);
             }
         }
+
+        for (let c of this.weakInteractionTargets) {
+
+            c.cameraCheck(camera);
+            c.update(event);
+            c.playerCollision(this.player, event);
+        }
     }
 
 
@@ -120,6 +142,11 @@ export class ObjectManager {
         for (let s of this.switches) {
 
             s.draw(canvas);
+        }
+
+        for (let c of this.weakInteractionTargets) {
+
+            c.draw(canvas);
         }
 
         this.player.preDraw(canvas);

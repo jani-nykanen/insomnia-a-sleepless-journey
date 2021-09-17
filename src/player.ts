@@ -752,6 +752,9 @@ export class Player extends CollisionObject {
 
         if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
 
+            this.flapping = false;
+            this.downAttacking = false;
+            this.downAttackWaitTimer = 0;
             this.jumpReleased = false;
             this.speed.y = Math.max(MIN_SPEED, this.speed.y + SPEED_DOWN * event.step);
             return true;

@@ -11,6 +11,7 @@
         {"name": "switch", "path": "switch.png"},
         {"name": "fence", "path": "fence.png"},
         {"name": "propeller", "path": "propeller.png"},
+        {"name": "coin", "path": "coin.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

@@ -249,6 +249,11 @@ export class Stage {
                     objects.addSwitch(x*16, y*16);
                     break;
 
+                // Coin
+                case 3:
+                    objects.addCoin(x*16, y*16);
+                    break;
+
                 default:
                     break;
                 }

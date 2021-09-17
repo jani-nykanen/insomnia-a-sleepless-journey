@@ -28,6 +28,7 @@ export class Switch extends WeakGameObject {
 
     public updateLogic(event : CoreEvent) {
 
+        // ...
     }
 
 
