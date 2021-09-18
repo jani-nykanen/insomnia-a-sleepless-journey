@@ -34,6 +34,7 @@ export class Switch extends WeakGameObject {
 
     public playerCollision(player : Player, stage : Stage, event : CoreEvent) : boolean {
 
+        const PLAYER_JUMP = -3.0;
         const JUMP_EPS = 0.1;
 
         if (this.down || !this.inCamera) return false;
@@ -46,7 +47,7 @@ export class Switch extends WeakGameObject {
             this.down = true;
             this.spr.setFrame(1, 0);
 
-            player.makeJump(-3.0);
+            player.makeJump(PLAYER_JUMP);
 
             stage.toggleSpecialBlocks();
 

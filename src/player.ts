@@ -765,6 +765,8 @@ export class Player extends CollisionObject {
 
     public makeJump(speed : number) {
 
+        if (this.downAttacking) return;
+
         this.speed.y = speed;
 
         this.flapping = false;

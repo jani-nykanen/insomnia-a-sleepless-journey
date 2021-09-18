@@ -53,16 +53,6 @@ export class Projectile extends CollisionObject {
     }
 
 
-    private killSelf(event : CoreEvent) {
-
-        this.dying = true;
-
-        this.spr.setFrame(0, 1);
-
-        this.stopMovement();
-    }
-
-
     protected die(event : CoreEvent) : boolean {
 
         const DIE_SPEED = 4;
@@ -70,6 +60,16 @@ export class Projectile extends CollisionObject {
         this.spr.animate(1, 0, 4, DIE_SPEED, event.step);
 
         return this.spr.getColumn() == 4;
+    }
+
+
+    public destroy(event : CoreEvent) {
+
+        this.dying = true;
+
+        this.spr.setFrame(0, 1);
+
+        this.stopMovement();
     }
 
 
@@ -94,13 +94,13 @@ export class Projectile extends CollisionObject {
 
     protected wallCollisionEvent(dir : number, event : CoreEvent) {
         
-        this.killSelf(event);
+        this.destroy(event);
     }
 
 
     protected verticalCollisionEvent(dir : number, event : CoreEvent) {
 
-        this.killSelf(event);
+        this.destroy(event);
     }
 
 
@@ -114,7 +114,7 @@ export class Projectile extends CollisionObject {
 
         if (boxOverlay(this.pos, this.center, new Vector2(8, 8), x, y, w, h)) {
 
-            this.killSelf(event);
+            this.destroy(event);
             return true;
         }
         return false;

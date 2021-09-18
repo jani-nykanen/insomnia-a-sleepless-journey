@@ -21,6 +21,13 @@ export class Coin extends WeakInteractionTarget {
     }
 
 
+    protected outsideCameraEvent() {
+
+        if (this.dying)
+            this.exist = false;
+    }
+
+
     protected die(event : CoreEvent) : boolean {
 
         const DEATH_SPEED = 5;
@@ -33,7 +40,7 @@ export class Coin extends WeakInteractionTarget {
 
     public updateLogic(event : CoreEvent) {
 
-        const ANIM_SPEED = 8;
+        const ANIM_SPEED = 7;
 
         this.spr.animate(0, 0, 3, ANIM_SPEED, event.step);
     }
