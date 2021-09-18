@@ -469,4 +469,7 @@ export class Canvas {
         this.shakeTimer = time;
         this.shakeMagnitude = magnitude;
     }
+
+
+    public isShaking = () : boolean => this.shakeTimer > 0;
 }

@@ -14,25 +14,52 @@ const DEATH_TIME = 30;
 export class Enemy extends CollisionObject {
 
     private deathTimer : number;
+    private starSprite : Sprite;
+
+    protected canJump : boolean;
+
+    protected canBeKnockedDown : boolean;
+    protected knockDownYOffset : number;
+    private knockDownTimer : number;
+    private previousShakeState : boolean;
 
     protected flip : Flip;
+
 
     protected readonly id : number;
 
 
-    constructor(x : number, y : number, id : number) {
+    constructor(x : number, y : number, id : number, baseGravity = false) {
+
+        const BASE_GRAVITY = 2.0;
 
         super(x, y, true);
 
         this.id = id;
 
         this.spr = new Sprite(16, 16);
-        this.spr.setFrame(0, this.id+1);
+        this.spr.setFrame(0, this.id+2);
+
+        this.starSprite = new Sprite(16, 16);
 
         this.hitbox = new Vector2(8, 8);
         this.collisionBox = new Vector2(8, 8);
 
         this.flip = Flip.None;
+
+        this.canBeKnockedDown = true;
+        this.knockDownTimer = 0;
+
+        this.friction = new Vector2(0.1, 0.1);
+        if (baseGravity) {
+
+            this.target.y = BASE_GRAVITY;
+        }   
+
+        this.canJump = false;
+    
+        this.knockDownYOffset = 0;
+        this.previousShakeState = false;
     }
 
 
@@ -45,9 +72,15 @@ export class Enemy extends CollisionObject {
     
     protected die(event : CoreEvent) : boolean {
 
-        const ANIM_SPEED = 3;
+        const ANIM_SPEED = 3;   
+        const PUFF_SPEED = 4;
 
-        this.spr.animate(0, 0, 3, ANIM_SPEED, event.step);
+        this.flip = Flip.None;
+
+        if (this.spr.getColumn() < 4)
+            this.spr.animate(0, 0, 4, PUFF_SPEED, event.step);
+
+        this.starSprite.animate(1, 0, 3, ANIM_SPEED, event.step);
 
         return ((this.deathTimer -= event.step) <= 0); 
     }
@@ -56,9 +89,38 @@ export class Enemy extends CollisionObject {
     protected updateAI(event : CoreEvent) { }
 
 
-    protected updateLogic(event : CoreEvent) {
+    protected preMovementEvent(event : CoreEvent) {
+
+        const KNOCKDOWN_TIME = 150;
+        const KNOCKDOWN_JUMP = -2.0;
+
+        if (this.canJump && event.isShaking() &&
+            (this.knockDownTimer <= 0 || !this.previousShakeState)) {
+
+            if (this.canBeKnockedDown) {
+
+                this.knockDownTimer = KNOCKDOWN_TIME;
+                this.speed.y = KNOCKDOWN_JUMP;
+
+                this.spr.setFrame(0, this.spr.getRow());
+            }
+        }
+
+        if (this.knockDownTimer > 0) {
+
+            this.knockDownTimer -= event.step;
+            return;
+        }
 
         this.updateAI(event);
+
+        this.previousShakeState = event.isShaking();
+    }
+
+
+    protected postMovementEvent(event : CoreEvent) {
+
+        this.canJump = false;
     }
 
 
@@ -86,7 +148,7 @@ export class Enemy extends CollisionObject {
             x = px + (Math.cos(angle) * t * DISTANCE);
             y = py + (Math.sin(angle) * t * DISTANCE);
 
-            canvas.drawSprite(this.spr, bmp, 
+            canvas.drawSprite(this.starSprite, bmp, 
                 Math.round(x) - this.spr.width/2, 
                 Math.round(y) - this.spr.height/2, 
                 this.flip);
@@ -96,20 +158,30 @@ export class Enemy extends CollisionObject {
 
     public draw(canvas : Canvas) {
 
-        if (!this.exist || !this.inCamera) return;
+        if (!this.exist || !this.inCamera) 
+            return;
 
         if (this.dying) {
 
             this.drawDeath(canvas);
-            return;
+        
+            if (this.spr.getColumn() == 4) 
+                return;
         }
 
         let px = Math.round(this.pos.x) - this.spr.width/2;
         let py = Math.round(this.pos.y) - this.spr.height/2;
 
+        let flip = this.flip;
+        if (this.knockDownTimer > 0) {
+
+            flip |= Flip.Vertical;
+            py += this.knockDownYOffset;
+        }
+
         let bmp = canvas.assets.getBitmap("enemies");
 
-        canvas.drawSprite(this.spr, bmp, px, py, this.flip);
+        canvas.drawSprite(this.spr, bmp, px, py, flip);
     }
 
 
@@ -120,9 +192,10 @@ export class Enemy extends CollisionObject {
     protected killSelf(event : CoreEvent) {
 
         this.dying = true;
+        this.knockDownTimer = 0;
         this.deathTimer = DEATH_TIME;
 
-        this.spr.setFrame((Math.random() * 4) | 0, 0);
+        this.starSprite.setFrame((Math.random() * 4) | 0, 1);
     }
 
 
@@ -155,7 +228,8 @@ export class Enemy extends CollisionObject {
             return true;
         }
 
-        this.playerEvent(player, event);
+        if (this.knockDownTimer <= 0)
+            this.playerEvent(player, event);
 
         return player.hurtCollision(
             this.pos.x - this.hitbox.x/2,
@@ -181,6 +255,15 @@ export class Enemy extends CollisionObject {
 
         return false;
     }
+
+
+    protected verticalCollisionEvent(dir : number, event : CoreEvent) {
+
+        if (dir == 1) {
+
+            this.canJump = true;
+        }
+    }
 }
 
 
@@ -194,12 +277,14 @@ export class Slime extends Enemy {
 
     constructor(x : number, y : number) {
 
-        super(x, y+1, 0);
+        super(x, y, 0, true);
 
-        this.spr.setFrame((Math.random() * 4) | 0, this.id+1);
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
 
-        this.center = new Vector2(0, 2);
-        this.hitbox = new Vector2(8, 6);
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(8, 8);
+
+        this.knockDownYOffset = 5;
     }
 
 
@@ -207,7 +292,8 @@ export class Slime extends Enemy {
 
         const ANIM_SPEED = 8;
 
-        this.spr.animate(this.id+1, 0, 3, ANIM_SPEED, event.step);
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, ANIM_SPEED, event.step);
     }
 
 
@@ -215,6 +301,7 @@ export class Slime extends Enemy {
 
         this.flip = player.getPos().x < this.pos.x ? Flip.None : Flip.Horizontal;
     }
+
 }
 
 

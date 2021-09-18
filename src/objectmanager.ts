@@ -154,9 +154,10 @@ export class ObjectManager {
             e.cameraCheck(camera);
             e.update(event);
             e.playerCollision(this.player, event);
+            stage.objectCollisions(e, camera, event);
 
             if (e.doesExist() && !e.isDying() && e.isInCamera()) {
-
+                
                 for (let p of this.projectiles) {
 
                     e.projectileCollision(p, event);

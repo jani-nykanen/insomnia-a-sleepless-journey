@@ -190,6 +190,7 @@ export class Player extends CollisionObject {
             this.spr.setFrame(0, 3);
 
             this.stopMovement();
+            this.jumpTimer = 0;
 
             this.projectileCb(
                 this.pos.x + this.faceDir*6, this.pos.y-2,

@@ -48,6 +48,7 @@ export class CoreEvent {
 
     public shake = (time : number, magnitude : number) : void =>
         this.canvas.shake(time, magnitude);
+    public isShaking = () : boolean => this.canvas.isShaking();
 }
 
 
