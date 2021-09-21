@@ -9,15 +9,19 @@ import { Vector2 } from "./vector.js";
 export class Coin extends WeakInteractionTarget {
 
 
+    private waveTimer : number;
+
+
     constructor(x : number, y : number) {
 
         super(x, y, true);
 
         this.spr = new Sprite(16, 16);
-
-        this.spr.setFrame((Math.random() * 4) | 0, 0);
+        this.spr.setFrame((Math.random() * 8) | 0, 0);
 
         this.hitbox = new Vector2(12, 12);
+
+        this.waveTimer = Math.random() * (Math.PI*2);
     }
 
 
@@ -41,8 +45,11 @@ export class Coin extends WeakInteractionTarget {
     public updateLogic(event : CoreEvent) {
 
         const ANIM_SPEED = 7;
+        const WAVE_SPEED = 0.1;
 
-        this.spr.animate(0, 0, 3, ANIM_SPEED, event.step);
+        this.spr.animate(0, 0, 7, ANIM_SPEED, event.step);
+    
+        this.waveTimer = (this.waveTimer + WAVE_SPEED*event.step) % (Math.PI*2);
     }
 
 
@@ -50,16 +57,22 @@ export class Coin extends WeakInteractionTarget {
 
         this.dying = true;
         this.spr.setFrame(0, 1);
+
+        this.waveTimer = 0;
     }
 
 
     public draw(canvas : Canvas) {
 
+        const AMPLITUDE = 1;
+
         if (!this.exist || !this.inCamera) return;
 
+        let py = this.pos.y + Math.round(Math.sin(this.waveTimer) * AMPLITUDE);
+
         canvas.drawSprite(this.spr, 
-            canvas.assets.getBitmap("coin"),
-            this.pos.x-8, this.pos.y-8);
+            canvas.assets.getBitmap("star"),
+            this.pos.x-8, py-8);
     }
 
 }

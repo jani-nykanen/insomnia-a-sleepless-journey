@@ -13,6 +13,7 @@
         {"name": "propeller", "path": "propeller.png"},
         {"name": "coin", "path": "coin.png"},
         {"name": "enemies", "path": "enemies.png"},
+        {"name": "star", "path": "star.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

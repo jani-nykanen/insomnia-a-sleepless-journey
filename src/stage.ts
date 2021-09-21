@@ -256,9 +256,9 @@ export class Stage {
 
                 default:
 
-                    if (tid >= 16) {
+                    if (tid >= 17) {
 
-                        objects.addEnemy(x, y, tid-16);
+                        objects.addEnemy(x, y, tid-17);
                     }
 
                     break;

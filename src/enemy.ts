@@ -17,6 +17,7 @@ export class Enemy extends CollisionObject {
     private starSprite : Sprite;
 
     protected canJump : boolean;
+    protected oldCanJump : boolean;
 
     protected canBeKnockedDown : boolean;
     protected knockDownYOffset : number;
@@ -24,6 +25,9 @@ export class Enemy extends CollisionObject {
     private previousShakeState : boolean;
 
     protected flip : Flip;
+    protected dir : number;
+
+    protected canBeStomped : boolean;
 
 
     protected readonly id : number;
@@ -57,9 +61,14 @@ export class Enemy extends CollisionObject {
         }   
 
         this.canJump = false;
+        this.oldCanJump = this.canJump;
     
         this.knockDownYOffset = 0;
         this.previousShakeState = false;
+
+        this.canBeStomped = true;
+
+        this.dir = -1 + 2 * (Math.floor(x / 16) % 2); 
     }
 
 
@@ -99,6 +108,9 @@ export class Enemy extends CollisionObject {
 
             if (this.canBeKnockedDown) {
 
+                this.target.x = 0;
+                this.speed.x = 0;
+
                 this.knockDownTimer = KNOCKDOWN_TIME;
                 this.speed.y = KNOCKDOWN_JUMP;
 
@@ -120,6 +132,7 @@ export class Enemy extends CollisionObject {
 
     protected postMovementEvent(event : CoreEvent) {
 
+        this.oldCanJump = this.canJump;
         this.canJump = false;
     }
 
@@ -217,7 +230,8 @@ export class Enemy extends CollisionObject {
         let py = player.getPos().y + hbox.y/2;
         let px = player.getPos().x - hbox.x/2;
 
-        if (player.getSpeed().y > SPEED_EPS &&
+        if ((this.canBeStomped || this.knockDownTimer > 0) &&
+            player.getSpeed().y > SPEED_EPS &&
             px + hbox.x >= this.pos.x - this.hitbox.x/2 - STOMP_EXTRA_RANGE &&
             px <= this.pos.x + this.hitbox.x/2 + STOMP_EXTRA_RANGE &&
             py >= y && py <= y+h) {
@@ -306,6 +320,100 @@ export class Slime extends Enemy {
 
 
 
-const ENEMY_TYPES = [Slime];
+export class SpikeSlime extends Enemy {
+
+
+    constructor(x : number, y : number) {
+
+        super(x, y, 1, true);
+
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(8, 10);
+
+        this.knockDownYOffset = 5;
+
+        this.canBeStomped = false;
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const WAIT_TIME = 60;
+        const ANIM_SPEED = 12;
+
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, 
+            this.spr.getColumn() == 0 ? WAIT_TIME : ANIM_SPEED, 
+            event.step);
+    }
+
+
+    protected playerEvent(player : Player, event : CoreEvent) {
+
+        this.flip = player.getPos().x < this.pos.x ? Flip.None : Flip.Horizontal;
+    }
+
+}
+
+
+export class Turtle extends Enemy {
+
+
+    private baseSpeed : number;
+
+
+    constructor(x : number, y : number) {
+
+        const SPEED = 0.20;
+
+        super(x, y, 2, true);
+
+        this.spr.setFrame(0, this.spr.getRow());
+
+        this.collisionBox.x = 4;
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(10, 8);
+
+        this.knockDownYOffset = 4;
+
+        this.baseSpeed = this.dir * SPEED;
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 6;
+
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, ANIM_SPEED, event.step);
+
+        if (this.oldCanJump && !this.canJump) {
+
+            this.pos.x -= this.speed.x * event.step;
+
+            this.baseSpeed *= -1;
+        }
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+
+        this.flip = this.baseSpeed > 0 ? Flip.Horizontal : Flip.None;
+    }
+
+
+    protected wallCollisionEvent(dir : number, event : CoreEvent) {
+
+        this.dir = -dir;
+        this.baseSpeed = Math.abs(this.baseSpeed) * this.dir;
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+    }
+
+}
+
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
