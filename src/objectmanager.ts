@@ -4,7 +4,7 @@ import { Coin } from "./coin.js";
 import { CoreEvent } from "./core.js";
 import { Enemy, getEnemyType } from "./enemy.js";
 import { nextObject } from "./gameobject.js";
-import { WeakInteractionTarget } from "./interactiontarget.js";
+import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontarget.js";
 import { Player } from "./player.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
@@ -25,6 +25,7 @@ export class ObjectManager {
     private player : Player;
     private switches : Array<Switch>;
     private weakInteractionTargets : Array<WeakInteractionTarget>;
+    private strongInteractionTargets : Array<StrongInteractionTarget>;
     private enemies : Array<Enemy>;
 
     private projectileCb : SpawnProjectileCallback;
@@ -45,7 +46,8 @@ export class ObjectManager {
         };
 
         this.switches = new Array<Switch> ();
-        this.weakInteractionTargets = new Array<Coin> ();
+        this.weakInteractionTargets = new Array<WeakInteractionTarget> ();
+        this.strongInteractionTargets = new Array<StrongInteractionTarget> ();
         this.enemies = new Array<Enemy> ();
 
         stage.parseObjects(this);
@@ -72,6 +74,12 @@ export class ObjectManager {
     }
 
 
+    public addStrongInteractionTarget(x : number, y : number, type : Function, id : number) {
+
+        this.strongInteractionTargets.push(new (type.prototype.constructor)(x*16+8, y*16+8, id));
+    }
+
+
     public addEnemy(x : number, y : number, id : number) {
 
         this.enemies.push(new (getEnemyType(id)).prototype.constructor(x*16+8, y*16+8));
@@ -85,9 +93,14 @@ export class ObjectManager {
             s.cameraCheck(camera);
         }
 
-        for (let c of this.weakInteractionTargets) {
+        for (let w of this.weakInteractionTargets) {
 
-            c.cameraCheck(camera);
+            w.cameraCheck(camera);
+        }
+
+        for (let s of this.strongInteractionTargets) {
+
+            s.cameraCheck(camera);
         }
 
         for (let e of this.enemies) {
@@ -104,6 +117,17 @@ export class ObjectManager {
             if (s === omit) continue;
 
             s.reset();
+        }
+    }
+
+
+    private updateInteractionTargets(arr : Array<WeakInteractionTarget>, camera : Camera, event : CoreEvent) {
+
+        for (let c of arr) {
+
+            c.cameraCheck(camera);
+            c.update(event);
+            c.playerCollision(this.player, event);
         }
     }
 
@@ -142,12 +166,8 @@ export class ObjectManager {
             }
         }
 
-        for (let c of this.weakInteractionTargets) {
-
-            c.cameraCheck(camera);
-            c.update(event);
-            c.playerCollision(this.player, event);
-        }
+        this.updateInteractionTargets(this.weakInteractionTargets, camera, event);
+        this.updateInteractionTargets(this.strongInteractionTargets, camera, event);
 
         for (let e of this.enemies) {
 
@@ -174,9 +194,14 @@ export class ObjectManager {
             s.draw(canvas);
         }
 
-        for (let c of this.weakInteractionTargets) {
+        for (let w of this.weakInteractionTargets) {
 
-            c.draw(canvas);
+            w.draw(canvas);
+        }
+
+        for (let s of this.strongInteractionTargets) {
+
+            s.draw(canvas);
         }
 
         for (let e of this.enemies) {

@@ -52,6 +52,9 @@ export class Player extends CollisionObject {
 
     private flapping : boolean;
 
+    private showActionSymbol : boolean;
+    private sprActionSymbol : Sprite;
+
     private projectileCb : SpawnProjectileCallback;
 
 
@@ -102,6 +105,9 @@ export class Player extends CollisionObject {
         this.knockbackTimer = 0;
 
         this.flapping = false;
+
+        this.showActionSymbol = false;
+        this.sprActionSymbol = new Sprite(16, 16);
 
         this.projectileCb = projectileCb;
     }
@@ -385,10 +391,13 @@ export class Player extends CollisionObject {
         const CLIMB_SPEED = 10;
         const DOWN_ATTACK_SPEED = 4;
         const FLAP_SPEED = 3;
+        const SYMBOL_SPEED = 16;
 
         let animSpeed : number;
         let frame : number;
         let row : number;
+
+        this.sprActionSymbol.animate(0, 0, 1, SYMBOL_SPEED, event.step);
 
         if (this.downAttacking) {
 
@@ -545,6 +554,7 @@ export class Player extends CollisionObject {
         this.canJump = false;
         this.touchLadder = false;
         this.isLadderTop = false;
+        this.showActionSymbol = false;
 
         if (this.invulnerabilityTimer > 0) {
 
@@ -645,6 +655,13 @@ export class Player extends CollisionObject {
         let py = Math.round(this.pos.y - this.spr.height/2);
 
         canvas.drawSprite(this.spr, bmp, px, py, this.flip);
+
+        if (this.showActionSymbol) {
+
+            canvas.drawSprite(this.sprActionSymbol,
+                canvas.assets.getBitmap("symbol"),
+                px, py - 14);
+        }
     }
 
 
@@ -779,5 +796,14 @@ export class Player extends CollisionObject {
     public checkLoop(stage : Stage) {
 
         this.pos.x = negMod(this.pos.x, stage.width*16);
+    }
+
+
+    public touchGround = () : boolean => this.canJump;
+
+
+    public showSymbol() {
+
+        this.showActionSymbol = true;
     }
 }

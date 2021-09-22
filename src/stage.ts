@@ -9,6 +9,7 @@ import { CollisionObject, nextObject } from "./gameobject.js";
 import { Particle } from "./particle.js";
 import { Vector2 } from "./vector.js";
 import { Sprite } from "./sprite.js";
+import { NPC } from "./npc.js";
 
 
 const COLLISION_DOWN = 0b0001;
@@ -226,8 +227,10 @@ export class Stage {
     public parseObjects(objects : ObjectManager) {
 
         const START_INDEX = 256;
+        const NPC_START_INDEX = START_INDEX + 240;
 
         let tid : number;
+        let id = 0;
 
         for (let y = 0; y < this.height; ++ y) {
 
@@ -236,6 +239,9 @@ export class Stage {
                 tid = this.tilemap.getTile(3, x, y) - START_INDEX;
 
                 if (tid <= 0) continue;
+
+                if (y > 0)
+                    id = this.tilemap.getTile(3, x, y-1) - NPC_START_INDEX;
 
                 switch (tid) {
 
@@ -254,9 +260,14 @@ export class Stage {
                     objects.addCoin(x, y);
                     break;
 
+                // NPC:
+                case 4:
+                    objects.addStrongInteractionTarget(x, y, NPC, id);
+                    break;
+
                 default:
 
-                    if (tid >= 17) {
+                    if (tid >= 17 && tid < 17+16) {
 
                         objects.addEnemy(x, y, tid-17);
                     }

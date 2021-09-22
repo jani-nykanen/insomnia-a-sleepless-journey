@@ -413,7 +413,6 @@ export class Turtle extends Enemy {
 }
 
 
-
 const ENEMY_TYPES = [Slime, SpikeSlime, Turtle];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];

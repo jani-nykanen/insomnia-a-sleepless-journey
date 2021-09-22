@@ -14,6 +14,8 @@
         {"name": "coin", "path": "coin.png"},
         {"name": "enemies", "path": "enemies.png"},
         {"name": "star", "path": "star.png"},
+        {"name": "npc", "path": "npc.png"},
+        {"name": "symbol", "path": "symbol.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
@@ -27,6 +29,12 @@
     "tilemaps" : [
         {"name": "collisionMap", "path": "collision_map.tmx"},
         {"name": "base", "path": "base.tmx"}
+    ],
+
+    "documentPath" : "assets/localization/",
+    "documents" : [
+
+        {"name": "localization", "path": "en-us.json"}
     ]
 }
 
