@@ -227,7 +227,7 @@ export class Stage {
     public parseObjects(objects : ObjectManager) {
 
         const START_INDEX = 256;
-        const NPC_START_INDEX = START_INDEX + 240;
+        const NPC_START_INDEX = START_INDEX + 241;
 
         let tid : number;
         let id = 0;
@@ -262,7 +262,7 @@ export class Stage {
 
                 // NPC:
                 case 4:
-                    objects.addStrongInteractionTarget(x, y, NPC, id);
+                    objects.addNPC(x, y, id);
                     break;
 
                 default:

@@ -5,6 +5,8 @@ import { CoreEvent } from "./core.js";
 import { Enemy, getEnemyType } from "./enemy.js";
 import { nextObject } from "./gameobject.js";
 import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontarget.js";
+import { MessageBox } from "./messagebox.js";
+import { NPC } from "./npc.js";
 import { Player } from "./player.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
@@ -28,10 +30,12 @@ export class ObjectManager {
     private strongInteractionTargets : Array<StrongInteractionTarget>;
     private enemies : Array<Enemy>;
 
+    private readonly message : MessageBox;
+
     private projectileCb : SpawnProjectileCallback;
 
 
-    constructor(stage : Stage, camera : Camera) {
+    constructor(stage : Stage, camera : Camera, message : MessageBox) {
         
         this.player = null;
     
@@ -49,6 +53,8 @@ export class ObjectManager {
         this.weakInteractionTargets = new Array<WeakInteractionTarget> ();
         this.strongInteractionTargets = new Array<StrongInteractionTarget> ();
         this.enemies = new Array<Enemy> ();
+
+        this.message = message;
 
         stage.parseObjects(this);
 
@@ -74,9 +80,9 @@ export class ObjectManager {
     }
 
 
-    public addStrongInteractionTarget(x : number, y : number, type : Function, id : number) {
+    public addNPC(x : number, y : number, id : number) {
 
-        this.strongInteractionTargets.push(new (type.prototype.constructor)(x*16+8, y*16+8, id));
+        this.strongInteractionTargets.push(new NPC(x*16+8, y*16+8, id, this.message));
     }
 
 

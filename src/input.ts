@@ -211,4 +211,6 @@ export class InputListener {
             this.stickDelta.x > INPUT_SPECIAL_EPS;
     }
 
+
+    public anyPressed = () : boolean => (this.keyboard.isAnyPressed() || this.gamepad.isAnyButtonPressed());
 }

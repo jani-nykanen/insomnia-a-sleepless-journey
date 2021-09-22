@@ -2,18 +2,19 @@ import { AssetManager } from "./assets.js";
 import { AudioPlayer } from "./audioplayer.js";
 import { Canvas } from "./canvas.js";
 import { InputListener } from "./input.js";
+import { Localization } from "./localization.js";
 import { TransitionEffectManager } from "./transition.js";
 import { RGBA } from "./vector.js";
 
 
 export class CoreEvent {
 
-
     public readonly step : number;
     public readonly input : InputListener;
     public readonly assets : AssetManager;
     public readonly transition : TransitionEffectManager;
     public readonly audio : AudioPlayer;
+    public readonly localization : Localization;
 
     private readonly core : Core;
     private readonly canvas : Canvas;
@@ -31,6 +32,8 @@ export class CoreEvent {
         this.transition = tr;
         this.audio = audio;
         this.canvas = canvas;
+
+        this.localization = new Localization();
     }
 
 
@@ -49,6 +52,12 @@ export class CoreEvent {
     public shake = (time : number, magnitude : number) : void =>
         this.canvas.shake(time, magnitude);
     public isShaking = () : boolean => this.canvas.isShaking();
+
+    
+    public prepareLocalization(name : string) {
+
+        this.localization.initialize(this.assets.getDocument(name));
+    }
 }
 
 
@@ -131,7 +140,7 @@ export class Core {
     }
 
 
-    private loop(ts : number) {
+    private loop(ts : number, onLoad : ((event : CoreEvent) => void)) {
 
         const MAX_REFRESH_COUNT = 5;
         const FRAME_WAIT = 16.66667 * this.event.step;
@@ -145,6 +154,8 @@ export class Core {
 
             if (!this.initialized && this.assets.hasLoaded()) {
                 
+                onLoad(this.event);
+
                 this.activeScene = new this.activeSceneType.prototype.constructor(null, this.event);
                 this.initialized = true;
             }
@@ -174,12 +185,13 @@ export class Core {
         }
         this.canvas.applyFilter();
 
-        window.requestAnimationFrame(ts => this.loop(ts));
+        window.requestAnimationFrame(ts => this.loop(ts, onLoad));
     }
 
 
     public run(initialScene : Function, assetPath = <string> null,
-        onStart : ((event : CoreEvent) => void) = () => {}) {
+        onStart : ((event : CoreEvent) => void) = () => {},
+        onLoad : ((event : CoreEvent) => void) = () => {}) {
 
         if (assetPath != null) {
 
@@ -190,7 +202,7 @@ export class Core {
 
         onStart(this.event);
 
-        this.loop(0);
+        this.loop(0, onLoad);
     }
 
 

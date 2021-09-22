@@ -532,6 +532,15 @@ export class Player extends CollisionObject {
     }
 
 
+    protected resetFlags() {
+
+        this.canJump = false;
+        this.touchLadder = false;
+        this.isLadderTop = false;
+        this.showActionSymbol = false;
+    }
+
+
     protected preMovementEvent(event : CoreEvent) {
 
         const INV_TIME = 60;
@@ -544,6 +553,8 @@ export class Player extends CollisionObject {
 
                 this.invulnerabilityTimer = INV_TIME;
             }
+            this.resetFlags();
+            
             return;
         }
 
@@ -551,10 +562,7 @@ export class Player extends CollisionObject {
         this.animate(event);
         this.updateJump(event);
 
-        this.canJump = false;
-        this.touchLadder = false;
-        this.isLadderTop = false;
-        this.showActionSymbol = false;
+        this.resetFlags();
 
         if (this.invulnerabilityTimer > 0) {
 
@@ -645,16 +653,8 @@ export class Player extends CollisionObject {
 
     public draw(canvas : Canvas) {
 
-        if (!this.exist ||
-            (this.invulnerabilityTimer > 0 &&
-            Math.floor(this.invulnerabilityTimer/4) % 2 == 0)) return;
-
-        let bmp = canvas.assets.getBitmap("player");
-
         let px = Math.round(this.pos.x - this.spr.width/2);
         let py = Math.round(this.pos.y - this.spr.height/2);
-
-        canvas.drawSprite(this.spr, bmp, px, py, this.flip);
 
         if (this.showActionSymbol) {
 
@@ -662,6 +662,16 @@ export class Player extends CollisionObject {
                 canvas.assets.getBitmap("symbol"),
                 px, py - 14);
         }
+
+        if (!this.exist ||
+            (this.invulnerabilityTimer > 0 &&
+            Math.floor(this.invulnerabilityTimer/4) % 2 == 0)) 
+            return;
+
+        canvas.drawSprite(this.spr, 
+            canvas.assets.getBitmap("player"), 
+            px, py, this.flip);
+
     }
 
 
@@ -799,7 +809,13 @@ export class Player extends CollisionObject {
     }
 
 
-    public touchGround = () : boolean => this.canJump;
+    public touchGround = () : boolean => this.canJump &&
+        !this.downAttacking &&
+        this.downAttackWaitTimer <= 0 &&
+        !this.throwing &&
+        !this.sliding &&
+        !this.climbing &&
+        this.knockbackTimer <= 0;
 
 
     public showSymbol() {

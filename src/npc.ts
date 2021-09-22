@@ -1,6 +1,7 @@
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
+import { MessageBox } from "./messagebox.js";
 import { Player } from "./player.js";
 import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
@@ -12,8 +13,10 @@ export class NPC extends StrongInteractionTarget {
     private id : number;
     private flip : Flip;
 
+    private readonly message : MessageBox;
 
-    constructor(x : number, y : number, id : number) {
+
+    constructor(x : number, y : number, id : number, message : MessageBox) {
 
         super(x, y, true);
 
@@ -23,6 +26,8 @@ export class NPC extends StrongInteractionTarget {
         this.hitbox = new Vector2(12, 8);
 
         this.id = id;
+
+        this.message = message;
     }
 
 
@@ -37,6 +42,17 @@ export class NPC extends StrongInteractionTarget {
     protected playerEvent(player : Player, event : CoreEvent) {
 
         this.flip = player.getPos().x < this.pos.x ? Flip.Horizontal : Flip.None;
+    }
+
+
+    protected interactionEvent(player : Player, event : CoreEvent) {
+
+        let text = <Array<string>> event.localization.findValue(["npc", String(this.id)]);
+
+        if (text == null) return;
+
+        this.message.addMessages(text);
+        this.message.activate();
     }
 
 

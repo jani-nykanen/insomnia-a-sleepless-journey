@@ -1,6 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
+import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { Stage } from "./stage.js";
 
@@ -12,19 +13,28 @@ export class GameScene implements Scene {
     private stage : Stage;
     private camera : Camera;
     private objects : ObjectManager;
+    private message : MessageBox;
 
 
     constructor(param : any, event : CoreEvent) {
 
+        this.message = new MessageBox();
+
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(event);
-        this.objects = new ObjectManager(this.stage, this.camera);
+        this.objects = new ObjectManager(this.stage, this.camera, this.message);
 
         this.objects.cameraCheck(this.camera);
     }
 
 
     public update(event : CoreEvent) {
+
+        if (this.message.isActive()) {
+
+            this.message.update(event);
+            return;
+        }
 
         if (this.camera.update(event)) {
 
@@ -48,6 +58,9 @@ export class GameScene implements Scene {
 
         this.stage.draw(canvas, this.camera);
         this.objects.draw(canvas);
+
+        canvas.moveTo();
+        this.message.draw(canvas);
     }
 
 
