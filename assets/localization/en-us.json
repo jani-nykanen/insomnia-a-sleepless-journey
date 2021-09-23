@@ -1,13 +1,43 @@
 {
     "npc": [
 
-    [
-        "So you are our\nnew 'immortal\none'.",
-        "I am so sorry.\nNo one should\ndeserve that...\nhonor."
+        [
+            "So you are our\nnew 'immortal\none'.",
+            "I am so sorry.\nNo one should\ndeserve that...\nhonor."
+        ],
+        [
+            "When the world\nends, what will\nhappen to us\nWill we just...\ndie?",
+            "I am not sure\nif I even want\nto know."
+        ]
     ],
-    [
-        "When the world\nends, what will\nhappen to us\nWill we just...\ndie?",
-        "I am not sure\nif I even want\nto know."
-    ]
+
+    "chest": [
+
+        [
+            "You obtain a\npair of\n\"RUNNING BOOTS\"!",
+            "Press Z to run\nfaster."
+        ],
+
+        [
+            "You obtain a\n\"NICE HELMET\"!",
+            "Hold down arrow\nwhile on air\nand press X to\ndive. Hitting\nthe ground causes\na quake.",
+            "You can use this\nskill to break\nblocks and stun\nenemies."
+        ],
+
+        [
+            "You obtain a\n\"ENDLESS BAG\nOF PEBBLES\"!",
+            "Press C to throw\nthem. They\nnever end!"
+        ],
+
+        [
+            "You obtain a\npair of\n\"TINY WINGS\"!",
+            "Press and hold\nX after jumping\nto flap your\narms and mimic\nflying.",
+            "It does not make\nyou fly, though,\njust fall\nmore slowly."
+        ],
+
+        [
+            "You obtain an\n\"ANTI-GRAVITY\nBELT!\"",
+            "Press X after the\nfirst jump to\nperform a double\njump."
+        ]
     ]
 }

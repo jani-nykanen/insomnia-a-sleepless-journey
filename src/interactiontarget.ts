@@ -6,9 +6,14 @@ import { Player } from "./player.js";
 export class WeakInteractionTarget extends WeakGameObject {
 
 
+    protected canInteract : boolean;
+
+
     constructor(x : number, y : number, exist = true) {
 
         super(x, y, exist);
+
+        this.canInteract = true;
     }
 
 
@@ -18,7 +23,7 @@ export class WeakInteractionTarget extends WeakGameObject {
 
     public playerCollision(player : Player, event : CoreEvent) : boolean {
 
-        if (!this.exist || !this.inCamera || this.dying) 
+        if (!this.canInteract || !this.exist || !this.inCamera || this.dying) 
             return false;
 
         this.playerEvent(player, event);

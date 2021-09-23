@@ -55,6 +55,9 @@ export class Player extends CollisionObject {
     private showActionSymbol : boolean;
     private sprActionSymbol : Sprite;
 
+    private holdingItem : boolean;
+    private itemID : number;
+
     private projectileCb : SpawnProjectileCallback;
 
 
@@ -108,6 +111,9 @@ export class Player extends CollisionObject {
 
         this.showActionSymbol = false;
         this.sprActionSymbol = new Sprite(16, 16);
+
+        this.holdingItem = false;
+        this.itemID = 0;
 
         this.projectileCb = projectileCb;
     }
@@ -538,6 +544,7 @@ export class Player extends CollisionObject {
         this.touchLadder = false;
         this.isLadderTop = false;
         this.showActionSymbol = false;
+        this.holdingItem = false;
     }
 
 
@@ -672,6 +679,12 @@ export class Player extends CollisionObject {
             canvas.assets.getBitmap("player"), 
             px, py, this.flip);
 
+        if (this.holdingItem) {
+
+            canvas.drawBitmapRegion(canvas.assets.getBitmap("items"), 
+                this.itemID * 16, 0, 16, 16,
+                px, py - 15);
+        }
     }
 
 
@@ -821,5 +834,17 @@ export class Player extends CollisionObject {
     public showSymbol() {
 
         this.showActionSymbol = true;
+    }
+
+    
+    public setObtainItemPose(itemID : number) {
+
+        this.stopMovement();
+        this.spr.setFrame(4, 4);
+
+        this.showActionSymbol = false;
+        this.holdingItem = true;
+
+        this.itemID = itemID;
     }
 }

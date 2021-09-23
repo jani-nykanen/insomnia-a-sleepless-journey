@@ -1,5 +1,6 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
+import { Chest } from "./chest.js";
 import { Coin } from "./coin.js";
 import { CoreEvent } from "./core.js";
 import { Enemy, getEnemyType } from "./enemy.js";
@@ -83,6 +84,12 @@ export class ObjectManager {
     public addNPC(x : number, y : number, id : number) {
 
         this.strongInteractionTargets.push(new NPC(x*16+8, y*16+8, id, this.message));
+    }
+
+
+    public addChest(x : number, y : number, id : number) {
+
+        this.strongInteractionTargets.push(new Chest(x*16+8, y*16+8, id, this.message));
     }
 
 

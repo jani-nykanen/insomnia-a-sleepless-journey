@@ -16,6 +16,8 @@
         {"name": "star", "path": "star.png"},
         {"name": "npc", "path": "npc.png"},
         {"name": "symbol", "path": "symbol.png"},
+        {"name": "chest", "path": "chest.png"},
+        {"name": "items", "path": "items.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

@@ -18,6 +18,8 @@ export class MessageBox {
 
     private active : boolean;
 
+    private waitTimer : number;
+
 
     constructor() {
 
@@ -31,6 +33,8 @@ export class MessageBox {
         this.ready = false;
 
         this.active = false;
+
+        this.waitTimer = 0;
     }
 
 
@@ -50,7 +54,7 @@ export class MessageBox {
     }
 
 
-    public activate() {
+    public activate(waitTime = 0) {
 
         if (this.queue.length == 0) return;
 
@@ -62,6 +66,8 @@ export class MessageBox {
 
         this.currentMessage = this.queue.shift();
         this.currentSize = this.sizes.shift().clone();
+
+        this.waitTimer = waitTime;
     }
 
 
@@ -76,6 +82,12 @@ export class MessageBox {
         const CHAR_TIME = 4;
 
         if (!this.active) return;
+
+        if (this.waitTimer > 0) {
+
+            this.waitTimer -= event.step;
+            return;
+        }
 
         if (!this.ready) {
 
@@ -135,7 +147,7 @@ export class MessageBox {
             [0, 0, 0]
         ];
 
-        if (!this.active) return;
+        if (!this.active || this.waitTimer > 0) return;
 
         let w = this.currentSize.x * 8;
         let h = this.currentSize.y * 10;

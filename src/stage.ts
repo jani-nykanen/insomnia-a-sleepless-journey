@@ -265,6 +265,11 @@ export class Stage {
                     objects.addNPC(x, y, id);
                     break;
 
+                // Chest
+                case 5:
+                    objects.addChest(x, y, id);
+                    break;
+
                 default:
 
                     if (tid >= 17 && tid < 17+16) {
