@@ -10,6 +10,7 @@ import { Particle } from "./particle.js";
 import { Vector2 } from "./vector.js";
 import { Sprite } from "./sprite.js";
 import { NPC } from "./npc.js";
+import { ProgressManager } from "./progress.js";
 
 
 const COLLISION_DOWN = 0b0001;
@@ -52,8 +53,10 @@ export class Stage {
     public readonly width : number;
     public readonly height : number;
 
+    private readonly progress : ProgressManager;
 
-    constructor(event : CoreEvent) {
+
+    constructor(progress : ProgressManager, event : CoreEvent) {
 
         this.tilemap = event.assets.getTilemap("base");
         this.collisionMap = event.assets.getTilemap("collisionMap")
@@ -66,6 +69,8 @@ export class Stage {
         this.particles = new Array<Particle> ();
 
         this.sprFence = new Sprite(16, 16);
+
+        this.progress = progress;
     }
 
 

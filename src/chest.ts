@@ -46,7 +46,7 @@ export class Chest extends StrongInteractionTarget {
         this.message.addMessages(text);
         this.message.activate(WAIT_TIME);
 
-        player.setObtainItemPose(this.id);
+        player.obtainItem(this.id);
 
         this.opened = true;
         this.canInteract = false;

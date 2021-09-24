@@ -9,6 +9,7 @@ import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontar
 import { MessageBox } from "./messagebox.js";
 import { NPC } from "./npc.js";
 import { Player } from "./player.js";
+import { ProgressManager } from "./progress.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
 import { Switch } from "./switch.js";
@@ -32,13 +33,16 @@ export class ObjectManager {
     private enemies : Array<Enemy>;
 
     private readonly message : MessageBox;
+    private readonly progress : ProgressManager;
 
     private projectileCb : SpawnProjectileCallback;
 
 
-    constructor(stage : Stage, camera : Camera, message : MessageBox) {
+    constructor(stage : Stage, camera : Camera, message : MessageBox, progress : ProgressManager) {
         
         this.player = null;
+
+        this.progress = progress;
     
         this.projectiles = new Array<Projectile> ();
         this.projectileCb = (x : number, y : number, 
@@ -65,7 +69,7 @@ export class ObjectManager {
 
     public createPlayer(x : number, y : number) {
 
-        this.player = new Player(x*16+8, y*16+8, this.projectileCb);
+        this.player = new Player(x*16+8, y*16+8, this.projectileCb, this.progress);
     }
 
 

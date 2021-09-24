@@ -5,6 +5,7 @@ import { Dust } from "./dust.js";
 import { boxOverlay, CollisionObject, nextObject } from "./gameobject.js";
 import { negMod } from "./math.js";
 import { SpawnProjectileCallback } from "./objectmanager.js";
+import { ProgressManager } from "./progress.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
 import { State } from "./types.js";
@@ -60,8 +61,11 @@ export class Player extends CollisionObject {
 
     private projectileCb : SpawnProjectileCallback;
 
+    private readonly progress : ProgressManager;
 
-    constructor(x : number, y : number, projectileCb : SpawnProjectileCallback) {
+
+    constructor(x : number, y : number, projectileCb : SpawnProjectileCallback,
+        progress : ProgressManager) {
 
         super(x, y);
 
@@ -116,6 +120,8 @@ export class Player extends CollisionObject {
         this.itemID = 0;
 
         this.projectileCb = projectileCb;
+
+        this.progress = progress;
     }
 
 
@@ -837,7 +843,7 @@ export class Player extends CollisionObject {
     }
 
     
-    public setObtainItemPose(itemID : number) {
+    public obtainItem(itemID : number) {
 
         this.stopMovement();
         this.spr.setFrame(4, 4);
@@ -846,5 +852,7 @@ export class Player extends CollisionObject {
         this.holdingItem = true;
 
         this.itemID = itemID;
+
+        this.progress.setBooleanProperty("item" + Number(itemID));
     }
 }

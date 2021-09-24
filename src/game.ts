@@ -3,6 +3,7 @@ import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
 import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
+import { ProgressManager } from "./progress.js";
 import { Stage } from "./stage.js";
 
 
@@ -14,15 +15,17 @@ export class GameScene implements Scene {
     private camera : Camera;
     private objects : ObjectManager;
     private message : MessageBox;
+    private progress : ProgressManager;
 
 
     constructor(param : any, event : CoreEvent) {
 
         this.message = new MessageBox();
+        this.progress = new ProgressManager();
 
         this.camera = new Camera(0, 0, 160, 144);
-        this.stage = new Stage(event);
-        this.objects = new ObjectManager(this.stage, this.camera, this.message);
+        this.stage = new Stage(this.progress, event);
+        this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
 
         this.objects.cameraCheck(this.camera);
     }
