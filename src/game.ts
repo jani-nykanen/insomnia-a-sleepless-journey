@@ -33,7 +33,14 @@ export class GameScene implements Scene {
 
     public update(event : CoreEvent) {
 
-        if (event.transition.isActive()) return;
+        if (event.transition.isActive()) {
+
+            if (this.camera.wasForcedToMove()) {
+
+                this.objects.cameraCheck(this.camera);
+            }
+            return;
+        }
 
         if (this.message.isActive()) {
 

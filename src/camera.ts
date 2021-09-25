@@ -16,6 +16,8 @@ export class Camera {
     private speed : number;
     private moving : boolean;
 
+    private forcedToMove : boolean;
+
     public readonly width : number;
     public readonly height : number;
 
@@ -30,12 +32,16 @@ export class Camera {
         this.speed = 1;
         this.moving = false;
 
+        this.forcedToMove = false;
+
         this.width = width;
         this.height = height;
     }
 
 
     public update(event : CoreEvent) : boolean {
+
+        this.forcedToMove = false;
 
         if (!this.moving) return false;
 
@@ -82,6 +88,8 @@ export class Camera {
         
         this.target = this.pos.clone();
         this.renderPos = this.pos.clone();
+
+        this.forcedToMove = true;
     }
 
 
@@ -104,4 +112,7 @@ export class Camera {
         this.target.x = this.pos.x;
         this.renderPos.x = this.pos.x;
     }
+
+
+    public wasForcedToMove = () : boolean => this.forcedToMove;
 }
