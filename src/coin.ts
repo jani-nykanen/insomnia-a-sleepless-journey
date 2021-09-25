@@ -1,3 +1,4 @@
+import { Camera } from "./camera";
 import { Canvas } from "./canvas";
 import { CoreEvent } from "./core.js";
 import { WeakInteractionTarget } from "./interactiontarget.js";
@@ -53,7 +54,7 @@ export class Coin extends WeakInteractionTarget {
     }
 
 
-    protected playerCollisionEvent(player : Player, event : CoreEvent) {
+    protected playerCollisionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
         this.dying = true;
         this.spr.setFrame(0, 1);

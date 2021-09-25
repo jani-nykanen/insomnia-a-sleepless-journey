@@ -33,6 +33,8 @@ export class GameScene implements Scene {
 
     public update(event : CoreEvent) {
 
+        if (event.transition.isActive()) return;
+
         if (this.message.isActive()) {
 
             this.message.update(event);
@@ -54,7 +56,7 @@ export class GameScene implements Scene {
         canvas.moveTo();
         canvas.clear(85, 85, 85);
 
-        this.stage.drawBackground(canvas, this.camera);
+        this.stage.drawBackground(canvas, this.camera, this.objects.isPlayerInside());
 
         this.camera.use(canvas);
         canvas.applyShake();

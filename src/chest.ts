@@ -1,3 +1,4 @@
+import { Camera } from "./camera.js";
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
@@ -33,7 +34,7 @@ export class Chest extends StrongInteractionTarget {
     }
 
 
-    protected interactionEvent(player : Player, event : CoreEvent) {
+    protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
         const WAIT_TIME = 60;
 

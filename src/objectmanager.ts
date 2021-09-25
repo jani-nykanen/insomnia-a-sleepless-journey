@@ -3,6 +3,7 @@ import { Canvas } from "./canvas.js";
 import { Chest } from "./chest.js";
 import { Coin } from "./coin.js";
 import { CoreEvent } from "./core.js";
+import { Door } from "./door.js";
 import { Enemy, getEnemyType } from "./enemy.js";
 import { nextObject } from "./gameobject.js";
 import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontarget.js";
@@ -31,6 +32,7 @@ export class ObjectManager {
     private switches : Array<Switch>;
     private weakInteractionTargets : Array<WeakInteractionTarget>;
     private strongInteractionTargets : Array<StrongInteractionTarget>;
+    private doors : Array<Door>;
     private enemies : Array<Enemy>;
 
     private readonly message : MessageBox;
@@ -58,13 +60,46 @@ export class ObjectManager {
         this.switches = new Array<Switch> ();
         this.weakInteractionTargets = new Array<WeakInteractionTarget> ();
         this.strongInteractionTargets = new Array<StrongInteractionTarget> ();
+        this.doors = new Array<Door> ();
         this.enemies = new Array<Enemy> ();
 
         this.message = message;
 
         stage.parseObjects(this);
 
+        this.findDoorPairs();
+        this.mergeDoorsToGeneralArray();
+
         camera.focusOnObject(this.player);
+    }
+
+
+    private findDoorPairs() {
+
+        for (let d of this.doors) {
+
+            for (let d2 of this.doors) {
+
+                if (d === d2) continue;
+
+                if (d.inside != d2.inside &&
+                    d.id == d2.id) {
+
+                    d.markPair(d2);
+                    d2.markPair(d);
+                }
+            }
+        } 
+    }
+
+
+    private mergeDoorsToGeneralArray() {
+
+        for (let d of this.doors) {
+
+            this.strongInteractionTargets.push(d);
+        }
+        this.doors = null;
     }
 
 
@@ -101,6 +136,12 @@ export class ObjectManager {
     public addLever(x : number, y : number) {
 
         this.strongInteractionTargets.push(new Lever(x*16+8, y*16+8, this.message));
+    }
+
+
+    public addDoor(x : number, y : number, id : number, inside : boolean) {
+        
+        this.doors.push(new Door(x*16+8, y*16+8, id, inside, this.message));
     }
 
 
@@ -151,7 +192,7 @@ export class ObjectManager {
 
             c.cameraCheck(camera);
             c.update(event);
-            c.playerCollision(this.player, event);
+            c.playerCollision(this.player, camera, event);
         }
     }
 
@@ -247,4 +288,7 @@ export class ObjectManager {
 
         this.player.checkLoop(stage);
     }
+
+
+    public isPlayerInside = () : boolean => this.player.isInside();
 }

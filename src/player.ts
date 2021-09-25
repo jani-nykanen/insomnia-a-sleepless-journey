@@ -59,6 +59,8 @@ export class Player extends CollisionObject {
     private holdingItem : boolean;
     private itemID : number;
 
+    private inside : boolean;
+
     private projectileCb : SpawnProjectileCallback;
 
     public readonly progress : ProgressManager;
@@ -118,6 +120,8 @@ export class Player extends CollisionObject {
 
         this.holdingItem = false;
         this.itemID = 0;
+
+        this.inside = false;
 
         this.projectileCb = projectileCb;
 
@@ -868,11 +872,31 @@ export class Player extends CollisionObject {
     }
 
 
-    public setUsePose() {
+    public setUsePose(pos = -1) {
 
         this.stopMovement();
         this.spr.setFrame(3, 3);
 
+        if (pos >= 0) {
+
+            this.pos.x = pos;
+        }
+
         this.showActionSymbol = false;
     }
+
+
+    public teleportTo(pos : Vector2, setPose = true, inside = false) {
+
+        if (setPose) {
+
+            this.spr.setFrame(2, 3);
+        }
+
+        this.inside = inside;
+        this.pos = pos.clone();
+    }
+
+
+    public isInside = () : boolean => this.inside;
 }

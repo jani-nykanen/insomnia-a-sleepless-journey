@@ -1,3 +1,4 @@
+import { Camera } from "./camera.js";
 import { CoreEvent } from "./core.js";
 import { WeakGameObject } from "./gameobject.js";
 import { Player } from "./player.js";
@@ -17,11 +18,11 @@ export class WeakInteractionTarget extends WeakGameObject {
     }
 
 
-    protected playerCollisionEvent(player : Player, event : CoreEvent) {}
+    protected playerCollisionEvent(player : Player, camera : Camera, event : CoreEvent) {}
     protected playerEvent(player : Player, event : CoreEvent) {}
 
 
-    public playerCollision(player : Player, event : CoreEvent) : boolean {
+    public playerCollision(player : Player, camera : Camera, event : CoreEvent) : boolean {
 
         if (!this.canInteract || !this.exist || !this.inCamera || this.dying) 
             return false;
@@ -30,7 +31,7 @@ export class WeakInteractionTarget extends WeakGameObject {
 
         if (player.overlayObject(this)) {
 
-            this.playerCollisionEvent(player, event);
+            this.playerCollisionEvent(player, camera, event);
             return true;
         }
         return false;
@@ -48,11 +49,11 @@ export class StrongInteractionTarget extends WeakInteractionTarget {
     }
 
 
-    protected interactionEvent(player : Player, event : CoreEvent) {}
+    protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {}
 
 
 
-    protected playerCollisionEvent(player : Player, event : CoreEvent) {
+    protected playerCollisionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
         if (!player.touchGround()) return;
 
@@ -60,7 +61,7 @@ export class StrongInteractionTarget extends WeakInteractionTarget {
 
         if (event.input.upPress()) {
 
-            this.interactionEvent(player, event);
+            this.interactionEvent(player, camera, event);
         }
     }
 

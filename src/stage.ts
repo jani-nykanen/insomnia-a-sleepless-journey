@@ -123,9 +123,15 @@ export class Stage {
     }
 
 
-    public drawBackground(canvas : Canvas, camera : Camera) {
+    public drawBackground(canvas : Canvas, camera : Camera, inside = false) {
         
         const FOREST_BASE_SHIFT = 16;
+
+        if (inside) {
+
+            canvas.clear(0, 0, 0);
+            return;
+        }
 
         let forest = canvas.assets.getBitmap("forest");
 
@@ -295,6 +301,12 @@ export class Stage {
                 // Lever
                 case 6:
                     objects.addLever(x, y);
+                    break;
+
+                // Door
+                case 7:
+                case 8:
+                    objects.addDoor(x, y, id, tid == 8);
                     break;
 
                 default:
