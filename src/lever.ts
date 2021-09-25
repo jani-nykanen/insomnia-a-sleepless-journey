@@ -7,27 +7,22 @@ import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
 
 
-export class Chest extends StrongInteractionTarget {
+export class Lever extends StrongInteractionTarget {
 
-
-    private id : number;
-    private flip : Flip;
-    private opened : boolean;
+    private activated : boolean;
 
     private readonly message : MessageBox;
 
 
-    constructor(x : number, y : number, id : number, message : MessageBox) {
+    constructor(x : number, y : number, message : MessageBox) {
 
         super(x, y, true);
 
         this.spr = new Sprite(16, 16);
-        this.flip = ((x / 16) | 0) % 2 == 0 ? Flip.None : Flip.Horizontal;
 
         this.hitbox = new Vector2(12, 8);
 
-        this.id = id;
-        this.opened = false;
+        this.activated = false;
 
         this.message = message;
     }
@@ -37,34 +32,35 @@ export class Chest extends StrongInteractionTarget {
 
         const WAIT_TIME = 60;
 
-        if (this.opened) return;
+        if (this.activated) return;
 
-        let text = <Array<string>> event.localization.findValue(["chest", String(this.id)]);
+        let text = <Array<string>> event.localization.findValue(["lever"]);
 
         if (text == null) return;
 
         this.message.addMessages(text);
         this.message.activate(WAIT_TIME);
 
-        player.setObtainItemPose(this.id);
-        player.progress.setBooleanProperty("item" + Number(this.id));
+        event.shake(WAIT_TIME, 2.0);
 
-        this.opened = true;
+        this.activated = true;
         this.canInteract = false;
 
         this.spr.setFrame(1, 0);
+
+        player.setUsePose();
+        player.progress.setBooleanProperty("fansEnabled");
     }
 
 
     public draw(canvas : Canvas) {
 
-        let bmp = canvas.assets.getBitmap("chest");
+        let bmp = canvas.assets.getBitmap("lever");
 
         if (!this.inCamera) return;
 
         canvas.drawSprite(this.spr, bmp, 
             this.pos.x - this.spr.width/2,
-            this.pos.y - this.spr.height/2,
-            this.flip);
+            this.pos.y - this.spr.height/2);
     }
 }

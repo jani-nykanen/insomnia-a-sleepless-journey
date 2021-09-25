@@ -39,5 +39,10 @@
             "You obtain an\n\"ANTI-GRAVITY\nBELT!\"",
             "Press X after the\nfirst jump to\nperform a double\njump."
         ]
+    ],
+
+
+    "lever": [
+        "You have\nactivated\nthe fans."
     ]
 }

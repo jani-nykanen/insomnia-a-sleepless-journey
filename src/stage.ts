@@ -50,6 +50,8 @@ export class Stage {
 
     private sprFence : Sprite;
 
+    private fansEnabled : boolean;
+
     public readonly width : number;
     public readonly height : number;
 
@@ -69,6 +71,8 @@ export class Stage {
         this.particles = new Array<Particle> ();
 
         this.sprFence = new Sprite(16, 16);
+
+        this.fansEnabled = false;
 
         this.progress = progress;
     }
@@ -111,6 +115,11 @@ export class Stage {
         }
 
         this.sprFence.animate(0, 0, 3, FENCE_ANIM_SPEED, event.step);
+
+        if (this.progress.getBooleanProperty("fansEnabled")) {
+
+            this.fansEnabled = true;
+        }
     }
 
 
@@ -171,14 +180,22 @@ export class Stage {
 
                 switch (tid) {
 
-                // Propeller
+                // Fan
                 case 15:
 
-                    this.drawWind(canvas, x*16, y*16-8, 3);
+                    if (this.fansEnabled) {
 
-                    canvas.drawSprite(this.sprFence,
-                        canvas.assets.getBitmap("propeller"),
-                        x*16, y*16);
+                        this.drawWind(canvas, x*16, y*16-8, 3);
+                        canvas.drawSprite(this.sprFence,
+                            canvas.assets.getBitmap("propeller"),
+                            x*16, y*16);
+                    }
+                    else {
+
+                        canvas.drawSpriteFrame(this.sprFence,
+                            canvas.assets.getBitmap("propeller"),
+                            0, 0, x*16, y*16);
+                    }
                         
                     break;
 
@@ -273,6 +290,11 @@ export class Stage {
                 // Chest
                 case 5:
                     objects.addChest(x, y, id);
+                    break;
+
+                // Lever
+                case 6:
+                    objects.addLever(x, y);
                     break;
 
                 default:
@@ -395,7 +417,7 @@ export class Stage {
         const HURT_X = [2, 0, 2, 9, 5, 0];
         const HURT_Y = [9, 2, 0, 2, 0, 5];
         const HURT_WIDTH = [12, 7, 12, 7, 6, 16];
-        const HURT_HEIGHT = [7, 12, 7, 12, 16, 6];
+        const HURT_HEIGHT = [7, 12, 8, 12, 16, 6];
         const HURT_DIR = [0, 1, 0, -1, 0, 0];
 
         const LADDER_WIDTH = 8;
@@ -478,8 +500,11 @@ export class Stage {
         // Propeller
         case 24:
 
-            o.windCollision(x*16, y*16+WIND_OFFSET - WIND_HEIGHT,
-                WIND_WIDTH, WIND_HEIGHT, event);
+            if (this.fansEnabled) {
+
+                o.windCollision(x*16, y*16+WIND_OFFSET - WIND_HEIGHT,
+                    WIND_WIDTH, WIND_HEIGHT, event);
+            }
             break;
 
         default:

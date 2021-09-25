@@ -18,6 +18,7 @@
         {"name": "symbol", "path": "symbol.png"},
         {"name": "chest", "path": "chest.png"},
         {"name": "items", "path": "items.png"},
+        {"name": "lever", "path": "lever.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

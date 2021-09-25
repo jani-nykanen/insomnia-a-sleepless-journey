@@ -61,7 +61,7 @@ export class Player extends CollisionObject {
 
     private projectileCb : SpawnProjectileCallback;
 
-    private readonly progress : ProgressManager;
+    public readonly progress : ProgressManager;
 
 
     constructor(x : number, y : number, projectileCb : SpawnProjectileCallback,
@@ -73,7 +73,7 @@ export class Player extends CollisionObject {
 
         this.hitbox = new Vector2(9, 11);
         this.center = new Vector2(0, 2);
-        this.collisionBox = new Vector2(8, 10);
+        this.collisionBox = new Vector2(8, 12);
 
         this.friction = new Vector2(0.1, 0.15);
         this.offCameraRadius = 0;
@@ -220,6 +220,16 @@ export class Player extends CollisionObject {
     }
 
 
+    private computeCollisionBoxHeight() {
+
+        const SLIDE_HITBOX_Y = 2.0;
+        const BASE_HITBOX_Y = 10;
+
+        this.collisionBox.y = this.sliding ? SLIDE_HITBOX_Y : BASE_HITBOX_Y;
+        this.center.y = this.sliding ? 6 : 2;
+    }
+
+
     private slide(event : CoreEvent) {
 
         const EPS = 0.25;
@@ -251,6 +261,8 @@ export class Player extends CollisionObject {
             this.dustTimer = 0;
 
             this.sliding = true;
+
+            this.computeCollisionBoxHeight();
 
             return true;
         }
@@ -356,6 +368,7 @@ export class Player extends CollisionObject {
 
         let stick = event.input.getStick();
 
+        this.computeCollisionBoxHeight();
         this.friction.y = this.downAttacking ? DOWN_ATTACK_FRICTION : BASE_FRICTION_Y;
 
         if (this.waitDownAttack(event) ||
@@ -843,7 +856,7 @@ export class Player extends CollisionObject {
     }
 
     
-    public obtainItem(itemID : number) {
+    public setObtainItemPose(itemID : number) {
 
         this.stopMovement();
         this.spr.setFrame(4, 4);
@@ -852,7 +865,14 @@ export class Player extends CollisionObject {
         this.holdingItem = true;
 
         this.itemID = itemID;
+    }
 
-        this.progress.setBooleanProperty("item" + Number(itemID));
+
+    public setUsePose() {
+
+        this.stopMovement();
+        this.spr.setFrame(3, 3);
+
+        this.showActionSymbol = false;
     }
 }

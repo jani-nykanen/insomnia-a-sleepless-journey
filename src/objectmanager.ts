@@ -6,6 +6,7 @@ import { CoreEvent } from "./core.js";
 import { Enemy, getEnemyType } from "./enemy.js";
 import { nextObject } from "./gameobject.js";
 import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontarget.js";
+import { Lever } from "./lever.js";
 import { MessageBox } from "./messagebox.js";
 import { NPC } from "./npc.js";
 import { Player } from "./player.js";
@@ -94,6 +95,12 @@ export class ObjectManager {
     public addChest(x : number, y : number, id : number) {
 
         this.strongInteractionTargets.push(new Chest(x*16+8, y*16+8, id, this.message));
+    }
+
+
+    public addLever(x : number, y : number) {
+
+        this.strongInteractionTargets.push(new Lever(x*16+8, y*16+8, this.message));
     }
 
 
