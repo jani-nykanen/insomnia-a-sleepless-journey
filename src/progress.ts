@@ -1,42 +1,65 @@
 import { KeyValuePair } from "./types.js";
 
 
+
+const getProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, def : T) : T => {
+
+    for (let e of arr) {
+
+        if (e.key == key) {
+
+            return e.value;
+        }
+    }
+    return def;
+}
+
+
+const setProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, value : T) => {
+
+    for (let e of arr) {
+
+        if (e.key == key) {
+
+            e.value = value;
+            return;
+        }
+    }
+    arr.push(new KeyValuePair<T>(key, value));
+}
+
+
 export class ProgressManager {
 
 
     private booleanProperties : Array<KeyValuePair<boolean>>;
+    private numberProperties : Array<KeyValuePair<number>>;
 
 
     constructor() {
 
         this.booleanProperties = new Array<KeyValuePair<boolean>> ();
+        this.numberProperties = new Array<KeyValuePair<number>> ();
     }
 
 
-    public setBooleanProperty(key : string, value = true) {
+    public setBooleanProperty = (key : string, value = true) : void => setProperty<boolean>(this.booleanProperties, key, value);
+    public getBooleanProperty = (key : string) : boolean => getProperty<boolean>(this.booleanProperties, key, false);
 
-        for (let b of this.booleanProperties) {
+    public setNumberProperty = (key : string, value = 0) : void => setProperty<number>(this.numberProperties, key, value);
+    public getNumberProperty = (key : string) : number => getProperty<number>(this.numberProperties, key, 0);
 
-            if (b.key == key) {
 
-                b.value = value;
+    public increaseNumberProperty(key : string, amount = 1) {
+
+        for (let e of this.numberProperties) {
+
+            if (e.key == key) {
+    
+                e.value += amount;
                 return;
             }
         }
-
-        this.booleanProperties.push(new KeyValuePair<boolean>(key, value));
-    }
-
-
-    public getBooleanProperty(key : string) {
-
-        for (let b of this.booleanProperties) {
-
-            if (b.key == key) {
-
-                return b.value;
-            }
-        }
-        return false;
+        this.setNumberProperty(key, amount);
     }
 }

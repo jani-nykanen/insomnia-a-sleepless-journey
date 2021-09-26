@@ -7,7 +7,7 @@ import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
 
 
-export class Coin extends WeakInteractionTarget {
+export class Star extends WeakInteractionTarget {
 
 
     private waveTimer : number;
@@ -60,6 +60,8 @@ export class Coin extends WeakInteractionTarget {
         this.spr.setFrame(0, 1);
 
         this.waveTimer = 0;
+
+        player.progress.increaseNumberProperty("stars", 1);
     }
 
 

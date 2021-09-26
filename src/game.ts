@@ -58,6 +58,20 @@ export class GameScene implements Scene {
     }
 
 
+    private drawHUD(canvas : Canvas) {
+
+        let font = canvas.assets.getBitmap("fontBig");
+
+        canvas.drawText(font, ":", 2, 1, 0, 0);
+        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars")),
+            13, 1, -8, 0);
+
+        canvas.drawText(font, "=", canvas.width-36, 1, 0, 0);
+        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("kills")),
+            canvas.width-36 + 11, 1, -8, 0);
+    }
+
+
     public redraw(canvas : Canvas) {
 
         canvas.moveTo();
@@ -72,6 +86,7 @@ export class GameScene implements Scene {
         this.objects.draw(canvas);
 
         canvas.moveTo();
+        this.drawHUD(canvas);
         this.message.draw(canvas);
     }
 

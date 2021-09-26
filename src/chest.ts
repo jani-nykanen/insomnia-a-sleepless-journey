@@ -8,6 +8,12 @@ import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
 
 
+const FACING_DIR = [
+    Flip.None, Flip.Horizontal, Flip.None,
+    Flip.None, Flip.None, Flip.None,
+];
+
+
 export class Chest extends StrongInteractionTarget {
 
 
@@ -23,7 +29,7 @@ export class Chest extends StrongInteractionTarget {
         super(x, y, true);
 
         this.spr = new Sprite(16, 16);
-        this.flip = ((x / 16) | 0) % 2 == 0 ? Flip.None : Flip.Horizontal;
+        this.flip = FACING_DIR[id];
 
         this.hitbox = new Vector2(12, 8);
 

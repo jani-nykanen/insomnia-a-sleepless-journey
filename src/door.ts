@@ -29,7 +29,7 @@ export class Door extends StrongInteractionTarget {
 
         this.hitbox = new Vector2(10, 8);
 
-        this.open = true; // inside
+        this.open = inside
         this.id = id;
         this.inside = inside;
         this.pair = null;
@@ -48,7 +48,28 @@ export class Door extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        if (!this.open || this.pair == null) return;
+        if (this.pair == null) return;
+
+        let msg : Array<string>;
+        if (!this.open) {
+
+            if (!player.progress.getBooleanProperty("item2")) {
+
+                msg = event.localization.findValue(["locked"]);
+            }
+            else {
+
+                msg = event.localization.findValue(["open"]);
+                this.open = true;
+            }
+
+            if (msg == null) return;
+
+            this.message.addMessages(msg);
+            this.message.activate();
+
+            return;
+        }
 
         let p = player.getPos();
 

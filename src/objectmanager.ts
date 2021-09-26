@@ -1,7 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { Chest } from "./chest.js";
-import { Coin } from "./coin.js";
+import { Star } from "./star.js";
 import { CoreEvent } from "./core.js";
 import { Door } from "./door.js";
 import { Enemy, getEnemyType } from "./enemy.js";
@@ -115,9 +115,9 @@ export class ObjectManager {
     }
 
 
-    public addCoin(x : number, y : number) {
+    public addStar(x : number, y : number) {
 
-        this.weakInteractionTargets.push(new Coin(x*16+8, y*16+8));
+        this.weakInteractionTargets.push(new Star(x*16+8, y*16+8));
     }
 
 
@@ -245,7 +245,7 @@ export class ObjectManager {
                 
                 for (let p of this.projectiles) {
 
-                    e.projectileCollision(p, event);
+                    e.projectileCollision(p, this.player, event);
                 } 
             }
         }

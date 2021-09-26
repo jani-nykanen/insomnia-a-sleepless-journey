@@ -20,8 +20,14 @@
 
         [
             "You obtain a\n\"NICE HELMET\"!",
-            "Hold down arrow\nwhile on air\nand press X to\ndive. Hitting\nthe ground causes\na quake.",
-            "You can use this\nskill to break\nblocks and stun\nenemies."
+            "Hold down arrow\nwhile on air\nand press X\nto perform an\n\"air dive\"",
+            "You can use this\nskill to break\nblocks or cause\nquakes that\nstun enemies."
+        ],
+
+
+        [
+            "You obtain the\n\"MASTER KEY\"!",
+            "It will open\nevery lock."
         ],
 
         [
@@ -44,5 +50,13 @@
 
     "lever": [
         "You have\nactivated\nthe fans."
+    ],
+
+    "locked": [
+        "The door is\nlocked. You\nneed a key\nto unlock it."
+    ],
+
+    "open": [
+        "You use your\nMASTER KEY to\nunlock the door."
     ]
 }

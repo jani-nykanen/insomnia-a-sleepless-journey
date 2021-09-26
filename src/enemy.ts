@@ -3,6 +3,7 @@ import { CoreEvent } from "./core.js";
 import { CollisionObject } from "./gameobject.js";
 import { clamp } from "./math.js";
 import { Player } from "./player";
+import { ProgressManager } from "./progress.js";
 import { Projectile } from "./projectile.js";
 import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
@@ -202,13 +203,15 @@ export class Enemy extends CollisionObject {
 
 
 
-    protected killSelf(event : CoreEvent) {
+    protected killSelf(progress : ProgressManager, event : CoreEvent) {
 
         this.dying = true;
         this.knockDownTimer = 0;
         this.deathTimer = DEATH_TIME;
 
         this.starSprite.setFrame((Math.random() * 4) | 0, 1);
+
+        progress.increaseNumberProperty("kills", 1);
     }
 
 
@@ -237,7 +240,7 @@ export class Enemy extends CollisionObject {
             py >= y && py <= y+h) {
 
             player.makeJump(PLAYER_JUMP);
-            this.killSelf(event);
+            this.killSelf(player.progress, event);
 
             return true;
         }
@@ -253,7 +256,7 @@ export class Enemy extends CollisionObject {
     }
 
 
-    public projectileCollision(p : Projectile, event : CoreEvent) : boolean {
+    public projectileCollision(p : Projectile, player : Player, event : CoreEvent) : boolean {
 
         if (!this.exist || !this.inCamera || this.dying ||
             !p.doesExist() || p.isDying()) 
@@ -262,7 +265,7 @@ export class Enemy extends CollisionObject {
         if (this.overlayObject(p)) {
 
             p.destroy(event);
-            this.killSelf(event);
+            this.killSelf(player.progress, event);
 
             return true;
         }

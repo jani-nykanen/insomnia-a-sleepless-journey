@@ -283,9 +283,9 @@ export class Stage {
                     objects.addSwitch(x, y);
                     break;
 
-                // Coin
+                // Star
                 case 3:
-                    objects.addCoin(x, y);
+                    objects.addStar(x, y);
                     break;
 
                 // NPC:
