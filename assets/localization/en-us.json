@@ -14,7 +14,7 @@
     "chest": [
 
         [
-            "You obtain a\npair of\n\"RUNNING BOOTS\"!",
+            "You obtain\na pair of\n\"RUNNING\nBOOTS\"!",
             "Press Z to run\nfaster."
         ],
 
@@ -36,13 +36,18 @@
         ],
 
         [
+            "You obtain\na bottle of\n\"LUBRICANT\"!",
+            "When standing on\nthe ground, press\ndown arrow and\nthe jump button\nto slide."
+        ],
+
+        [
             "You obtain a\npair of\n\"TINY WINGS\"!",
             "Press and hold\nX after jumping\nto flap your\narms and mimic\nflying.",
             "It does not make\nyou fly, though,\njust fall\nmore slowly."
         ],
 
         [
-            "You obtain an\n\"ANTI-GRAVITY\nBELT!\"",
+            "You obtain an\n\"ANTI-GRAVITY\nBELT\"!",
             "Press X after the\nfirst jump to\nperform a double\njump."
         ]
     ],
