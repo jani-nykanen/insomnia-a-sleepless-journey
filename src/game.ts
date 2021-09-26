@@ -42,7 +42,7 @@ export class GameScene implements Scene {
                     this.pauseMenu.deactivate();
                 }),
 
-                new MenuButton("Back to start",
+                new MenuButton("Respawn",
                 event => {
 
                 }),
