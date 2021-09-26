@@ -11,6 +11,7 @@ import { Vector2 } from "./vector.js";
 const FACING_DIR = [
     Flip.None, Flip.Horizontal, Flip.None,
     Flip.None, Flip.None, Flip.None,
+    Flip.None
 ];
 
 

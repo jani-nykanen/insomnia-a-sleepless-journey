@@ -193,6 +193,9 @@ export class Player extends CollisionObject {
         const ROCK_SPEED_X = 3.0;
         const ROCK_JUMP = -1.0;
 
+        if (!this.progress.getBooleanProperty("item3"))
+            return false;
+
         if (this.throwing) return true;
 
         if (!this.sliding &&
@@ -239,6 +242,9 @@ export class Player extends CollisionObject {
         const EPS = 0.25;
         const SLIDE_TIME = 20;
         const SLIDE_SPEED = 3.0;
+
+        if (!this.progress.getBooleanProperty("item4"))
+            return false;
 
         let s = event.input.getAction("fire2");
 
@@ -301,7 +307,8 @@ export class Player extends CollisionObject {
 
         let s = event.input.getAction("fire2");
 
-        if (!this.canJump && 
+        if (this.progress.getBooleanProperty("item1") &&
+            !this.canJump && 
             event.input.getStick().y > DOWN_EPS &&
             s == State.Pressed) {
 
@@ -317,7 +324,8 @@ export class Player extends CollisionObject {
         }
 
         if (this.jumpTimer <= 0 &&
-            (this.jumpMargin > 0 || !this.doubleJump) &&
+            (this.jumpMargin > 0 || 
+            (!this.doubleJump && this.progress.getBooleanProperty("item6"))) &&
             s == State.Pressed) {
 
             if (this.jumpMargin > 0) {
@@ -349,9 +357,10 @@ export class Player extends CollisionObject {
             this.jumpReleased = true;
         }
 
-        this.flapping = this.jumpReleased &&
+        this.flapping = this.progress.getBooleanProperty("item5") &&
+            this.jumpReleased &&
             this.jumpTimer <= 0 &&
-            this.doubleJump && 
+            (!this.progress.getBooleanProperty("item6") || this.doubleJump) && 
             (s & State.DownOrPressed) == 1;
         if (this.flapping) {
 
@@ -400,7 +409,8 @@ export class Player extends CollisionObject {
 
         this.jump(event);
 
-        this.running = Math.abs(this.target.x) > EPS &&
+        this.running = this.progress.getBooleanProperty("item0") &&
+            Math.abs(this.target.x) > EPS &&
             ((event.input.getAction("fire1") & State.DownOrPressed) == 1);
         if (this.running) {
 
@@ -639,6 +649,7 @@ export class Player extends CollisionObject {
         const CAMERA_MOVE_SPEED = 1.0/20.0;
         const HIT_RANGE_X = 4;
         const HIT_RANGE_Y = 4; 
+        const TOP_EXTRA_MARGIN = 1;
 
         let p = camera.getPosition();
 
@@ -656,11 +667,13 @@ export class Player extends CollisionObject {
         let dirx = 0;
         let diry = 0;
 
+        let extraMargin = this.climbing ? 0 : TOP_EXTRA_MARGIN;
+
         if (this.pos.x - HIT_RANGE_X < x1) 
             dirx = -1;
         else if (this.pos.x + HIT_RANGE_X > x2)
             dirx = 1;
-        else if (this.pos.y - HIT_RANGE_Y < y1 && !this.downAttacking) 
+        else if (this.pos.y - HIT_RANGE_Y + extraMargin < y1 && !this.downAttacking) 
             diry = -1;
         else if (this.pos.y + HIT_RANGE_Y > y2)
             diry = 1;

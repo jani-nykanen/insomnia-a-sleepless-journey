@@ -1,10 +1,12 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
+import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
 import { Stage } from "./stage.js";
+import { State } from "./types.js";
 
 
 
@@ -17,6 +19,8 @@ export class GameScene implements Scene {
     private message : MessageBox;
     private progress : ProgressManager;
 
+    private pauseMenu : Menu;
+
 
     constructor(param : any, event : CoreEvent) {
 
@@ -28,6 +32,28 @@ export class GameScene implements Scene {
         this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
 
         this.objects.cameraCheck(this.camera);
+
+        // TODO: Get names from localization
+        this.pauseMenu = new Menu(
+            [
+                new MenuButton("Resume",
+                event => {
+                    
+                    this.pauseMenu.deactivate();
+                }),
+
+                new MenuButton("Back to start",
+                event => {
+
+                }),
+
+                new MenuButton("Quit game",
+                event => {
+
+                    this.pauseMenu.deactivate();
+                })
+            ]
+        );
     }
 
 
@@ -42,9 +68,21 @@ export class GameScene implements Scene {
             return;
         }
 
+        if (this.pauseMenu.isActive()) {
+
+            this.pauseMenu.update(event);
+            return;
+        }
+
         if (this.message.isActive()) {
 
             this.message.update(event);
+            return;
+        }
+
+        if (event.input.getAction("start") == State.Pressed) {
+
+            this.pauseMenu.activate(0);
             return;
         }
 
@@ -88,6 +126,14 @@ export class GameScene implements Scene {
         canvas.moveTo();
         this.drawHUD(canvas);
         this.message.draw(canvas);
+
+        if (this.pauseMenu.isActive()) {
+
+            canvas.setFillColor(0, 0, 0, 0.33);
+            canvas.fillRect();
+
+            this.pauseMenu.draw(canvas, 0, 0, 0, 10, true);
+        }
     }
 
 

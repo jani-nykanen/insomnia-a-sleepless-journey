@@ -202,7 +202,6 @@ export class Enemy extends CollisionObject {
     protected playerEvent(player : Player, event : CoreEvent) { }
 
 
-
     protected killSelf(progress : ProgressManager, event : CoreEvent) {
 
         this.dying = true;

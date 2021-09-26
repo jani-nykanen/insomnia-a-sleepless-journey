@@ -3,6 +3,26 @@ import { CoreEvent } from "./core.js";
 import { Vector2 } from "./vector.js";
 
 
+export const drawBox = (canvas : Canvas, x : number, y : number, w : number, h : number) : void => {
+
+    const BOX_OFFSET = 2;
+    const BOX_COLORS = [
+        [255, 255, 255],
+        [85, 85, 85],
+        [0, 0, 0]
+    ];
+
+    for (let i = BOX_COLORS.length-1; i >= 0; -- i) {
+
+        canvas.setFillColor(...BOX_COLORS[i]);
+        canvas.fillRect(
+            x - BOX_OFFSET - i, 
+            y - BOX_OFFSET - i,
+            w + (BOX_OFFSET + i)*2,
+            h + (BOX_OFFSET + i)*2);
+    }
+}
+
 
 export class MessageBox {
 
@@ -19,6 +39,7 @@ export class MessageBox {
     private active : boolean;
 
     private waitTimer : number;
+    private waveTimer : number;
 
 
     constructor() {
@@ -35,6 +56,7 @@ export class MessageBox {
         this.active = false;
 
         this.waitTimer = 0;
+        this.waveTimer = 0;
     }
 
 
@@ -79,6 +101,7 @@ export class MessageBox {
 
     public update(event : CoreEvent) {
 
+        const WAVE_SPEED = 0.1;
         const CHAR_TIME = 4;
 
         if (!this.active) return;
@@ -90,6 +113,8 @@ export class MessageBox {
         }
 
         if (!this.ready) {
+
+            this.waveTimer = 0.0;
 
             if (event.input.anyPressed()) {
 
@@ -115,6 +140,8 @@ export class MessageBox {
         }
         else {
             
+            this.waveTimer = (this.waveTimer + WAVE_SPEED) % (Math.PI * 2);
+
             if (event.input.anyPressed()) {
 
                 this.ready = false;
@@ -140,14 +167,17 @@ export class MessageBox {
     public draw(canvas : Canvas) {
 
         const BOX_OFFSET = 2;
-
         const BOX_COLORS = [
             [255, 255, 255],
             [85, 85, 85],
             [0, 0, 0]
         ];
 
+        const SYMBOL_AMPLITUDE = 1.0;
+
         if (!this.active || this.waitTimer > 0) return;
+
+        let font = canvas.assets.getBitmap("font");
 
         let w = this.currentSize.x * 8;
         let h = this.currentSize.y * 10;
@@ -155,19 +185,19 @@ export class MessageBox {
         let x = canvas.width/2 - w/2;
         let y = canvas.height/2 - h/2;
 
-        for (let i = BOX_COLORS.length-1; i >= 0; -- i) {
+        drawBox(canvas, x, y, w, h);
 
-            canvas.setFillColor(...BOX_COLORS[i]);
-            canvas.fillRect(
-                x - BOX_OFFSET - i, 
-                y - BOX_OFFSET - i,
-                w + (BOX_OFFSET + i)*2,
-                h + (BOX_OFFSET + i)*2);
-        }
-
-        canvas.drawText(canvas.assets.getBitmap("font"),
+        canvas.drawText(font,
             this.currentMessage.substring(0, this.charPos),
             x, y, 0, 2);
+
+        let symbolOffset = Math.round(Math.sin(this.waveTimer) * SYMBOL_AMPLITUDE);
+
+        if (this.ready) {
+
+            canvas.drawBitmapRegion(font, 8, 0, 8, 8,
+                x + w - 2, y + h + symbolOffset - 2);
+        }
     }
 
 
