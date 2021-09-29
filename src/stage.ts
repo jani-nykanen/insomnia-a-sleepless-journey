@@ -539,7 +539,7 @@ export class Stage {
         let tid : number;
         let colId : number;
 
-        for (let layer = 0; layer < this.layers.length - 1; ++ layer) {
+        for (let layer = 0; layer < this.layers.length; ++ layer) {
 
             for (let y = py - RADIUS; y <= py + RADIUS; ++ y) {
 
