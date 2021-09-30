@@ -47,6 +47,17 @@ export class GameScene implements Scene {
 
                 }),
 
+
+                new MenuButton("DBG: All Items", 
+                event => {
+
+                    for (let i = 0; i < 7; ++ i) {
+
+                        this.progress.setBooleanProperty("item" + String(i), true);
+                    }
+                    this.pauseMenu.deactivate();
+                }),
+
                 new MenuButton("Quit game",
                 event => {
 
@@ -127,13 +138,7 @@ export class GameScene implements Scene {
         this.drawHUD(canvas);
         this.message.draw(canvas);
 
-        if (this.pauseMenu.isActive()) {
-
-            canvas.setFillColor(0, 0, 0, 0.33);
-            canvas.fillRect();
-
-            this.pauseMenu.draw(canvas, 0, 0, 0, 10, true);
-        }
+        this.pauseMenu.draw(canvas, 0, 0, 0, 10, true); 
     }
 
 
