@@ -13,6 +13,7 @@ import { Vector2 } from "./vector.js";
 
 
 const BASE_JUMP_SPEED = 2.0;
+const BASE_GRAVITY = 3.0;
 
 
 export class Player extends CollisionObject {
@@ -373,7 +374,6 @@ export class Player extends CollisionObject {
     private control(event : CoreEvent) {
 
         const BASE_FRICTION_Y = 0.15;
-        const BASE_GRAVITY = 3.0;
         const MOVE_SPEED = 0.75;
         const RUN_MOD = 1.66667;
         const EPS = 0.01;
@@ -627,6 +627,9 @@ export class Player extends CollisionObject {
         this.climbing = false;
         this.touchLadder = false;
         this.running = false;
+        this.flapping = false;
+
+        this.target.y = BASE_GRAVITY;
     }
 
 
