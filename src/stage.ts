@@ -125,7 +125,7 @@ export class Stage {
 
     public drawBackground(canvas : Canvas, camera : Camera, inside = false) {
         
-        const FOREST_BASE_SHIFT = 36;
+        const FOREST_BASE_SHIFT = 72;
 
         if (inside) {
 

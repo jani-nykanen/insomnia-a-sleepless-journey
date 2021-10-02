@@ -7,9 +7,10 @@ export const drawBox = (canvas : Canvas, x : number, y : number, w : number, h :
 
     const BOX_OFFSET = 2;
     const BOX_COLORS = [
-        [255, 255, 170],
-        [255, 170, 85],
-        [0, 0, 0]
+        [170, 85, 0],
+        [85, 0, 0],
+        [0, 0, 0],
+        [255, 255, 255]
     ];
 
     for (let i = BOX_COLORS.length-1; i >= 0; -- i) {

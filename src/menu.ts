@@ -1,7 +1,7 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { negMod } from "./math.js";
-import { State } from "./types.js";
+import { Bitmap, State } from "./types.js";
 import { drawBox } from "./messagebox.js";
 
 export class MenuButton {
@@ -112,7 +112,8 @@ export class Menu {
 
         let str = "";
 
-        let font = canvas.assets.getBitmap("font");
+        let fontBase = canvas.assets.getBitmap("font");
+        let fontYellow = canvas.assets.getBitmap("fontYellow");
 
         let w = (this.maxLength+1) * (8 + xoff);
         let h = (this.buttons.length * yoff);
@@ -125,12 +126,19 @@ export class Menu {
             drawBox(canvas, dx, dy-2, w, h);
         }
 
+        let font : Bitmap;
+
         for (let i = 0; i < this.buttons.length; ++ i) {
 
             str = this.buttons[i].getText();
             if (i == this.cursorPos) {
 
                 str = "@" + str;
+                font = fontYellow
+            }
+            else {
+
+                font = fontBase;
             }
 
             canvas.drawText(font, str, dx, dy + i * yoff, xoff, 0);
