@@ -86,6 +86,9 @@ export class Door extends StrongInteractionTarget {
                     Vector2.add(this.pair.getPos(), new Vector2(0, 1)), 
                     true, !this.inside);
                 camera.focusOnObject(player);
+
+                p = player.getPos();
+                event.transition.setCenter(new Vector2(p.x % 160, p.y % 144));
             })
             .setCenter(new Vector2(p.x % 160, p.y % 144));
     }
