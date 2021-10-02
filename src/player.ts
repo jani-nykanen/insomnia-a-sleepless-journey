@@ -173,13 +173,15 @@ export class Player extends CollisionObject {
         }
         else {
 
-            this.canThrow = true;
+            this.canThrow = true;  
 
             this.target.y = CLIMB_SPEED * event.input.getStick().y;
             if (s == State.Pressed) {
 
                 this.climbing = false;
                 this.doubleJump = false;
+                this.jumpReleased = false;
+
                 if (event.input.getStick().y < EPS) {
 
                     this.jumpTimer = CLIB_JUMP_TIME;
