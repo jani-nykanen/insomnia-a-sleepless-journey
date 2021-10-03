@@ -54,6 +54,16 @@
             "You obtain a\n\"ROCKET\nEXPANSION!\"",
             "It makes your\nROCKET PACK\na bit more\npowerful.",
             "Press X after the\nfirst jump to\nperform a double\njump."
+        ],
+
+        [
+            "You obtain an\n\"EXTRA GREASY\nHAMBURGER\"!",
+            "It will make\nyou sink in\nwater."
+        ],
+
+        [
+            "You obtain an\n\"EXTRA HEART!\"",
+            "It increases\nyour maximum\nlife by one."
         ]
     ],
 

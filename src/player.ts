@@ -607,7 +607,8 @@ export class Player extends CollisionObject {
         if ((this.dustTimer += event.step) >= genTime) {
 
             nextObject(this.dust, Dust)
-                .spawn(pos.x, pos.y, DUST_ANIM_SPEED, speed);
+                .spawn(pos.x, pos.y, DUST_ANIM_SPEED, speed,
+                rocketActive ? 1 : 0);
 
             this.dustTimer -= genTime;
         }
