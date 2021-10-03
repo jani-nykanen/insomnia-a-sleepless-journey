@@ -138,6 +138,9 @@ export class Player extends CollisionObject {
             (this.isLadderTop && event.input.downPress()))) {
 
             this.climbing = true;
+            this.jumpTimer = 0;
+            this.doubleJump = false;
+            this.flapping = false;
 
             this.pos.x = this.climbX;
 
@@ -186,6 +189,9 @@ export class Player extends CollisionObject {
 
                     this.jumpTimer = CLIB_JUMP_TIME;
                 }
+
+                if (Math.abs(sx) > EPS)
+                    this.faceDir = sx > 0 ? 1 : -1;
             }
         }
     }
@@ -301,7 +307,7 @@ export class Player extends CollisionObject {
         const DOWN_EPS = 0.25;
 
         const JUMP_TIME = 12;
-        const DOUBLE_JUMP_TIME = 8;
+        const DOUBLE_JUMP_TIME = 30;
         const BASE_JUMP_MOD = 0.25;
         const DOWN_ATTACK_JUMP = -1.5;
         const DOWN_ATTACK_GRAVITY = 6.0;
@@ -360,15 +366,18 @@ export class Player extends CollisionObject {
             this.jumpReleased = true;
         }
 
-        this.flapping = this.progress.getBooleanProperty("item5") &&
+        this.flapping = !this.canJump &&
+            this.progress.getBooleanProperty("item5") &&
             this.jumpReleased &&
             this.jumpTimer <= 0 &&
             (!this.progress.getBooleanProperty("item6") || this.doubleJump) && 
             (s & State.DownOrPressed) == 1;
         if (this.flapping) {
 
-            this.speed.y = FLAP_GRAVITY;
-            this.target.y = this.speed.y;
+            // this.speed.y = FLAP_GRAVITY;
+            this.target.y = FLAP_GRAVITY;
+            if (this.speed.y > this.target.y)
+                this.speed.y = this.target.y;
         }
     }
 
@@ -427,8 +436,6 @@ export class Player extends CollisionObject {
         const JUMP_EPS = 0.75;
         const RUN_SPEED_BASE = 10;
         const RUN_SPEED_MOD = 4;
-        const DOUBLE_JUMP_SPEED = 4;
-        const SPIN_EPS = 1.0;
         const CLIMB_SPEED = 10;
         const DOWN_ATTACK_SPEED = 4;
         const FLAP_SPEED = 3;
@@ -499,29 +506,32 @@ export class Player extends CollisionObject {
         }
         else {
 
-            if (this.flapping) {
+            frame = 1;
+            if (this.speed.y > JUMP_EPS)
+                frame = 2;
+            else if (this.speed.y < -JUMP_EPS)
+                frame = 0;
+            
+            if (this.flapping)
+                frame = 3;
 
-                this.spr.animate(6, 0, 3, FLAP_SPEED, event.step);
-            }
-            else if (this.doubleJump && this.speed.y < SPIN_EPS) {
+            if ((this.doubleJump && this.jumpTimer > 0) || this.flapping) {
 
-                this.spr.animate(4, 0, 3, DOUBLE_JUMP_SPEED, event.step);
+                row = 7;
             }
             else {
 
-                frame = 1;
-                if (this.speed.y < -JUMP_EPS)
-                    frame = 0;
-                else if (this.speed.y > JUMP_EPS)
-                    frame = 2;
-
-                this.spr.setFrame(frame, 2);
+                row = 2;
             }
+            this.spr.setFrame(frame, row);
         }
     }
 
 
     private updateJump(event : CoreEvent) {
+
+        const DOUBLE_JUMP_SPEED_DELTA = -0.30;
+        const DOUBLE_JUMP_MIN = -1.25;
 
         if (this.jumpMargin > 0) {
 
@@ -537,7 +547,22 @@ export class Player extends CollisionObject {
             else {
 
                 this.jumpTimer -= event.step;
-                this.speed.y = -this.jumpSpeed;
+
+                if (this.doubleJump) {
+
+                    this.speed.y = Math.max(DOUBLE_JUMP_MIN,
+                        this.speed.y + DOUBLE_JUMP_SPEED_DELTA * event.step);
+                }
+                else {
+
+                    this.speed.y = -this.jumpSpeed;
+                }
+
+                if (this.jumpTimer <= 0 && this.doubleJump) {
+
+                    this.jumpReleased = true;
+                    this.flapping = true;
+                }
             }
         }
     }
@@ -546,27 +571,43 @@ export class Player extends CollisionObject {
     private updateDust(event : CoreEvent) {
 
         const DUST_GEN_TIME_BASE = 8;
+        const DUST_GEN_TIME_ROCKET = 6;
         const DUST_ANIM_SPEED = 8;
         const EPS = 0.01;
+        const ROCKET_DOWN_SPEED_UP = 0.5;
+        const ROCKET_DOWN_SPEED_FLOAT = 1.0;
 
         for (let d of this.dust) {
 
             d.update(event);
         }
 
-        if (this.sliding || !this.canJump || 
+        let rocketActive = (this.doubleJump && this.jumpTimer > 0) || this.flapping;
+
+        if (!rocketActive && (this.sliding || !this.canJump || 
             this.knockbackTimer > 0 ||
-            Math.abs(this.speed.x) <= EPS) return;
+            Math.abs(this.speed.x) <= EPS)) return;
+
+        let dir = this.flip == Flip.None ? 1 : -1;
 
         let genTime = DUST_GEN_TIME_BASE / Math.abs(this.speed.x);
+        let speed = new Vector2();
+        let pos = new Vector2(
+            this.pos.x - 2 * dir, 
+            this.pos.y + 6);
+
+        if (rocketActive) {
+
+            speed.y = this.flapping ? ROCKET_DOWN_SPEED_FLOAT : ROCKET_DOWN_SPEED_UP;
+            genTime = DUST_GEN_TIME_ROCKET;
+
+            pos.x -= dir;
+        }
 
         if ((this.dustTimer += event.step) >= genTime) {
 
             nextObject(this.dust, Dust)
-                .spawn(
-                    this.pos.x - 2 * this.faceDir, 
-                    this.pos.y + 6,
-                    DUST_ANIM_SPEED);
+                .spawn(pos.x, pos.y, DUST_ANIM_SPEED, speed);
 
             this.dustTimer -= genTime;
         }
@@ -724,7 +765,7 @@ export class Player extends CollisionObject {
 
             canvas.drawBitmapRegion(canvas.assets.getBitmap("items"), 
                 this.itemID * 16, 0, 16, 16,
-                px, py - 15);
+                px, py - 17);
         }
     }
 
@@ -739,6 +780,7 @@ export class Player extends CollisionObject {
 
             this.canJump = true;
             this.jumpMargin = JUMP_MARGIN;
+            this.jumpTimer = 0;
 
             this.doubleJump = false;
             this.climbing = false;
@@ -755,6 +797,11 @@ export class Player extends CollisionObject {
         else {
 
             this.jumpTimer = 0;
+            if (this.doubleJump) {
+
+                this.jumpReleased = true;
+                this.flapping = true;
+            }
         }
     }
 
