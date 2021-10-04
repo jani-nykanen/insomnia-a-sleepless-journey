@@ -12,6 +12,7 @@ const FACING_DIR = [
     Flip.None, Flip.Horizontal, Flip.None,
     Flip.Horizontal, Flip.None, Flip.None,
     Flip.Horizontal, Flip.None, Flip.Horizontal,
+    Flip.None,
 ];
 
 
