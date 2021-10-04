@@ -291,4 +291,6 @@ export class ObjectManager {
 
 
     public isPlayerInside = () : boolean => this.player.isInside();
+    public getPlayerHealth = () : number => this.player.getHealth();
+    public getPlayerMaxHealth = () : number => this.player.maxHealth();
 }

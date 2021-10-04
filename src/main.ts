@@ -11,6 +11,7 @@ window.onload = () => (new Core(160, 144))
             .addAction("fire1", "KeyZ", null, 2)
             .addAction("fire2", "KeyX", null, 0)
             .addAction("fire3", "KeyC", null, 1)
+            .addAction("fire4", "KeyC", null, 3)
             .addAction("select", "Space", null, 0)
             .addAction("start", "Enter", null, 9, 7);
 

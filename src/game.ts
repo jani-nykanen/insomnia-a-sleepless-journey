@@ -5,6 +5,7 @@ import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
+import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
 import { State } from "./types.js";
 
@@ -19,6 +20,8 @@ export class GameScene implements Scene {
     private message : MessageBox;
     private progress : ProgressManager;
 
+    private sprHeart : Sprite;
+
     private pauseMenu : Menu;
 
 
@@ -32,6 +35,8 @@ export class GameScene implements Scene {
         this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
 
         this.objects.cameraCheck(this.camera);
+
+        this.sprHeart = new Sprite(16, 16);
 
         // TODO: Get names from localization
         this.pauseMenu = new Menu(
@@ -74,6 +79,17 @@ export class GameScene implements Scene {
     }
 
 
+    private updateHeart(event : CoreEvent) {
+
+        const HEARTBEAT_WAIT = 50;
+        const HEARTBEAT_TIME = 10;
+
+        this.sprHeart.animate(0, 0, 1, 
+            this.sprHeart.getColumn() == 0 ? HEARTBEAT_WAIT : HEARTBEAT_TIME,
+            event.step);
+    }
+
+
     public update(event : CoreEvent) {
 
         if (event.transition.isActive()) {
@@ -103,6 +119,8 @@ export class GameScene implements Scene {
             return;
         }
 
+        this.updateHeart(event);
+
         if (this.camera.update(event)) {
 
             this.objects.checkLoop(this.stage);
@@ -116,6 +134,7 @@ export class GameScene implements Scene {
     private drawHUD(canvas : Canvas) {
 
         let font = canvas.assets.getBitmap("fontBig");
+        let bmpHearts = canvas.assets.getBitmap("hearts");
 
         canvas.drawText(font, ":", 2, 1, 0, 0);
         canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars")),
@@ -124,6 +143,28 @@ export class GameScene implements Scene {
         canvas.drawText(font, "=", canvas.width-36, 1, 0, 0);
         canvas.drawText(font, ";" + String(this.progress.getNumberProperty("kills")),
             canvas.width-36 + 11, 1, -8, 0);
+
+        let health = this.objects.getPlayerHealth();
+        let maxHealth = this.objects.getPlayerMaxHealth();
+
+        let sy = 0;
+        let sx = 0;
+        for (let i = 0; i < maxHealth; ++ i) {
+
+            sx = 0;
+            sy = 16;
+
+            if (i < health) {
+
+                if (i == health-1)
+                    sx = this.sprHeart.getColumn() * 16;
+
+                sy = 0;
+            }
+
+            canvas.drawBitmapRegion(bmpHearts, sx, sy, 16, 16,
+                -1 + i*12, canvas.height-15);
+        }
     }
 
 
