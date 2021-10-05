@@ -29,7 +29,7 @@ export class Door extends StrongInteractionTarget {
 
         this.hitbox = new Vector2(10, 8);
 
-        this.open = inside
+        this.open = id == 0 || inside;
         this.id = id;
         this.inside = inside;
         this.pair = null;
