@@ -23,13 +23,15 @@ export class Door extends StrongInteractionTarget {
 
     constructor(x : number, y : number, id : number, inside : boolean, message : MessageBox) {
 
+        const ALWAYS_OPEN = [0, 2];
+
         super(x, y, true);
 
         this.spr = new Sprite(16, 32);
 
         this.hitbox = new Vector2(10, 8);
 
-        this.open = id == 0 || inside;
+        this.open = ALWAYS_OPEN.includes(id) || inside;
         this.id = id;
         this.inside = inside;
         this.pair = null;
