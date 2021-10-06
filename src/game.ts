@@ -66,6 +66,8 @@ export class GameScene implements Scene {
                         // if (i == 6) continue;
                         this.progress.setBooleanProperty("item" + String(i), true);
                     }
+                    this.progress.setBooleanProperty("fansEnabled");
+
                     this.pauseMenu.deactivate();
                 }),
 

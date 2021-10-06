@@ -23,7 +23,7 @@ export class Door extends StrongInteractionTarget {
 
     constructor(x : number, y : number, id : number, inside : boolean, message : MessageBox) {
 
-        const ALWAYS_OPEN = [0, 2];
+        const ALWAYS_OPEN = [0, 2, 9, 10, 11, 12, 13];
 
         super(x, y, true);
 
