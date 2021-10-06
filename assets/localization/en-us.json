@@ -70,6 +70,11 @@
         [
             "You obtain an\n\"EXTRA HEART!\"",
             "It increases\nyour maximum\nlife by one."
+        ],
+
+        [
+            "You obtain a\n\"POISON MUSH-\nROOM OF AWE-\nSOME POWERS\"!",
+            "Now you can\nbreak blocks\nfrom below.\nWith your...\nhead?"
         ]
     ],
 
