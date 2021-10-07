@@ -52,8 +52,12 @@ export class Stage {
 
     private fansEnabled : boolean;
 
+    private waterPos : number;
+    private waterWave : number;
+
     public readonly width : number;
     public readonly height : number;
+    public readonly waterLevel : number;
 
     private readonly progress : ProgressManager;
 
@@ -65,6 +69,7 @@ export class Stage {
 
         this.width = this.tilemap.width;
         this.height = this.tilemap.height;
+        this.waterLevel = Number(this.tilemap.getProperty("waterLevel"));
 
         this.layers = this.tilemap.cloneLayers(3);
 
@@ -73,6 +78,9 @@ export class Stage {
         this.sprFence = new Sprite(16, 16);
 
         this.fansEnabled = false;
+
+        this.waterPos = 0;
+        this.waterWave = 0;
 
         this.progress = progress;
     }
@@ -107,6 +115,8 @@ export class Stage {
     public update(camera : Camera, event : CoreEvent) {
 
         const FENCE_ANIM_SPEED = 4;
+        const WATER_SPEED = 0.25;
+        const WATER_WAVE_SPEED = 0.067;
 
         for (let p of this.particles) {
 
@@ -120,6 +130,9 @@ export class Stage {
 
             this.fansEnabled = true;
         }
+
+        this.waterPos = (this.waterPos + WATER_SPEED*event.step) % 16;
+        this.waterWave = (this.waterWave + WATER_WAVE_SPEED*event.step) % (Math.PI*2);
     }
 
 
@@ -228,7 +241,53 @@ export class Stage {
     }
 
 
-    public draw(canvas : Canvas, camera : Camera) {
+    private drawWater(canvas : Canvas, 
+        sy : number,  ey : number, camera : Camera, 
+        inside : boolean) {
+
+        const WATER_ALPHA = 0.67;
+
+        if (ey < this.waterLevel || inside) return;
+
+        let p = camera.getPosition();
+        let bmp = canvas.assets.getBitmap("tileset");
+
+        let wy = (this.waterLevel + 1)*16;
+
+        let surfaceJump = Math.round(1 + Math.sin(this.waterWave));
+
+        // Water surface
+        if (sy < this.waterLevel) {
+
+            for (let layer = 0; layer < 2; ++ layer) {
+
+                canvas.setGlobalAlpha(layer == 0 ? WATER_ALPHA : 1.0);
+                for (let x = -1; x < ((camera.width/16) | 0) + 1; ++ x) {
+
+                    canvas.drawBitmapRegion(bmp, 
+                        16 - layer*16, 160, 
+                        16, 16-surfaceJump,
+                        p.x + x*16 - Math.round(this.waterPos), 
+                        this.waterLevel*16 + surfaceJump);
+                }
+            }
+            canvas.setGlobalAlpha();
+            
+        }
+        else {
+
+            wy = p.y;
+        }
+
+        let wh = (p.y + camera.height) - wy;
+        
+        // The rest of the water
+        canvas.setFillColor(0, 0, 0, WATER_ALPHA);
+        canvas.fillRect(p.x, wy, camera.width, wh);
+    }
+
+
+    public draw(canvas : Canvas, camera : Camera, inside = false) {
 
         let bmp = canvas.assets.getBitmap("tileset");
 
@@ -241,6 +300,9 @@ export class Stage {
         let ey = sy + Math.floor(canvas.height / 16) + 2;
 
         for (let layer = 0; layer < this.layers.length; ++ layer) {
+
+            if (layer == 1) 
+                this.drawWater(canvas, sy, ey, camera, inside);
 
             this.drawLayer(canvas, layer, bmp, sx, sy, ex, ey);
         }
@@ -529,6 +591,7 @@ export class Stage {
 
         const RADIUS = 2;
         const BASE_TILE_MAX = 15;
+        const WATER_SURFACE_OFFSET = 4;
 
         if (!o.doesExist() || o.isDying() || !o.isInCamera()) 
             return;
@@ -563,6 +626,12 @@ export class Stage {
                 }
             }
         }
+
+        let y = this.waterLevel*16 + WATER_SURFACE_OFFSET;
+        let offset = 16 - WATER_SURFACE_OFFSET;
+
+        o.waterCollision(0, y, this.width*16, offset, true, event);
+        o.waterCollision(0, y+offset, this.width*16, this.height*16 - y - offset, false, event);
     }
 
 

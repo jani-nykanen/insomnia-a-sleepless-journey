@@ -26,6 +26,8 @@ export class Player extends CollisionObject {
     private doubleJump : boolean;
     private jumpReleased : boolean;
 
+    private touchWater : boolean;
+
     private faceDir : number;
     private flip : Flip;
 
@@ -93,6 +95,8 @@ export class Player extends CollisionObject {
         this.jumpSpeed = 0.0;
         this.doubleJump = false;
         this.jumpReleased = false;
+
+        this.touchWater = false;
 
         this.faceDir = 1;
         this.flip = Flip.None;
@@ -437,6 +441,8 @@ export class Player extends CollisionObject {
         const RUN_MOD = 1.66667;
         const EPS = 0.01;
         const DOWN_ATTACK_FRICTION = 0.30;
+        const SWIM_SPEED_REDUCTION_X = 0.5;
+        const SWIM_SPEED_REDUCTION_Y = 0.25;
 
         let stick = event.input.getStick();
 
@@ -477,6 +483,13 @@ export class Player extends CollisionObject {
         if (this.running) {
 
             this.target.x *= RUN_MOD;
+        }
+
+        if (this.touchWater) {
+
+            this.target.x *= SWIM_SPEED_REDUCTION_X;
+            this.target.y *= SWIM_SPEED_REDUCTION_Y;
+            this.friction.y *= SWIM_SPEED_REDUCTION_Y;
         }
     }
 
@@ -624,6 +637,10 @@ export class Player extends CollisionObject {
                 else {
 
                     this.speed.y = -this.jumpSpeed;
+                    if (this.touchWater) {
+
+                        this.speed.y /= 2;
+                    }
                 }
 
                 if (this.jumpTimer <= 0 && this.doubleJump) {
@@ -691,6 +708,7 @@ export class Player extends CollisionObject {
         this.isLadderTop = false;
         this.showActionSymbol = false;
         this.holdingItem = false;
+        this.touchWater = false;
     }
 
 
@@ -962,6 +980,31 @@ export class Player extends CollisionObject {
             this.speed.y = Math.max(MIN_SPEED, this.speed.y + SPEED_DOWN * event.step);
             return true;
         }
+        return false;
+    }
+
+
+    public waterCollision(x : number, y : number, w : number, h : number, 
+        top : boolean, event : CoreEvent) : boolean {
+
+        const UP_SPEED = -0.5;
+
+        if (this.inside) return false;
+
+        if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
+
+            // this.canJump = true;
+            this.jumpMargin = 1;
+            this.touchWater = true;
+            this.canThrow = true;
+            this.canSpin = true;
+
+            if (!top && !this.progress.getBooleanProperty("item7")) {
+
+                this.speed.y += UP_SPEED * event.step;
+            }
+        }
+
         return false;
     }
 

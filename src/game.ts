@@ -61,7 +61,7 @@ export class GameScene implements Scene {
                 new MenuButton("DEBUG", 
                 event => {
 
-                    for (let i = 0; i < 7; ++ i) {
+                    for (let i = 0; i < 11; ++ i) {
                         
                         // if (i == 6) continue;
                         this.progress.setBooleanProperty("item" + String(i), true);
@@ -180,7 +180,7 @@ export class GameScene implements Scene {
         this.camera.use(canvas);
         canvas.applyShake();
 
-        this.stage.draw(canvas, this.camera);
+        this.stage.draw(canvas, this.camera, this.objects.isPlayerInside());
         this.objects.draw(canvas);
 
         canvas.moveTo();
