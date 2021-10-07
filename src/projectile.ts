@@ -21,7 +21,7 @@ export class Projectile extends CollisionObject {
         this.friendly = false;
         this.spr = new Sprite(16, 16);
 
-        this.hitbox = new Vector2(8, 8);
+        this.hitbox = new Vector2(10, 10);
         this.collisionBox = new Vector2(2, 2);
 
         this.friction = new Vector2(0.1, 0.1);

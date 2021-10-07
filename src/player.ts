@@ -54,6 +54,7 @@ export class Player extends CollisionObject {
     private spinning : boolean;
     private spinCount : number;
     private canSpin : boolean;
+    private spinHitbox : Vector2;
 
     private invulnerabilityTimer : number;
     private knockbackTimer : number;
@@ -121,6 +122,7 @@ export class Player extends CollisionObject {
         this.spinCount = 0;
         this.spinning = false;
         this.canSpin = false;
+        this.spinHitbox = new Vector2(20, 4);
 
         this.downAttackWaitTimer = 0;
         this.downAttacking = false;
@@ -384,7 +386,8 @@ export class Player extends CollisionObject {
             this.jumpReleased = true;
         }
 
-        this.flapping = !this.canJump &&
+        this.flapping = !this.touchWater &&
+            !this.canJump &&
             !this.spinning &&
             this.progress.getBooleanProperty("item5") &&
             this.jumpReleased &&
@@ -402,6 +405,8 @@ export class Player extends CollisionObject {
 
 
     private spin(event : CoreEvent) : boolean {
+
+        if (this.climbing) return false;
 
         let s = event.input.getAction("fire3");
         if (this.spinning) {
@@ -490,6 +495,11 @@ export class Player extends CollisionObject {
             this.target.x *= SWIM_SPEED_REDUCTION_X;
             this.target.y *= SWIM_SPEED_REDUCTION_Y;
             this.friction.y *= SWIM_SPEED_REDUCTION_Y;
+
+            if (this.speed.y > this.target.y + EPS) {
+
+                this.speed.y = this.target.y;
+            }
         }
     }
 
@@ -505,6 +515,7 @@ export class Player extends CollisionObject {
         const SPIN_SPEED = 2;
         const SPIN_MAX = 2;
         const SYMBOL_SPEED = 16;
+        const SWIM_SPEED = 8;
 
         let animSpeed : number;
         let frame : number;
@@ -567,6 +578,21 @@ export class Player extends CollisionObject {
 
             if (Math.abs(this.speed.y) > EPS)
                 this.spr.animate(2, 3, 4, CLIMB_SPEED, event.step);
+
+            return;
+        }
+
+        if (this.touchWater) {
+
+            row = this.jumpTimer > 0 ? 6 : 5;
+
+            if (this.jumpTimer > 0 || Math.abs(this.target.x) > EPS ||
+                (this.jumpTimer <= 0 && this.spr.getRow() == 6) ||
+                this.spr.getRow() < 5 ||
+                this.spr.getRow() > 6) {
+
+                this.spr.animate(row, 4, 5, SWIM_SPEED, event.step);
+            }
 
             return;
         }
@@ -922,10 +948,36 @@ export class Player extends CollisionObject {
         level : number, event : CoreEvent) : boolean {
 
         const Y_OFF = -4;
+        const HEAD_TOUCH_HEIGHT = 8;
 
         y += Y_OFF;
 
-        if (!this.downAttacking || this.speed.y <= 0 || level == 1)
+        if (level == 1)
+            return false;
+
+        if (this.spinning &&
+            this.progress.getBooleanProperty("item8")) {
+
+            return boxOverlay(this.pos, new Vector2(0, -this.spinHitbox.y/2), 
+                this.spinHitbox, x, y, w, h);
+        }
+
+        if (this.speed.y < 0 &&
+            this.progress.getBooleanProperty("item10")) {
+
+            if (boxOverlay(this.pos, 
+                new Vector2(0, -this.collisionBox.y/2), 
+                new Vector2(this.collisionBox.x, HEAD_TOUCH_HEIGHT), 
+                x, y, w, h)) {
+
+                this.speed.y = 0;
+                this.jumpTimer = 0;
+
+                return true;
+            }
+        }
+
+        if (!this.downAttacking || this.speed.y <= 0)
             return false;
 
         return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);
@@ -987,7 +1039,7 @@ export class Player extends CollisionObject {
     public waterCollision(x : number, y : number, w : number, h : number, 
         top : boolean, event : CoreEvent) : boolean {
 
-        const UP_SPEED = -0.5;
+        const UP_SPEED = -0.25;
 
         if (this.inside) return false;
 
@@ -998,6 +1050,11 @@ export class Player extends CollisionObject {
             this.touchWater = true;
             this.canThrow = true;
             this.canSpin = true;
+            this.flapping = false;
+            this.doubleJump = false;
+
+            this.downAttacking = false;
+            this.downAttackWaitTimer = 0;
 
             if (!top && !this.progress.getBooleanProperty("item7")) {
 
