@@ -12,10 +12,19 @@ import { Vector2 } from "./vector.js";
 const DEATH_TIME = 30;
 
 
+enum DeathMode {
+
+    Normal = 0,
+    Spun = 1
+};
+
+
 export class Enemy extends CollisionObject {
 
     private deathTimer : number;
+    private deathMode : DeathMode;
     private starSprite : Sprite;
+    private deathPos : Vector2;
 
     protected canJump : boolean;
     protected oldCanJump : boolean;
@@ -29,7 +38,7 @@ export class Enemy extends CollisionObject {
     protected dir : number;
 
     protected canBeStomped : boolean;
-
+    protected canBeSpun : boolean;
 
     protected readonly id : number;
 
@@ -68,6 +77,11 @@ export class Enemy extends CollisionObject {
         this.previousShakeState = false;
 
         this.canBeStomped = true;
+        this.canBeSpun = true;
+
+        this.deathTimer = 0;
+        this.deathMode = DeathMode.Normal;
+        this.deathPos = this.pos.clone();
 
         this.dir = -1 + 2 * (Math.floor(x / 16) % 2); 
     }
@@ -75,8 +89,10 @@ export class Enemy extends CollisionObject {
 
     protected outsideCameraEvent() {
 
-        if (this.dying)
+        if (this.dying) {
+
             this.exist = false;
+        }
     }
 
     
@@ -84,15 +100,27 @@ export class Enemy extends CollisionObject {
 
         const ANIM_SPEED = 3;   
         const PUFF_SPEED = 4;
+        const DEATH_GRAVITY = 4.0;
 
         this.flip = Flip.None;
 
-        if (this.spr.getColumn() < 4)
-            this.spr.animate(0, 0, 4, PUFF_SPEED, event.step);
+        if (this.deathMode == DeathMode.Normal) {
+
+            if (this.spr.getColumn() < 4)
+                this.spr.animate(0, 0, 4, PUFF_SPEED, event.step);
+
+        }
+        else {
+
+            this.target.y = DEATH_GRAVITY;
+            this.updateMovement(event);
+        }
 
         this.starSprite.animate(1, 0, 3, ANIM_SPEED, event.step);
+        this.deathTimer -= event.step;
 
-        return ((this.deathTimer -= event.step) <= 0); 
+        return this.deathMode == DeathMode.Normal &&
+            this.deathMode <= 0; 
     }
 
 
@@ -138,11 +166,16 @@ export class Enemy extends CollisionObject {
     }
 
 
-    private drawDeath(canvas : Canvas) {
+    private drawDeath( canvas : Canvas) {
 
-        const COUNT = 6;
-        const OFFSET = (Math.PI/2) / 3;
+        const COUNT = [6, 4];
+        const OFFSET = [(Math.PI/2) / 3, Math.PI/4];
         const DISTANCE = 32.0;
+
+        if (this.deathTimer <= 0) return;
+
+        let count = COUNT[this.deathMode];
+        let offset = OFFSET[this.deathMode];
 
         let bmp = canvas.assets.getBitmap("enemies");
     
@@ -152,12 +185,12 @@ export class Enemy extends CollisionObject {
         let x : number;
         let y : number;
 
-        let px = Math.round(this.pos.x);
-        let py = Math.round(this.pos.y);
+        let px = Math.round(this.deathPos.x);
+        let py = Math.round(this.deathPos.y);
 
-        for (let i = 0; i < COUNT; ++ i) {
+        for (let i = 0; i < count; ++ i) {
 
-            angle = OFFSET + i * (Math.PI * 2 / COUNT);
+            angle = offset + i * (Math.PI * 2 / count);
 
             x = px + (Math.cos(angle) * t * DISTANCE);
             y = py + (Math.sin(angle) * t * DISTANCE);
@@ -187,7 +220,8 @@ export class Enemy extends CollisionObject {
         let py = Math.round(this.pos.y) - this.spr.height/2;
 
         let flip = this.flip;
-        if (this.knockDownTimer > 0) {
+        if (this.knockDownTimer > 0 || 
+            (this.dying && this.deathMode == DeathMode.Spun)) {
 
             flip |= Flip.Vertical;
             py += this.knockDownYOffset;
@@ -202,15 +236,19 @@ export class Enemy extends CollisionObject {
     protected playerEvent(player : Player, event : CoreEvent) { }
 
 
-    protected killSelf(progress : ProgressManager, event : CoreEvent) {
+    protected killSelf(progress : ProgressManager, event : CoreEvent, 
+        deathMode = DeathMode.Normal) {
 
         this.dying = true;
         this.knockDownTimer = 0;
         this.deathTimer = DEATH_TIME;
+        this.deathMode = deathMode;
 
         this.starSprite.setFrame((Math.random() * 4) | 0, 1);
 
         progress.increaseNumberProperty("kills", 1);
+
+        this.deathPos = this.pos.clone();
     }
 
 
@@ -220,6 +258,8 @@ export class Enemy extends CollisionObject {
         const STOMP_EXTRA_RANGE = 2;
         const SPEED_EPS = -0.25;
         const PLAYER_JUMP = -3.0;
+        const SPUN_FLY_SPEED_X = 2.0;
+        const SPUN_FLY_SPEED_Y = -2.0;
 
         if (!this.exist || !this.inCamera || this.dying) 
             return false;
@@ -231,6 +271,16 @@ export class Enemy extends CollisionObject {
 
         let py = player.getPos().y + hbox.y/2;
         let px = player.getPos().x - hbox.x/2;
+
+        if (this.canBeSpun && player.checkSpinOverlay(this)) {
+
+            this.target.x = (player.getPos().x < this.pos.x ? 1 : -1) * SPUN_FLY_SPEED_X;
+            this.speed.x = this.target.x;
+            this.speed.y = SPUN_FLY_SPEED_Y;
+
+            this.killSelf(player.progress, event, DeathMode.Spun);
+            return true;
+        }
 
         if ((this.canBeStomped || this.knockDownTimer > 0) &&
             player.getSpeed().y > SPEED_EPS &&

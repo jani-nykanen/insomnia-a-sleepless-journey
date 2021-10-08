@@ -172,6 +172,12 @@ export abstract class WeakGameObject extends ExistingObject {
             o.pos.y + o.center.y - o.hitbox.y/2,
             o.hitbox.x, o.hitbox.y);
 
+    public overlayObjectSpecialHitbox = (o : WeakGameObject, newCenter : Vector2, newHitbox : Vector2) : boolean =>
+        boxOverlay(this.pos, this.center, this.hitbox,
+            o.pos.x + newCenter.x - newHitbox.x/2,
+            o.pos.y + newCenter.y - newHitbox.y/2,
+            newHitbox.x, newHitbox.y);
+
 
     public forceKill() {
 

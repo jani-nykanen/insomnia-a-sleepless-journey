@@ -632,6 +632,8 @@ export class Stage {
 
         o.waterCollision(0, y, this.width*16, offset, true, event);
         o.waterCollision(0, y+offset, this.width*16, this.height*16 - y - offset, false, event);
+
+        o.verticalCollision(0, 4, this.width*16, -1, event, true);
     }
 
 

@@ -2,7 +2,7 @@ import { Camera } from "./camera.js";
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { Dust } from "./dust.js";
-import { boxOverlay, CollisionObject, nextObject } from "./gameobject.js";
+import { boxOverlay, CollisionObject, nextObject, WeakGameObject } from "./gameobject.js";
 import { negMod } from "./math.js";
 import { SpawnProjectileCallback } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
@@ -122,7 +122,7 @@ export class Player extends CollisionObject {
         this.spinCount = 0;
         this.spinning = false;
         this.canSpin = false;
-        this.spinHitbox = new Vector2(20, 4);
+        this.spinHitbox = new Vector2(24, 4);
 
         this.downAttackWaitTimer = 0;
         this.downAttacking = false;
@@ -406,7 +406,7 @@ export class Player extends CollisionObject {
 
     private spin(event : CoreEvent) : boolean {
 
-        if (this.climbing) return false;
+        if (this.climbing || this.throwing) return false;
 
         let s = event.input.getAction("fire3");
         if (this.spinning) {
@@ -1135,6 +1135,12 @@ export class Player extends CollisionObject {
         this.inside = inside;
         this.pos = pos.clone();
     }
+
+
+    public checkSpinOverlay = (o : WeakGameObject) : boolean => 
+        this.spinning &&
+        o.overlayObjectSpecialHitbox(this, new Vector2(0, -this.spinHitbox.y/2), 
+            this.spinHitbox);
 
 
     public isInside = () : boolean => this.inside;
