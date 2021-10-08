@@ -39,6 +39,7 @@ export class Enemy extends CollisionObject {
 
     protected canBeStomped : boolean;
     protected canBeSpun : boolean;
+    protected knockOnStomp : boolean;
 
     protected readonly id : number;
 
@@ -78,6 +79,7 @@ export class Enemy extends CollisionObject {
 
         this.canBeStomped = true;
         this.canBeSpun = true;
+        this.knockOnStomp = false;
 
         this.deathTimer = 0;
         this.deathMode = DeathMode.Normal;
@@ -91,7 +93,15 @@ export class Enemy extends CollisionObject {
 
         if (this.dying) {
 
-            this.exist = false;
+            if (this.deathMode == DeathMode.Spun &&
+                this.deathTimer > 0) {
+
+                this.inCamera = true;
+            }
+            else {
+
+                this.exist = false;
+            }
         }
     }
 
@@ -108,7 +118,6 @@ export class Enemy extends CollisionObject {
 
             if (this.spr.getColumn() < 4)
                 this.spr.animate(0, 0, 4, PUFF_SPEED, event.step);
-
         }
         else {
 
@@ -120,30 +129,39 @@ export class Enemy extends CollisionObject {
         this.deathTimer -= event.step;
 
         return this.deathMode == DeathMode.Normal &&
-            this.deathMode <= 0; 
+               this.deathTimer <= 0; 
     }
 
 
     protected updateAI(event : CoreEvent) { }
 
 
-    protected preMovementEvent(event : CoreEvent) {
+    private knockDown(jump = true) {
 
         const KNOCKDOWN_TIME = 150;
         const KNOCKDOWN_JUMP = -2.0;
+
+        this.target.x = 0;
+        this.speed.x = 0;
+
+        this.knockDownTimer = KNOCKDOWN_TIME;
+        if (jump) {
+
+            this.speed.y = KNOCKDOWN_JUMP;
+        }
+
+        this.spr.setFrame(0, this.spr.getRow());
+    }
+
+
+    protected preMovementEvent(event : CoreEvent) {
 
         if (this.canJump && event.isShaking() &&
             (this.knockDownTimer <= 0 || !this.previousShakeState)) {
 
             if (this.canBeKnockedDown) {
 
-                this.target.x = 0;
-                this.speed.x = 0;
-
-                this.knockDownTimer = KNOCKDOWN_TIME;
-                this.speed.y = KNOCKDOWN_JUMP;
-
-                this.spr.setFrame(0, this.spr.getRow());
+                this.knockDown(true);
             }
         }
 
@@ -272,7 +290,8 @@ export class Enemy extends CollisionObject {
         let py = player.getPos().y + hbox.y/2;
         let px = player.getPos().x - hbox.x/2;
 
-        if (this.canBeSpun && player.checkSpinOverlay(this)) {
+        if ((this.canBeSpun || this.knockDownTimer > 0) && 
+            player.checkSpinOverlay(this)) {
 
             this.target.x = (player.getPos().x < this.pos.x ? 1 : -1) * SPUN_FLY_SPEED_X;
             this.speed.x = this.target.x;
@@ -289,7 +308,15 @@ export class Enemy extends CollisionObject {
             py >= y && py <= y+h) {
 
             player.makeJump(PLAYER_JUMP);
-            this.killSelf(player.progress, event);
+
+            if (this.knockOnStomp && !player.isDownAttacking()) {
+
+                this.knockDown(false);
+            }
+            else {
+
+                this.killSelf(player.progress, event);
+            }
 
             return true;
         }
@@ -385,6 +412,7 @@ export class SpikeSlime extends Enemy {
         this.knockDownYOffset = 5;
 
         this.canBeStomped = false;
+        this.canBeSpun = false;
     }
 
 
@@ -418,9 +446,11 @@ export class Turtle extends Enemy {
 
         const SPEED = 0.20;
 
-        super(x, y, 2, true);
+        super(x, y+1, 2, true);
 
         this.spr.setFrame(0, this.spr.getRow());
+
+        this.knockOnStomp = true;
 
         this.collisionBox.x = 4;
         this.center = new Vector2(0, 3);

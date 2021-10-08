@@ -27,7 +27,7 @@ export class GameScene implements Scene {
 
     constructor(param : any, event : CoreEvent) {
 
-        this.message = new MessageBox();
+        this.message = new MessageBox(event);
         this.progress = new ProgressManager();
 
         this.camera = new Camera(0, 0, 160, 144);
@@ -50,13 +50,17 @@ export class GameScene implements Scene {
                 new MenuButton("Respawn",
                 event => {
 
+                    this.message.addMessages([event.localization.findValue(["respawn"])]);
+                    this.message.activate(0, true, event => {
+
+                        console.log("To be implemented");
+                    });
                 }),
 
                 new MenuButton("Save Game",
                 event => {
 
                 }),
-
 
                 new MenuButton("DEBUG", 
                 event => {
@@ -103,15 +107,15 @@ export class GameScene implements Scene {
             return;
         }
 
-        if (this.pauseMenu.isActive()) {
-
-            this.pauseMenu.update(event);
-            return;
-        }
-
         if (this.message.isActive()) {
 
             this.message.update(event);
+            return;
+        }
+
+        if (this.pauseMenu.isActive()) {
+
+            this.pauseMenu.update(event);
             return;
         }
 
@@ -185,14 +189,23 @@ export class GameScene implements Scene {
 
         canvas.moveTo();
         this.drawHUD(canvas);
-        this.message.draw(canvas);
+
+        if (!this.pauseMenu.isActive())
+            this.message.draw(canvas);
 
         if (this.pauseMenu.isActive()) {
 
             canvas.setFillColor(0, 0, 0, 0.67);
             canvas.fillRect();
 
-            this.pauseMenu.draw(canvas, 0, 0, 0, 10, true); 
+            if (this.message.isActive()) {
+
+                this.message.draw(canvas);
+            }
+            else {
+
+                this.pauseMenu.draw(canvas, 0, 0, 0, 10, true); 
+            }
         }
     }
 

@@ -89,5 +89,11 @@
 
     "open": [
         "You use your\nMASTER KEY to\nunlock the door."
-    ]
+    ],
+
+    "yes": "Yes",
+    "no": "No",
+
+    "respawn": "Kill yourself\nand respawn\nin the latest\ncheckpoint?"
+    
 }

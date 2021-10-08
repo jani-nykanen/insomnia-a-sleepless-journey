@@ -1147,4 +1147,6 @@ export class Player extends CollisionObject {
 
     public maxHealth = () : number => this.progress.getBooleanProperty("item9") ? 4 : 3;
     public getHealth = () : number => this.health;
+
+    public isDownAttacking = () : boolean => this.downAttacking;
 }

@@ -1,5 +1,6 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
+import { Menu, MenuButton } from "./menu.js";
 import { Vector2 } from "./vector.js";
 
 
@@ -42,8 +43,12 @@ export class MessageBox {
     private waitTimer : number;
     private waveTimer : number;
 
+    private yesNoBox : Menu;
+    private confirmEvent : (event : CoreEvent) => void;
+    private confirm : boolean;
 
-    constructor() {
+
+    constructor(event : CoreEvent) {
 
         this.queue = new Array<string> ();
         this.sizes = new Array<Vector2> ();
@@ -58,6 +63,21 @@ export class MessageBox {
 
         this.waitTimer = 0;
         this.waveTimer = 0;
+
+        let loc = event.localization;
+    
+        this.yesNoBox = new Menu(
+            [
+                new MenuButton(loc.findValue(["yes"]), event => {
+
+                    this.confirmEvent(event);
+                }),
+                new MenuButton(loc.findValue(["no"]), event => {
+
+                    this.deactivate();
+                }),
+            ]
+        );
     }
 
 
@@ -77,7 +97,8 @@ export class MessageBox {
     }
 
 
-    public activate(waitTime = 0) {
+    public activate(waitTime = 0, confirm = false, 
+        confirmEvent = (event : CoreEvent) => {}) {
 
         if (this.queue.length == 0) return;
 
@@ -91,10 +112,18 @@ export class MessageBox {
         this.currentSize = this.sizes.shift().clone();
 
         this.waitTimer = waitTime;
+
+        this.confirm = confirm;
+        this.confirmEvent = confirmEvent;
+
+        this.yesNoBox.activate(1);
     }
 
 
     public deactivate() {
+
+        this.queue.length = 0;
+        this.sizes.length = 0;
 
         this.active = false;
     }
@@ -143,7 +172,11 @@ export class MessageBox {
             
             this.waveTimer = (this.waveTimer + WAVE_SPEED) % (Math.PI * 2);
 
-            if (event.input.anyPressed()) {
+            if (this.confirm && this.queue.length == 0) {
+
+                this.yesNoBox.update(event);
+            } 
+            else if (event.input.anyPressed()) {
 
                 this.ready = false;
 
@@ -189,8 +222,15 @@ export class MessageBox {
 
         if (this.ready) {
 
-            canvas.drawBitmapRegion(font, 8, 0, 8, 8,
-                x + w - 2, y + h + symbolOffset - 2);
+            if (this.confirm && this.queue.length == 0) {
+
+                this.yesNoBox.draw(canvas, w/4, h-2, 0, 12, true);
+            }
+            else {
+
+                canvas.drawBitmapRegion(font, 8, 0, 8, 8,
+                    x + w - 2, y + h + symbolOffset - 2);
+            }
         }
     }
 
