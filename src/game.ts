@@ -1,6 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
+import { WorldMap } from "./map.js";
 import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
@@ -19,6 +20,7 @@ export class GameScene implements Scene {
     private objects : ObjectManager;
     private message : MessageBox;
     private progress : ProgressManager;
+    private worldMap : WorldMap;
 
     private sprHeart : Sprite;
 
@@ -33,8 +35,13 @@ export class GameScene implements Scene {
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(this.progress, event);
         this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
+        this.worldMap = new WorldMap(this.stage, this.progress);
 
         this.objects.cameraCheck(this.camera);
+
+        let p = this.camera.getRealPosition();
+        this.progress.setBooleanProperty(
+            "visited" + String((p.y * Math.floor(this.stage.width/10) + p.x) | 0));
 
         this.sprHeart = new Sprite(16, 16);
 
@@ -113,6 +120,12 @@ export class GameScene implements Scene {
             return;
         }
 
+        if (this.worldMap.isActive()) {
+
+            this.worldMap.update(event);
+            return;
+        }
+
         if (this.pauseMenu.isActive()) {
 
             this.pauseMenu.update(event);
@@ -122,6 +135,12 @@ export class GameScene implements Scene {
         if (event.input.getAction("start") == State.Pressed) {
 
             this.pauseMenu.activate(0);
+            return;
+        }
+
+        if (event.input.getAction("map") == State.Pressed) {
+
+            this.worldMap.activate(this.stage, this.objects, this.camera);
             return;
         }
 
@@ -190,7 +209,9 @@ export class GameScene implements Scene {
         canvas.moveTo();
         this.drawHUD(canvas);
 
-        if (!this.pauseMenu.isActive())
+        this.worldMap.draw(canvas);
+
+        if (!this.pauseMenu.isActive()) 
             this.message.draw(canvas);
 
         if (this.pauseMenu.isActive()) {

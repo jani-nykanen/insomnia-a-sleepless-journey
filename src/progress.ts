@@ -1,3 +1,5 @@
+import { Camera } from "./camera.js";
+import { Stage } from "./stage.js";
 import { KeyValuePair } from "./types.js";
 
 
@@ -61,5 +63,11 @@ export class ProgressManager {
             }
         }
         this.setNumberProperty(key, amount);
+    }
+
+
+    public markRoomVisited(x : number, y : number, stage : Stage) {
+
+        this.setBooleanProperty("visited" + String((y * Math.floor(stage.width/10) + x) | 0));
     }
 }

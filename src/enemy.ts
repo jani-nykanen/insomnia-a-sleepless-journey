@@ -307,9 +307,10 @@ export class Enemy extends CollisionObject {
             px <= this.pos.x + this.hitbox.x/2 + STOMP_EXTRA_RANGE &&
             py >= y && py <= y+h) {
 
-            player.makeJump(PLAYER_JUMP);
+            if (!player.isSpinning())
+                player.makeJump(PLAYER_JUMP);
 
-            if (this.knockOnStomp && !player.isDownAttacking()) {
+            if (this.knockOnStomp && !player.isDownAttacking() && !player.isSpinning()) {
 
                 this.knockDown(false);
             }

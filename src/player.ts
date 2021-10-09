@@ -71,6 +71,8 @@ export class Player extends CollisionObject {
 
     private health : number;
 
+    private hasTeleported : boolean;
+
     private projectileCb : SpawnProjectileCallback;
 
     public readonly progress : ProgressManager;
@@ -141,6 +143,8 @@ export class Player extends CollisionObject {
         this.inside = false;
 
         this.health = 3;
+
+        this.hasTeleported = false;
 
         this.projectileCb = projectileCb;
 
@@ -735,6 +739,7 @@ export class Player extends CollisionObject {
         this.showActionSymbol = false;
         this.holdingItem = false;
         this.touchWater = false;
+        this.hasTeleported = false;
     }
 
 
@@ -791,6 +796,20 @@ export class Player extends CollisionObject {
     }
 
 
+    public stageEvent(stage : Stage, camera : Camera) {
+
+        let cp : Vector2;
+
+        if (this.hasTeleported) {
+
+            cp = camera.getRealPosition();
+
+            this.progress.markRoomVisited(cp.x, cp.y, stage);
+            this.hasTeleported = false;
+        }
+    }
+
+
     public cameraMovement(camera : Camera, event : CoreEvent) {
 
         const MOVE_SPEED = 12;
@@ -805,7 +824,7 @@ export class Player extends CollisionObject {
     }
 
 
-    public cameraEvent(camera : Camera, event : CoreEvent) {
+    public cameraEvent(camera : Camera, stage : Stage, event : CoreEvent) {
 
         const CAMERA_MOVE_SPEED = 1.0/20.0;
         const HIT_RANGE_X = 4;
@@ -839,9 +858,16 @@ export class Player extends CollisionObject {
         else if (this.pos.y + HIT_RANGE_Y > y2)
             diry = 1;
 
+        let cp : Vector2;
         if (dirx != 0 || diry != 0) {
 
             camera.move(dirx, diry, CAMERA_MOVE_SPEED);
+
+            cp = camera.getRealPosition();
+            cp.x += dirx;
+            cp.y += diry;
+
+            this.progress.markRoomVisited(cp.x, cp.y, stage);
         }
     }
 
@@ -1134,6 +1160,8 @@ export class Player extends CollisionObject {
 
         this.inside = inside;
         this.pos = pos.clone();
+
+        this.hasTeleported = true;
     }
 
 
@@ -1149,4 +1177,5 @@ export class Player extends CollisionObject {
     public getHealth = () : number => this.health;
 
     public isDownAttacking = () : boolean => this.downAttacking;
+    public isSpinning = () : boolean => this.spinning;
 }

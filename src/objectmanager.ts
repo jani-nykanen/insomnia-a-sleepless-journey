@@ -206,8 +206,9 @@ export class ObjectManager {
             return;
         }
 
+        this.player.stageEvent(stage, camera);
         this.player.update(event);
-        this.player.cameraEvent(camera, event);
+        this.player.cameraEvent(camera, stage, event);
         stage.objectCollisions(this.player, camera, event);
 
         for (let p of this.projectiles) {
