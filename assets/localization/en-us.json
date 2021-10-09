@@ -75,6 +75,17 @@
         [
             "You obtain a\n\"POISON MUSH-\nROOM OF AWE-\nSOME POWERS\"!",
             "Now you can\nbreak blocks\nfrom below.\nWith your...\nhead?"
+        ],
+
+        [
+            "You obtain a\n\"MAGIC MAP!\"",
+            "It will show\nyou the places\nyou have vis-\nited and the\ntreasure you\nhave missed.",
+            "Press Left\nShift to\nopen it."
+        ],
+
+        [
+            "You obtain a\n\"BRAIN!\"",
+            "It will show\nyou ALL the\ntreasure (and\nenemies) you\nhave not yet\nfound."
         ]
     ],
 
