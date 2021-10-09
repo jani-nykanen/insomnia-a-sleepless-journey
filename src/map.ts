@@ -49,9 +49,31 @@ export class WorldMap {
 
         this.pos = camera.getRealPosition();
 
+        let w = Math.floor(stage.width/10);
+        let dx : number;
+        let dy : number;
+
         for (let i = 0; i < this.width * this.height; ++ i) {
 
             this.visited[i] = this.progress.getBooleanProperty("visited" + String(i));
+            if (this.visited[i]) {
+
+                dx = i % w;
+                dy = (i / w) | 0;
+
+                this.stars[i] = objects.hasStarInArea(
+                    dx*camera.width, dy*camera.height, 
+                    camera.width, camera.height);
+
+                this.enemies[i] = objects.hasEnemyInArea(
+                    dx*camera.width, dy*camera.height, 
+                    camera.width, camera.height);
+            }
+            else {
+
+                this.stars[i] = false;
+                this.enemies[i] = false;
+            }
         }
 
         this.active = true;
@@ -80,6 +102,8 @@ export class WorldMap {
 
         if (!this.active) return;
 
+        let bmp = canvas.assets.getBitmap("mapIcons");
+
         canvas.setFillColor(0, 0, 0, 0.67);
         canvas.fillRect();
 
@@ -91,6 +115,8 @@ export class WorldMap {
 
         drawBox(canvas, dx-MARGIN, dy-MARGIN, w + MARGIN*2, h + MARGIN*2);
 
+        let sx : number;
+
         for (let y = 0; y < this.height; ++ y) {
 
             for (let x = 0; x < this.width; ++ x) {
@@ -98,12 +124,35 @@ export class WorldMap {
                 if (!this.visited[y * this.width + x])
                     continue;
 
-                if (x != this.pos.x || y != this.pos.y || this.flickerTime >= 0.5)
-                    canvas.setFillColor(170, 170, 255);
-                else
-                    canvas.setFillColor(255, 255, 255);
-                    
+                canvas.setFillColor(170, 170, 255);
                 canvas.fillRect(dx + x*10, dy + y*9, 10, 9);
+
+                if (this.flickerTime < 0.5 &&
+                    x == this.pos.x && y == this.pos.y) {
+
+                    canvas.drawBitmapRegion(bmp, 30, 0, 10, 9,
+                        dx + x*10, dy + y*9);
+                }
+
+                sx = -1;
+                if (this.stars[y * this.width + x] && this.enemies[y * this.width + x]) {
+
+                    sx = 0;
+                }
+                else if (this.stars[y * this.width + x]) {
+
+                    sx = 10;
+                }
+                else if(this.enemies[y * this.width + x]) {
+
+                    sx = 20;
+                }
+
+                if (sx >= 0) {
+
+                    canvas.drawBitmapRegion(bmp, sx, 0, 10, 9,
+                        dx + x*10, dy + y*9);
+                }
             }
         }
     }   

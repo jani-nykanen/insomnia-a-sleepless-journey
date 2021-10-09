@@ -1,4 +1,5 @@
 import { Camera } from "./camera.js";
+import { negMod } from "./math.js";
 import { Stage } from "./stage.js";
 import { KeyValuePair } from "./types.js";
 
@@ -68,6 +69,9 @@ export class ProgressManager {
 
     public markRoomVisited(x : number, y : number, stage : Stage) {
 
-        this.setBooleanProperty("visited" + String((y * Math.floor(stage.width/10) + x) | 0));
+        let w = Math.floor(stage.width/10);
+        x = negMod(x, w);
+
+        this.setBooleanProperty("visited" + String((y * w + x) | 0));
     }
 }

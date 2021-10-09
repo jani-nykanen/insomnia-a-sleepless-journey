@@ -140,7 +140,7 @@ export class AssetManager {
 
         ++ this.total;
         
-        this.loadTextFile(url, "xml", (str : string) => {
+        this.loadTextFile(url, "json", (str : string) => {
 
             this.documents.addAsset(name, str);
             ++ this.loaded;

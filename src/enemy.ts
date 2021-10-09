@@ -65,7 +65,7 @@ export class Enemy extends CollisionObject {
         this.canBeKnockedDown = true;
         this.knockDownTimer = 0;
 
-        this.friction = new Vector2(0.1, 0.1);
+        this.friction = new Vector2(0.1, 0.15);
         if (baseGravity) {
 
             this.target.y = BASE_GRAVITY;
@@ -139,7 +139,7 @@ export class Enemy extends CollisionObject {
     private knockDown(jump = true) {
 
         const KNOCKDOWN_TIME = 150;
-        const KNOCKDOWN_JUMP = -2.0;
+        const KNOCKDOWN_JUMP = -2.5;
 
         this.target.x = 0;
         this.speed.x = 0;
@@ -276,8 +276,8 @@ export class Enemy extends CollisionObject {
         const STOMP_EXTRA_RANGE = 2;
         const SPEED_EPS = -0.25;
         const PLAYER_JUMP = -3.0;
-        const SPUN_FLY_SPEED_X = 2.0;
-        const SPUN_FLY_SPEED_Y = -2.0;
+        const SPUN_FLY_SPEED_X = 3.0;
+        const SPUN_FLY_SPEED_Y = -3.0;
 
         if (!this.exist || !this.inCamera || this.dying) 
             return false;

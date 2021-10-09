@@ -5,7 +5,7 @@ import { Star } from "./star.js";
 import { CoreEvent } from "./core.js";
 import { Door } from "./door.js";
 import { Enemy, getEnemyType } from "./enemy.js";
-import { nextObject } from "./gameobject.js";
+import { nextObject, WeakGameObject } from "./gameobject.js";
 import { StrongInteractionTarget, WeakInteractionTarget } from "./interactiontarget.js";
 import { Lever } from "./lever.js";
 import { MessageBox } from "./messagebox.js";
@@ -15,6 +15,7 @@ import { ProgressManager } from "./progress.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
 import { Switch } from "./switch.js";
+import { Vector2 } from "./vector.js";
 
 
 export type SpawnProjectileCallback = 
@@ -22,6 +23,25 @@ export type SpawnProjectileCallback =
     speedx : number, speedy : number, 
     getGravity : boolean, id : number,
     friendly : boolean) => void;
+
+
+const objectInArea = (arr : Array<WeakGameObject>,
+    dx : number, dy : number, width : number, height : number) : boolean => {
+
+    let p : Vector2;
+
+    for (let a of arr) {
+
+        if (!a.doesExist() || a.isDying()) 
+            continue;
+
+        p = a.getPos();
+        if (p.x >= dx && p.y >= dy && p.x <= dx + width && p.y <= dy + height)
+            return true;
+    }
+    
+    return false;
+}
 
 
 export class ObjectManager {
@@ -34,6 +54,9 @@ export class ObjectManager {
     private strongInteractionTargets : Array<StrongInteractionTarget>;
     private doors : Array<Door>;
     private enemies : Array<Enemy>;
+    
+    // Refer to the weak-i-t- array
+    private stars : Array<Star>;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -62,6 +85,8 @@ export class ObjectManager {
         this.strongInteractionTargets = new Array<StrongInteractionTarget> ();
         this.doors = new Array<Door> ();
         this.enemies = new Array<Enemy> ();
+
+        this.stars = new Array<Star> ();
 
         this.message = message;
 
@@ -117,7 +142,9 @@ export class ObjectManager {
 
     public addStar(x : number, y : number) {
 
-        this.weakInteractionTargets.push(new Star(x*16+8, y*16+8));
+        let s = new Star(x*16+8, y*16+8);
+        this.weakInteractionTargets.push(s);
+        this.stars.push(s);
     }
 
 
@@ -294,4 +321,15 @@ export class ObjectManager {
     public isPlayerInside = () : boolean => this.player.isInside();
     public getPlayerHealth = () : number => this.player.getHealth();
     public getPlayerMaxHealth = () : number => this.player.maxHealth();
+
+
+    public hasStarInArea = 
+        (dx : number, dy : number, 
+        width : number, height : number) : boolean => 
+        objectInArea(this.stars, dx, dy, width, height);
+
+    public hasEnemyInArea = 
+        (dx : number, dy : number, 
+        width : number, height : number) : boolean => 
+        objectInArea(this.enemies, dx, dy, width, height);
 }
