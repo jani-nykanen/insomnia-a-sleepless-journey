@@ -16,6 +16,7 @@ import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
 import { Switch } from "./switch.js";
 import { Vector2 } from "./vector.js";
+import { SavePoint } from "./savepoint.js";
 
 
 export type SpawnProjectileCallback = 
@@ -169,6 +170,12 @@ export class ObjectManager {
     public addDoor(x : number, y : number, id : number, inside : boolean) {
         
         this.doors.push(new Door(x*16+8, y*16+8, id, inside, this.message));
+    }
+
+
+    public addSavepoint(x : number, y : number, id : number) {
+
+        this.strongInteractionTargets.push(new SavePoint(x*16+8, y*16+8, id, this.message));
     }
 
 

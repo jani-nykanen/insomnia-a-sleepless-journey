@@ -270,14 +270,23 @@ export class Enemy extends CollisionObject {
     }
 
 
+    private spinKnockback(player : Player) {
+
+        const SPUN_FLY_SPEED_X = 3.0;
+        const SPUN_FLY_SPEED_Y = -3.0;
+
+        this.target.x = (player.getPos().x < this.pos.x ? 1 : -1) * SPUN_FLY_SPEED_X;
+        this.speed.x = this.target.x;
+        this.speed.y = SPUN_FLY_SPEED_Y;
+    }
+
+
     public playerCollision(player : Player, event : CoreEvent) : boolean {
 
         const STOMP_MARGIN = 4;
         const STOMP_EXTRA_RANGE = 2;
         const SPEED_EPS = -0.25;
         const PLAYER_JUMP = -3.0;
-        const SPUN_FLY_SPEED_X = 3.0;
-        const SPUN_FLY_SPEED_Y = -3.0;
 
         if (!this.exist || !this.inCamera || this.dying) 
             return false;
@@ -293,11 +302,9 @@ export class Enemy extends CollisionObject {
         if ((this.canBeSpun || this.knockDownTimer > 0) && 
             player.checkSpinOverlay(this)) {
 
-            this.target.x = (player.getPos().x < this.pos.x ? 1 : -1) * SPUN_FLY_SPEED_X;
-            this.speed.x = this.target.x;
-            this.speed.y = SPUN_FLY_SPEED_Y;
-
+            this.spinKnockback(player);
             this.killSelf(player.progress, event, DeathMode.Spun);
+
             return true;
         }
 
@@ -307,8 +314,16 @@ export class Enemy extends CollisionObject {
             px <= this.pos.x + this.hitbox.x/2 + STOMP_EXTRA_RANGE &&
             py >= y && py <= y+h) {
 
-            if (!player.isSpinning())
+            if (!player.isSpinning()) {
+                
                 player.makeJump(PLAYER_JUMP);
+            }
+            else if (this.canBeSpun) {
+
+                this.spinKnockback(player);
+                this.killSelf(player.progress, event, DeathMode.Spun);
+                return true;
+            }
 
             if (this.knockOnStomp && !player.isDownAttacking() && !player.isSpinning()) {
 
@@ -318,7 +333,6 @@ export class Enemy extends CollisionObject {
 
                 this.killSelf(player.progress, event);
             }
-
             return true;
         }
 

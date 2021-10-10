@@ -79,13 +79,13 @@
 
         [
             "You obtain a\n\"MAGIC MAP!\"",
-            "It will show\nyou the places\nyou have vis-\nited and the\ntreasure you\nhave missed.",
+            "It will show\nyou the places\nyou have vis-\nited. It also\nshows you stars\nand enemies you\nmay have missed.",
             "Press Left\nShift to\nopen it."
         ],
 
         [
             "You obtain a\n\"BRAIN!\"",
-            "It will show\nyou ALL the\ntreasure (and\nenemies) you\nhave not yet\nfound."
+            "It will show\nyou ALL the\nstars and\nenemies you\nhave not yet\nfound/killed."
         ]
     ],
 
@@ -105,6 +105,20 @@
     "yes": "Yes",
     "no": "No",
 
-    "respawn": "Kill yourself\nand respawn\nin the latest\ncheckpoint?"
+    "worldMap": "WORLD MAP",
+
+    "respawn": "Kill yourself\nand respawn\nin the latest\ncheckpoint?",
+
+
+    "pauseMenu": [
+        "Resume",
+        "Respawn",
+        "Save Game",
+        "World Map",
+        "Quit GAme"
+    ],
+
+
+    "noMap": ["You do not\nhave a map\nyet!"]
     
 }

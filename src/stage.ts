@@ -371,6 +371,11 @@ export class Stage {
                     objects.addDoor(x, y, id, tid == 8);
                     break;
 
+                // Save point
+                case 9:
+                    objects.addSavepoint(x, y, id);
+                    break;
+
                 default:
 
                     if (tid >= 17 && tid < 17+16) {
@@ -652,4 +657,5 @@ export class Stage {
             }
         }   
     }
+
 }

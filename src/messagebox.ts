@@ -182,6 +182,7 @@ export class MessageBox {
 
                 if (this.queue.length == 0) {
 
+                    this.confirmEvent(event);
                     this.deactivate();
                 }
                 else {

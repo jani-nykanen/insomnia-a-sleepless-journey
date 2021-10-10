@@ -50,10 +50,12 @@ export class StrongInteractionTarget extends WeakInteractionTarget {
 
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {}
-
+    protected extendedPlayerCollisionEvent(player : Player, event : CoreEvent) {}
 
 
     protected playerCollisionEvent(player : Player, camera : Camera, event : CoreEvent) {
+
+        this.extendedPlayerCollisionEvent(player, event);
 
         if (!player.touchGround()) return;
 

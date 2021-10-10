@@ -35,7 +35,7 @@ export class GameScene implements Scene {
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(this.progress, event);
         this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
-        this.worldMap = new WorldMap(this.stage, this.progress);
+        this.worldMap = new WorldMap(this.stage, this.progress, event);
 
         this.objects.cameraCheck(this.camera);
 
@@ -45,16 +45,18 @@ export class GameScene implements Scene {
 
         this.sprHeart = new Sprite(16, 16);
 
+        let loc = event.localization;
+
         // TODO: Get names from localization
         this.pauseMenu = new Menu(
             [
-                new MenuButton("Resume",
+                new MenuButton(loc.findValue(["pauseMenu", "0"]),
                 event => {
                     
                     this.pauseMenu.deactivate();
                 }),
 
-                new MenuButton("Respawn",
+                new MenuButton(loc.findValue(["pauseMenu", "1"]),
                 event => {
 
                     this.message.addMessages([event.localization.findValue(["respawn"])]);
@@ -64,17 +66,27 @@ export class GameScene implements Scene {
                     });
                 }),
 
-                new MenuButton("Save Game",
+                new MenuButton(loc.findValue(["pauseMenu", "2"]),
                 event => {
 
+                }),
+
+                new MenuButton(loc.findValue(["pauseMenu", "3"]),
+                event => {
+
+                    if (this.activateMap(() => {
+                            this.pauseMenu.activate(3);
+                        }, event)) {
+
+                        this.pauseMenu.deactivate();
+                    }
                 }),
 
                 new MenuButton("DEBUG", 
                 event => {
 
-                    for (let i = 0; i < 11; ++ i) {
-                        
-                        // if (i == 6) continue;
+                    for (let i = 0; i <= 12; ++ i) {
+
                         this.progress.setBooleanProperty("item" + String(i), true);
                     }
                     this.progress.setBooleanProperty("fansEnabled");
@@ -82,13 +94,28 @@ export class GameScene implements Scene {
                     this.pauseMenu.deactivate();
                 }),
 
-                new MenuButton("Quit Game",
+                new MenuButton(loc.findValue(["pauseMenu", "4"]),
                 event => {
 
                     this.pauseMenu.deactivate();
                 })
             ]
         );
+    }
+
+
+    private activateMap(cb : (event : CoreEvent) => void, event : CoreEvent): boolean {
+
+        if (!this.progress.getBooleanProperty("item11")) {
+
+            this.message.addMessages(event.localization.findValue(["noMap"]));
+            this.message.activate(0, false, cb);
+            return false;
+        }
+
+        this.worldMap.activate(this.stage, this.objects, this.camera);
+
+        return true;
     }
 
 
@@ -140,7 +167,7 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("map") == State.Pressed) {
 
-            this.worldMap.activate(this.stage, this.objects, this.camera);
+            this.activateMap(() => {}, event);
             return;
         }
 

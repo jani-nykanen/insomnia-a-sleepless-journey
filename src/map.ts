@@ -1,6 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
+import { Localization } from "./localization.js";
 import { drawBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
@@ -26,8 +27,10 @@ export class WorldMap {
 
     private readonly progress : ProgressManager;
 
+    private readonly loc : Localization;
 
-    constructor(stage : Stage, progress : ProgressManager) {
+
+    constructor(stage : Stage, progress : ProgressManager, event : CoreEvent) {
 
         this.width = (stage.width / 10) | 0;
         this.height = (stage.height / 9) | 0;
@@ -42,6 +45,8 @@ export class WorldMap {
 
         this.active = false;
         this.flickerTime = 0;
+
+        this.loc = event.localization;
     }
 
 
@@ -56,7 +61,8 @@ export class WorldMap {
         for (let i = 0; i < this.width * this.height; ++ i) {
 
             this.visited[i] = this.progress.getBooleanProperty("visited" + String(i));
-            if (this.visited[i]) {
+            if (this.visited[i] ||
+                this.progress.getBooleanProperty("item12")) {
 
                 dx = i % w;
                 dy = (i / w) | 0;
@@ -121,11 +127,11 @@ export class WorldMap {
 
             for (let x = 0; x < this.width; ++ x) {
 
-                if (!this.visited[y * this.width + x])
-                    continue;
+                if (this.visited[y * this.width + x]) {
 
-                canvas.setFillColor(170, 170, 255);
-                canvas.fillRect(dx + x*10, dy + y*9, 10, 9);
+                    canvas.setFillColor(170, 170, 255);
+                    canvas.fillRect(dx + x*10, dy + y*9, 10, 9);
+                }
 
                 if (this.flickerTime < 0.5 &&
                     x == this.pos.x && y == this.pos.y) {
@@ -155,6 +161,10 @@ export class WorldMap {
                 }
             }
         }
+
+        canvas.drawText(canvas.assets.getBitmap("fontYellow"),
+            this.loc.findValue(["worldMap"]), 
+            canvas.width/2, 8, 0, 0, true);
     }   
 
 

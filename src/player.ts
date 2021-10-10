@@ -6,6 +6,7 @@ import { boxOverlay, CollisionObject, nextObject, WeakGameObject } from "./gameo
 import { negMod } from "./math.js";
 import { SpawnProjectileCallback } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
+import { SavePoint } from "./savepoint.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
 import { State } from "./types.js";
@@ -68,10 +69,11 @@ export class Player extends CollisionObject {
     private itemID : number;
 
     private inside : boolean;
+    private hasTeleported : boolean;
 
     private health : number;
 
-    private hasTeleported : boolean;
+    private activeCheckpoint : SavePoint;
 
     private projectileCb : SpawnProjectileCallback;
 
@@ -141,10 +143,11 @@ export class Player extends CollisionObject {
         this.itemID = 0;
 
         this.inside = false;
+        this.hasTeleported = false;
 
         this.health = 3;
 
-        this.hasTeleported = false;
+        this.activeCheckpoint = null;
 
         this.projectileCb = projectileCb;
 
@@ -1178,4 +1181,11 @@ export class Player extends CollisionObject {
 
     public isDownAttacking = () : boolean => this.downAttacking;
     public isSpinning = () : boolean => this.spinning;
+
+
+    public getActiveCheckpointReference = () : SavePoint => this.activeCheckpoint;
+    public setActiveCheckpointReference(p : SavePoint) {
+
+        this.activeCheckpoint = p;
+    }
 }
