@@ -18,7 +18,7 @@ const getProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, def : T) : T
 }
 
 
-const setProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, value : T) => {
+const setProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, value : T) : void => {
 
     for (let e of arr) {
 
@@ -29,6 +29,26 @@ const setProperty = <T>(arr : Array<KeyValuePair<T>>, key : string, value : T) =
         }
     }
     arr.push(new KeyValuePair<T>(key, value));
+}
+
+
+const dumpProperties = <T>(arr : Array<KeyValuePair<T>>) : string => {
+
+    let str = "{\n";
+
+    let a : KeyValuePair<T>;
+    for (let i = 0; i < arr.length; ++ i) {
+
+        a = arr[i];
+        str += '"' + a.key + '": ' + String(a.value);
+        if (i != arr.length-1)
+            str += ",";
+
+        str += "\n";
+    }
+    str += "}";
+
+    return str;
 }
 
 
@@ -74,4 +94,9 @@ export class ProgressManager {
 
         this.setBooleanProperty("visited" + String((y * w + x) | 0));
     }
+
+
+    public dump = () : string => 
+        "\"boolProp\": " + dumpProperties<boolean>(this.booleanProperties) +
+        "\n" + "\"numberProp\": " + dumpProperties<number>(this.numberProperties);
 }

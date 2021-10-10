@@ -6,6 +6,7 @@ import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
+import { SaveManager } from "./savemanager.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
 import { State } from "./types.js";
@@ -21,6 +22,7 @@ export class GameScene implements Scene {
     private message : MessageBox;
     private progress : ProgressManager;
     private worldMap : WorldMap;
+    private saveManager : SaveManager;
 
     private sprHeart : Sprite;
 
@@ -31,10 +33,12 @@ export class GameScene implements Scene {
 
         this.message = new MessageBox(event);
         this.progress = new ProgressManager();
+        this.saveManager = new SaveManager(this.progress);
 
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(this.progress, event);
-        this.objects = new ObjectManager(this.stage, this.camera, this.message, this.progress);
+        this.objects = new ObjectManager(this.stage, this.camera, 
+            this.message, this.progress, this.saveManager);
         this.worldMap = new WorldMap(this.stage, this.progress, event);
 
         this.objects.cameraCheck(this.camera);

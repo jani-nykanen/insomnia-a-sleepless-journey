@@ -70,6 +70,7 @@ export class MessageBox {
             [
                 new MenuButton(loc.findValue(["yes"]), event => {
 
+                    this.deactivate();
                     this.confirmEvent(event);
                 }),
                 new MenuButton(loc.findValue(["no"]), event => {

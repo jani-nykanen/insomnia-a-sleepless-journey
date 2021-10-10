@@ -4,6 +4,7 @@ import { CoreEvent } from "./core.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
 import { MessageBox } from "./messagebox.js";
 import { Player } from "./player.js";
+import { SaveManager } from "./savemanager.js";
 import { Sprite } from "./sprite.js";
 import { Vector2 } from "./vector.js";
 
@@ -22,9 +23,11 @@ export class SavePoint extends StrongInteractionTarget {
     private messageTimer : number;
 
     private readonly message : MessageBox;
+    private readonly saveManager : SaveManager;
 
 
-    constructor(x : number, y : number, id : number, message : MessageBox) {
+    constructor(x : number, y : number, id : number, 
+        message : MessageBox, saveManager : SaveManager) {
 
         super(x, y, true);
 
@@ -39,6 +42,7 @@ export class SavePoint extends StrongInteractionTarget {
         this.messageTimer = 0;
 
         this.message = message;
+        this.saveManager = saveManager;
     }
 
 
@@ -97,7 +101,23 @@ export class SavePoint extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        // ...
+        let text = event.localization.findValue(["saveGame"]);
+
+        if (text == null) return;
+
+        this.message.addMessages(text);
+        this.message.activate(0, true, event => {
+
+            if (this.saveManager.save()) {
+
+                this.message.addMessages(event.localization.findValue(["gameSaved"]));
+            }
+            else {
+
+                this.message.addMessages(event.localization.findValue(["gameSaveFailed"]));
+            }
+            this.message.activate();
+        });
     }
 
 

@@ -107,7 +107,7 @@
 
     "worldMap": "WORLD MAP",
 
-    "respawn": "Kill yourself\nand respawn\nin the latest\ncheckpoint?",
+    "respawn": ["Kill yourself\nand respawn\nin the latest\ncheckpoint?"],
 
 
     "pauseMenu": [
@@ -119,6 +119,11 @@
     ],
 
 
-    "noMap": ["You do not\nhave a map\nyet!"]
+    "noMap": ["You do not\nhave a map\nyet!"],
+
+    "saveGame": ["Save your\nprogress and\noverride the\nold save?"],
+
+    "gameSaved": ["Game saved\nsuccessfully!"],
+    "gameSaveFailed": ["Failed to save\nthe game! See\nweb console\nfor more info."]
     
 }

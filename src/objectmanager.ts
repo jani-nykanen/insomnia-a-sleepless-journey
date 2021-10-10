@@ -17,6 +17,7 @@ import { Stage } from "./stage.js";
 import { Switch } from "./switch.js";
 import { Vector2 } from "./vector.js";
 import { SavePoint } from "./savepoint.js";
+import { SaveManager } from "./savemanager.js";
 
 
 export type SpawnProjectileCallback = 
@@ -61,15 +62,18 @@ export class ObjectManager {
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
+    private readonly saveManager : SaveManager;
 
     private projectileCb : SpawnProjectileCallback;
 
 
-    constructor(stage : Stage, camera : Camera, message : MessageBox, progress : ProgressManager) {
+    constructor(stage : Stage, camera : Camera, message : MessageBox, 
+        progress : ProgressManager, saveManager : SaveManager) {
         
         this.player = null;
 
         this.progress = progress;
+        this.saveManager = saveManager;
     
         this.projectiles = new Array<Projectile> ();
         this.projectileCb = (x : number, y : number, 
@@ -175,7 +179,8 @@ export class ObjectManager {
 
     public addSavepoint(x : number, y : number, id : number) {
 
-        this.strongInteractionTargets.push(new SavePoint(x*16+8, y*16+8, id, this.message));
+        this.strongInteractionTargets.push(new SavePoint(x*16+8, y*16+8, id, 
+            this.message, this.saveManager));
     }
 
 
