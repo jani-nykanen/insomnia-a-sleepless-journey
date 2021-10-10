@@ -41,16 +41,19 @@ export class Enemy extends CollisionObject {
     protected canBeSpun : boolean;
     protected knockOnStomp : boolean;
 
+    // Good variable naming here
     protected readonly id : number;
+    public readonly entityID : number;
 
 
-    constructor(x : number, y : number, id : number, baseGravity = false) {
+    constructor(x : number, y : number, id : number, entityID : number, baseGravity = false) {
 
         const BASE_GRAVITY = 2.0;
 
         super(x, y, true);
 
         this.id = id;
+        this.entityID = entityID;
 
         this.spr = new Sprite(16, 16);
         this.spr.setFrame(0, this.id+2);
@@ -265,6 +268,7 @@ export class Enemy extends CollisionObject {
         this.starSprite.setFrame((Math.random() * 4) | 0, 1);
 
         progress.increaseNumberProperty("kills", 1);
+        progress.addValueToArray("enemiesKilled", this.entityID, true);
 
         this.deathPos = this.pos.clone();
     }
@@ -383,9 +387,9 @@ export class Enemy extends CollisionObject {
 export class Slime extends Enemy {
 
 
-    constructor(x : number, y : number) {
+    constructor(x : number, y : number, entityID : number) {
 
-        super(x, y, 0, true);
+        super(x, y, 0, entityID, true);
 
         this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
 
@@ -417,9 +421,9 @@ export class Slime extends Enemy {
 export class SpikeSlime extends Enemy {
 
 
-    constructor(x : number, y : number) {
+    constructor(x : number, y : number, entityID : number) {
 
-        super(x, y, 1, true);
+        super(x, y, 1, entityID, true);
 
         this.center = new Vector2(0, 3);
         this.hitbox = new Vector2(8, 10);
@@ -457,11 +461,11 @@ export class Turtle extends Enemy {
     private baseSpeed : number;
 
 
-    constructor(x : number, y : number) {
+    constructor(x : number, y : number, entityID : number) {
 
         const SPEED = 0.20;
 
-        super(x, y+1, 2, true);
+        super(x, y+1, 2, entityID, true);
 
         this.spr.setFrame(0, this.spr.getRow());
 

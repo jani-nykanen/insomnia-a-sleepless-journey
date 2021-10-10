@@ -12,8 +12,10 @@ export class Star extends WeakInteractionTarget {
 
     private waveTimer : number;
 
+    public readonly entityID : number;
 
-    constructor(x : number, y : number) {
+
+    constructor(x : number, y : number, entityID : number) {
 
         super(x, y, true);
 
@@ -23,6 +25,8 @@ export class Star extends WeakInteractionTarget {
         this.hitbox = new Vector2(12, 12);
 
         this.waveTimer = Math.random() * (Math.PI*2);
+
+        this.entityID = entityID;
     }
 
 
@@ -62,6 +66,7 @@ export class Star extends WeakInteractionTarget {
         this.waveTimer = 0;
 
         player.progress.increaseNumberProperty("stars", 1);
+        player.progress.addValueToArray("starsCollected", this.entityID, true);
     }
 
 

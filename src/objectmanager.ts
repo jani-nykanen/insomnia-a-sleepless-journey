@@ -147,7 +147,7 @@ export class ObjectManager {
 
     public addStar(x : number, y : number) {
 
-        let s = new Star(x*16+8, y*16+8);
+        let s = new Star(x*16+8, y*16+8, this.stars.length);
         this.weakInteractionTargets.push(s);
         this.stars.push(s);
     }
@@ -186,7 +186,9 @@ export class ObjectManager {
 
     public addEnemy(x : number, y : number, id : number) {
 
-        this.enemies.push(new (getEnemyType(id)).prototype.constructor(x*16+8, y*16+8));
+        this.enemies.push(new (getEnemyType(id))
+            .prototype
+            .constructor(x*16+8, y*16+8, this.enemies.length));
     }
 
 

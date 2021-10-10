@@ -52,17 +52,49 @@ const dumpProperties = <T>(arr : Array<KeyValuePair<T>>) : string => {
 }
 
 
+const dumpArrayProperties = <T>(arr : Array<KeyValuePair<Array<T>>>) : string => {
+
+    let str = "{\n";
+
+    let a : KeyValuePair<Array<T>>;
+    for (let i = 0; i < arr.length; ++ i) {
+
+        a = arr[i];
+        str += '"' + a.key + '": [';
+
+        for (let j = 0; j < a.value.length; ++ j) {
+            
+            str += String(a.value[j]);
+            if (j != a.value.length-1)
+                str += ",";
+        }
+        str += "]";
+        if (i != arr.length-1) {
+
+            str += ",";
+        }
+        str += "\n";
+    }
+    str += "}";
+    
+    return str;
+}
+
+
+
 export class ProgressManager {
 
 
     private booleanProperties : Array<KeyValuePair<boolean>>;
     private numberProperties : Array<KeyValuePair<number>>;
+    private numberArrayProperties : Array<KeyValuePair<Array<number>>>;
 
 
     constructor() {
 
         this.booleanProperties = new Array<KeyValuePair<boolean>> ();
         this.numberProperties = new Array<KeyValuePair<number>> ();
+        this.numberArrayProperties = new Array<KeyValuePair<Array<number>>> ();
     }
 
 
@@ -87,6 +119,32 @@ export class ProgressManager {
     }
 
 
+    public addValueToArray(key : string, value : number, noDuplicates = true) {
+
+        let arr =  <Array<number>> null;
+        for (let e of this.numberArrayProperties) {
+
+            if (e.key == key) {
+    
+                arr = e.value;
+                break;
+            }
+        }
+
+        if (arr == null) {
+
+            arr = new Array<number> ();
+            this.numberArrayProperties.push(new KeyValuePair<Array<number>> (key, arr));
+        }
+
+        if (noDuplicates && arr.includes(value)) 
+            return;
+
+        arr.push(value);
+    }
+
+
+    // TODO: Insert data to array property, not as boolean property!
     public markRoomVisited(x : number, y : number, stage : Stage) {
 
         let w = Math.floor(stage.width/10);
@@ -98,5 +156,6 @@ export class ProgressManager {
 
     public dump = () : string => 
         "\"boolProp\": " + dumpProperties<boolean>(this.booleanProperties) +
-        "\n" + "\"numberProp\": " + dumpProperties<number>(this.numberProperties);
+        ",\n" + "\"numberProp\": " + dumpProperties<number>(this.numberProperties) +
+        ",\n" + "\"arrayProp\": " + dumpArrayProperties<number>(this.numberArrayProperties);
 }
