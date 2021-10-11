@@ -44,8 +44,7 @@ export class GameScene implements Scene {
         this.objects.cameraCheck(this.camera);
 
         let p = this.camera.getRealPosition();
-        this.progress.setBooleanProperty(
-            "visited" + String((p.y * Math.floor(this.stage.width/10) + p.x) | 0));
+        this.progress.addValueToArray("roomVisited", (p.y * Math.floor(this.stage.width/10) + p.x) | 0, true);
 
         this.sprHeart = new Sprite(16, 16);
 

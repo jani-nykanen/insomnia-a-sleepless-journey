@@ -799,6 +799,15 @@ export class Player extends CollisionObject {
     }
 
 
+    private markRoomVisited(x : number, y : number, stage : Stage) {
+
+        let w = Math.floor(stage.width/10);
+        x = negMod(x, w);
+
+        this.progress.addValueToArray("roomVisited", y*w + x, true);
+    }
+
+
     public stageEvent(stage : Stage, camera : Camera) {
 
         let cp : Vector2;
@@ -807,7 +816,7 @@ export class Player extends CollisionObject {
 
             cp = camera.getRealPosition();
 
-            this.progress.markRoomVisited(cp.x, cp.y, stage);
+            this.markRoomVisited(cp.x, cp.y, stage);
             this.hasTeleported = false;
         }
     }
@@ -870,7 +879,7 @@ export class Player extends CollisionObject {
             cp.x += dirx;
             cp.y += diry;
 
-            this.progress.markRoomVisited(cp.x, cp.y, stage);
+            this.markRoomVisited(cp.x, cp.y, stage);
         }
     }
 

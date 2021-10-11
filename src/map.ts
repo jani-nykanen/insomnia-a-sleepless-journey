@@ -60,7 +60,7 @@ export class WorldMap {
 
         for (let i = 0; i < this.width * this.height; ++ i) {
 
-            this.visited[i] = this.progress.getBooleanProperty("visited" + String(i));
+            this.visited[i] = this.progress.doesValueExistInArray("roomVisited", i);
             if (this.visited[i] ||
                 this.progress.getBooleanProperty("item12")) {
 

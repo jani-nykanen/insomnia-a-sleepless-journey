@@ -144,13 +144,13 @@ export class ProgressManager {
     }
 
 
-    // TODO: Insert data to array property, not as boolean property!
-    public markRoomVisited(x : number, y : number, stage : Stage) {
+    public doesValueExistInArray (key : string, value : number) : boolean {
 
-        let w = Math.floor(stage.width/10);
-        x = negMod(x, w);
+        let arr = getProperty<Array<number>>(this.numberArrayProperties, key, null);
+        if (arr == null)
+            return false;
 
-        this.setBooleanProperty("visited" + String((y * w + x) | 0));
+        return arr.includes(value);
     }
 
 
