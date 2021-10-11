@@ -136,13 +136,36 @@ export class Stage {
     }
 
 
+    private drawInsideBackground(canvas : Canvas, camera : Camera) {
+
+        canvas.clear(0, 0, 0);
+
+        let bmp = canvas.assets.getBitmap("brickwall");
+
+        let p = camera.getPosition();
+
+        let shiftx = (Math.round(p.x / 4)) % bmp.width;
+        let shifty = (Math.round(p.y / 4)) % bmp.height;
+
+        for (let y = -1; y <= 1; ++ y) {
+
+            for (let x = -1; x <= 1; ++ x) {
+
+                canvas.drawBitmap(bmp, 
+                    x*bmp.width - shiftx,
+                    y*bmp.height - shifty);
+            }
+        }
+    }
+
+
     public drawBackground(canvas : Canvas, camera : Camera, inside = false) {
         
         const FOREST_BASE_SHIFT = 80;
 
         if (inside) {
 
-            canvas.clear(0, 0, 0);
+            this.drawInsideBackground(canvas, camera);
             return;
         }
 

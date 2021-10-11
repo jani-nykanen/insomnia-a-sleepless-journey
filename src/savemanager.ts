@@ -32,4 +32,25 @@ export class SaveManager {
 
         return true;
     }
+
+
+    public load() : any {
+
+        let s : string;
+        try {
+
+            s = window.localStorage.getItem("__jn_metroidvania3__save");
+            if (s == null) {
+
+                return null;
+            }
+            return JSON.parse(s);
+        }
+        catch(e) {
+
+            console.log(e);
+        }
+
+        return null;
+    }
 }

@@ -115,7 +115,7 @@
         "Respawn",
         "Save Game",
         "World Map",
-        "Quit GAme"
+        "Quit Game"
     ],
 
 
@@ -124,6 +124,16 @@
     "saveGame": ["Save your\nprogress and\noverride the\nold save?"],
 
     "gameSaved": ["Game saved\nsuccessfully!"],
-    "gameSaveFailed": ["Failed to save\nthe game! See\nweb console\nfor more info."]
+    "gameSaveFailed": ["Failed to save\nthe game! See\nweb console\nfor more info."],
+
+    "quitGame": ["Are you sure?\nYou will lose\nall unsaved\nprogress."],
+
+    "titleMenu": [
+        "New Game",
+        "Load Game"
+    ],
+
+
+    "loadError": ["Failed to load\nthe save data!\nMaybe it does\nnot exist yet?"]
     
 }

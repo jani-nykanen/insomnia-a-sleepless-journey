@@ -62,7 +62,7 @@ export class WorldMap {
 
             this.visited[i] = this.progress.doesValueExistInArray("roomVisited", i);
             if (this.visited[i] ||
-                this.progress.getBooleanProperty("item12")) {
+                this.progress.doesValueExistInArray("items", 12)) {
 
                 dx = i % w;
                 dy = (i / w) | 0;

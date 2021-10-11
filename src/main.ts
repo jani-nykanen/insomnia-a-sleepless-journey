@@ -1,10 +1,11 @@
 import { Core } from "./core.js";
 import { GameScene } from "./game.js";
+import { TitleScreen } from "./titlescreen.js";
 import { RGBA } from "./vector.js";
 
 
 window.onload = () => (new Core(160, 144))
-    .run(GameScene, "assets/index.json",
+    .run(TitleScreen, "assets/index.json",
     event => {
 
         event.input

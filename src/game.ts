@@ -9,6 +9,8 @@ import { ProgressManager } from "./progress.js";
 import { SaveManager } from "./savemanager.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
+import { TitleScreen } from "./titlescreen.js";
+import { TransitionEffectType } from "./transition.js";
 import { State } from "./types.js";
 
 
@@ -90,9 +92,13 @@ export class GameScene implements Scene {
 
                     for (let i = 0; i <= 12; ++ i) {
 
-                        this.progress.setBooleanProperty("item" + String(i), true);
+                        this.progress.addValueToArray("items", i, true);
                     }
                     this.progress.setBooleanProperty("fansEnabled");
+                    this.progress.setBooleanProperty("switchState",
+                        !this.progress.getBooleanProperty("switchState"));
+
+                    this.stage.toggleSpecialBlocks();
 
                     this.pauseMenu.deactivate();
                 }),
@@ -100,16 +106,60 @@ export class GameScene implements Scene {
                 new MenuButton(loc.findValue(["pauseMenu", "4"]),
                 event => {
 
-                    this.pauseMenu.deactivate();
+                    this.message.addMessages(loc.findValue(["quitGame"]));
+                    this.message.activate(0, true, event => {
+
+                        this.pauseMenu.deactivate();
+                        event.transition.activate(true, TransitionEffectType.BoxVertical,
+                            1.0/30.0, event => {
+
+                                event.changeScene(TitleScreen);
+                            });
+                    });
                 })
             ]
         );
+
+        if (param != null && Number(param) == 1) {
+
+            this.loadGame();
+        }
+    }
+
+
+    private loadGame() {
+
+        let data : any;
+
+        try {
+
+            data = this.saveManager.load();
+            if (data == null) {
+
+                return;
+            }
+        }
+        catch(e) {
+
+            console.log(e);
+            return;
+        }
+
+        this.progress.recoverFromJSON(data);
+        this.objects.reinitializeObjectsByProgress();
+
+        if (this.progress.getBooleanProperty("switchState")) {
+
+            this.stage.toggleSpecialBlocks();
+        }
+
+        console.log(data);
     }
 
 
     private activateMap(cb : (event : CoreEvent) => void, event : CoreEvent): boolean {
 
-        if (!this.progress.getBooleanProperty("item11")) {
+        if (!this.progress.doesValueExistInArray("items", 11)) {
 
             this.message.addMessages(event.localization.findValue(["noMap"]));
             this.message.activate(0, false, cb);

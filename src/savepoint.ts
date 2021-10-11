@@ -92,6 +92,9 @@ export class SavePoint extends StrongInteractionTarget {
             this.wave = Math.PI + Math.PI/2;
 
             this.messageTimer = MESSAGE_TIME_MOVE + MESSAGE_TIME_WAIT;
+
+            // TODO: Also heal when already active?
+            player.maximizeHealth();
         }
 
         this.activated = true;

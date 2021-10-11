@@ -19,11 +19,12 @@ const FACING_DIR = [
 export class Chest extends StrongInteractionTarget {
 
 
-    private id : number;
     private flip : Flip;
     private opened : boolean;
 
     private readonly message : MessageBox;
+    
+    public readonly id : number;
 
 
     constructor(x : number, y : number, id : number, message : MessageBox) {
@@ -56,12 +57,9 @@ export class Chest extends StrongInteractionTarget {
         this.message.activate(WAIT_TIME);
 
         player.setObtainItemPose(this.id);
-        player.progress.setBooleanProperty("item" + Number(this.id));
+        player.progress.addValueToArray("items", this.id, true);
 
-        this.opened = true;
-        this.canInteract = false;
-
-        this.spr.setFrame(1, 0);
+        this.forceOpen();
     }
 
 
@@ -75,5 +73,14 @@ export class Chest extends StrongInteractionTarget {
             this.pos.x - this.spr.width/2,
             this.pos.y - this.spr.height/2,
             this.flip);
+    }
+
+
+    public forceOpen() {
+
+        this.opened = true;
+        this.canInteract = false;
+
+        this.spr.setFrame(1, 0);
     }
 }

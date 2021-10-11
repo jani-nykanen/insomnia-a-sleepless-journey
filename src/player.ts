@@ -83,7 +83,7 @@ export class Player extends CollisionObject {
     constructor(x : number, y : number, projectileCb : SpawnProjectileCallback,
         progress : ProgressManager) {
 
-        super(x, y);
+        super(x, y+1);
 
         this.spr = new Sprite(16, 16);
 
@@ -229,7 +229,7 @@ export class Player extends CollisionObject {
         const ROCK_SPEED_X = 3.0;
         const ROCK_JUMP = -1.0;
 
-        if (!this.progress.getBooleanProperty("item3"))
+        if (!this.progress.doesValueExistInArray("items", 3))
             return false;
 
         if (this.throwing) return true;
@@ -279,7 +279,7 @@ export class Player extends CollisionObject {
         const SLIDE_TIME = 20;
         const SLIDE_SPEED = 3.0;
 
-        if (!this.progress.getBooleanProperty("item4"))
+        if (!this.progress.doesValueExistInArray("items", 4))
             return false;
 
         let s = event.input.getAction("fire2");
@@ -343,7 +343,7 @@ export class Player extends CollisionObject {
 
         let s = event.input.getAction("fire2");
 
-        if (this.progress.getBooleanProperty("item1") &&
+        if (this.progress.doesValueExistInArray("items", 1) &&
             !this.canJump && 
             event.input.getStick().y > DOWN_EPS &&
             s == State.Pressed) {
@@ -361,7 +361,7 @@ export class Player extends CollisionObject {
 
         if (this.jumpTimer <= 0 &&
             (this.jumpMargin > 0 || 
-            (!this.doubleJump && this.progress.getBooleanProperty("item6"))) &&
+            (!this.doubleJump && this.progress.doesValueExistInArray("items", 6))) &&
             s == State.Pressed) {
 
             if (this.jumpMargin > 0) {
@@ -396,10 +396,10 @@ export class Player extends CollisionObject {
         this.flapping = !this.touchWater &&
             !this.canJump &&
             !this.spinning &&
-            this.progress.getBooleanProperty("item5") &&
+            this.progress.doesValueExistInArray("items", 5) &&
             this.jumpReleased &&
             this.jumpTimer <= 0 &&
-            (!this.progress.getBooleanProperty("item6") || this.doubleJump) && 
+            (!this.progress.doesValueExistInArray("items", 6) || this.doubleJump) && 
             (s & State.DownOrPressed) == 1;
         if (this.flapping) {
 
@@ -489,7 +489,7 @@ export class Player extends CollisionObject {
 
         this.jump(event);
 
-        this.running = this.progress.getBooleanProperty("item0") &&
+        this.running = this.progress.doesValueExistInArray("items", 0) &&
             Math.abs(this.target.x) > EPS &&
             ((event.input.getAction("fire1") & State.DownOrPressed) == 1);
         if (this.running) {
@@ -994,14 +994,14 @@ export class Player extends CollisionObject {
             return false;
 
         if (this.spinning &&
-            this.progress.getBooleanProperty("item8")) {
+            this.progress.doesValueExistInArray("items", 8)) {
 
             return boxOverlay(this.pos, new Vector2(0, -this.spinHitbox.y/2), 
                 this.spinHitbox, x, y, w, h);
         }
 
         if (this.speed.y < 0 &&
-            this.progress.getBooleanProperty("item10")) {
+            this.progress.doesValueExistInArray("items", 10)) {
 
             if (boxOverlay(this.pos, 
                 new Vector2(0, -this.collisionBox.y/2), 
@@ -1094,7 +1094,7 @@ export class Player extends CollisionObject {
             this.downAttacking = false;
             this.downAttackWaitTimer = 0;
 
-            if (!top && !this.progress.getBooleanProperty("item7")) {
+            if (!top && !this.progress.doesValueExistInArray("items", 7)) {
 
                 this.speed.y += UP_SPEED * event.step;
             }
@@ -1185,7 +1185,7 @@ export class Player extends CollisionObject {
 
     public isInside = () : boolean => this.inside;
 
-    public maxHealth = () : number => this.progress.getBooleanProperty("item9") ? 4 : 3;
+    public maxHealth = () : number => this.progress.doesValueExistInArray("items", 9) ? 4 : 3;
     public getHealth = () : number => this.health;
 
     public isDownAttacking = () : boolean => this.downAttacking;
@@ -1196,5 +1196,11 @@ export class Player extends CollisionObject {
     public setActiveCheckpointReference(p : SavePoint) {
 
         this.activeCheckpoint = p;
+    }
+
+
+    public maximizeHealth() {
+
+        this.health = this.maxHealth();
     }
 }

@@ -158,4 +158,33 @@ export class ProgressManager {
         "\"boolProp\": " + dumpProperties<boolean>(this.booleanProperties) +
         ",\n" + "\"numberProp\": " + dumpProperties<number>(this.numberProperties) +
         ",\n" + "\"arrayProp\": " + dumpArrayProperties<number>(this.numberArrayProperties);
+
+
+    public recoverFromJSON(data : any) {
+
+        this.booleanProperties = new Array<KeyValuePair<boolean>> ();
+        this.numberProperties = new Array<KeyValuePair<number>> ();
+        this.numberArrayProperties = new Array<KeyValuePair<Array<number>>> ();
+
+        for (let k in data["arrayProp"]) {
+
+            console.log(k);
+            console.log(data["arrayProp"][k]);
+
+            this.numberArrayProperties.push(
+                new KeyValuePair<Array<number>> (k, Array.from(data["arrayProp"][k])));
+        }
+
+        for (let k in data["boolProp"]) {
+
+            this.booleanProperties.push(
+                new KeyValuePair<boolean> (k, data["boolProp"][k]));
+        }
+
+        for (let k in data["numberProp"]) {
+
+            this.numberProperties.push(
+                new KeyValuePair<number> (k, data["numberProp"][k]));
+        }
+    }
 }

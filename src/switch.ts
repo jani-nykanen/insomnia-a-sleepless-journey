@@ -51,6 +51,9 @@ export class Switch extends WeakGameObject {
 
             stage.toggleSpecialBlocks();
 
+            player.progress.setBooleanProperty("switchState",
+                !player.progress.getBooleanProperty("switchState"));
+
             return true;
         }
 

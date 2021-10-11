@@ -55,7 +55,7 @@ export class Door extends StrongInteractionTarget {
         let msg : Array<string>;
         if (!this.open) {
 
-            if (!player.progress.getBooleanProperty("item2")) {
+            if (!player.progress.doesValueExistInArray("items", 2)) {
 
                 msg = event.localization.findValue(["locked"]);
             }

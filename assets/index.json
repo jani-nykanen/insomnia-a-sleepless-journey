@@ -26,6 +26,7 @@
         {"name": "hearts", "path": "hearts.png"},
         {"name": "mapIcons", "path": "map_icons.png"},
         {"name": "checkpoint", "path": "checkpoint.png"},
+        {"name": "brickwall", "path": "brickwall.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

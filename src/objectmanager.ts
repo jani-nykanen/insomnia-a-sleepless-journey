@@ -59,6 +59,7 @@ export class ObjectManager {
     
     // Refer to the weak-i-t- array
     private stars : Array<Star>;
+    private chests : Array<Chest>;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -92,6 +93,7 @@ export class ObjectManager {
         this.enemies = new Array<Enemy> ();
 
         this.stars = new Array<Star> ();
+        this.chests = new Array<Chest> ();
 
         this.message = message;
 
@@ -161,7 +163,9 @@ export class ObjectManager {
 
     public addChest(x : number, y : number, id : number) {
 
-        this.strongInteractionTargets.push(new Chest(x*16+8, y*16+8, id, this.message));
+        let o = new Chest(x*16+8, y*16+8, id, this.message);
+        this.strongInteractionTargets.push(o);
+        this.chests.push(o);
     }
 
 
@@ -329,6 +333,36 @@ export class ObjectManager {
     public checkLoop(stage : Stage) {
 
         this.player.checkLoop(stage);
+    }
+
+
+    public reinitializeObjectsByProgress() {
+
+        for (let k of this.enemies) {
+
+            if (this.progress.doesValueExistInArray("enemiesKilled", k.entityID)) {
+
+                k.kill();
+            }
+        }
+
+        for (let s of this.stars) {
+
+            if (this.progress.doesValueExistInArray("starsCollected", s.entityID)) {
+
+                s.kill();
+            }
+        }
+
+        for (let c of this.chests) {
+
+            if (this.progress.doesValueExistInArray("items", c.id)) {
+
+                c.forceOpen();
+            }
+        }
+
+        this.player.maximizeHealth();
     }
 
 
