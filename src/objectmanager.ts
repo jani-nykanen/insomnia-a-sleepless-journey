@@ -57,9 +57,10 @@ export class ObjectManager {
     private doors : Array<Door>;
     private enemies : Array<Enemy>;
     
-    // Refer to the weak-i-t- array
+    // Refer to the weak interaction target array
     private stars : Array<Star>;
     private chests : Array<Chest>;
+    private checkpoints : Array<SavePoint>;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -94,6 +95,7 @@ export class ObjectManager {
 
         this.stars = new Array<Star> ();
         this.chests = new Array<Chest> ();
+        this.checkpoints = new Array<SavePoint> ();
 
         this.message = message;
 
@@ -183,8 +185,10 @@ export class ObjectManager {
 
     public addSavepoint(x : number, y : number, id : number) {
 
-        this.strongInteractionTargets.push(new SavePoint(x*16+8, y*16+8, id, 
-            this.message, this.saveManager));
+        let o = new SavePoint(x*16+8, y*16+8, id, 
+            this.message, this.saveManager);
+        this.strongInteractionTargets.push(o);
+        this.checkpoints.push(o);
     }
 
 
@@ -336,7 +340,7 @@ export class ObjectManager {
     }
 
 
-    public reinitializeObjectsByProgress() {
+    public reinitializeObjectsByProgress(camera : Camera) {
 
         for (let k of this.enemies) {
 
@@ -363,6 +367,27 @@ export class ObjectManager {
         }
 
         this.player.maximizeHealth();
+
+        let chID = this.progress.getNumberProperty("checkpoint", -1);
+        if (chID >= 0) {
+
+            for (let c of this.checkpoints) {
+
+                if (c.id == chID) {
+
+                    c.activate();
+
+                    this.player.teleportTo(
+                        Vector2.add(c.getPos(), new Vector2(0, 1)), 
+                        false, false);
+                    this.player.setActiveCheckpointReference(c);
+
+                    camera.focusOnObject(this.player);
+                    
+                    break;
+                }
+            }
+        }
     }
 
 

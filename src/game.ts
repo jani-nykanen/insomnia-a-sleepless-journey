@@ -146,14 +146,12 @@ export class GameScene implements Scene {
         }
 
         this.progress.recoverFromJSON(data);
-        this.objects.reinitializeObjectsByProgress();
+        this.objects.reinitializeObjectsByProgress(this.camera);
 
         if (this.progress.getBooleanProperty("switchState")) {
 
             this.stage.toggleSpecialBlocks();
         }
-
-        console.log(data);
     }
 
 

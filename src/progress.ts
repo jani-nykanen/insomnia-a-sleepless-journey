@@ -102,7 +102,7 @@ export class ProgressManager {
     public getBooleanProperty = (key : string) : boolean => getProperty<boolean>(this.booleanProperties, key, false);
 
     public setNumberProperty = (key : string, value = 0) : void => setProperty<number>(this.numberProperties, key, value);
-    public getNumberProperty = (key : string) : number => getProperty<number>(this.numberProperties, key, 0);
+    public getNumberProperty = (key : string, def = -1) : number => getProperty<number>(this.numberProperties, key, def);
 
 
     public increaseNumberProperty(key : string, amount = 1) {
@@ -167,9 +167,6 @@ export class ProgressManager {
         this.numberArrayProperties = new Array<KeyValuePair<Array<number>>> ();
 
         for (let k in data["arrayProp"]) {
-
-            console.log(k);
-            console.log(data["arrayProp"][k]);
 
             this.numberArrayProperties.push(
                 new KeyValuePair<Array<number>> (k, Array.from(data["arrayProp"][k])));

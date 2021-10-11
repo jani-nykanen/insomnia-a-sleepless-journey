@@ -16,9 +16,9 @@ const MESSAGE_TIME_WAIT = 45;
 export class SavePoint extends StrongInteractionTarget {
 
 
-    private id : number;
+    public readonly  id : number;
+    
     private activated : boolean;
-
     private wave : number;
     private messageTimer : number;
 
@@ -87,15 +87,17 @@ export class SavePoint extends StrongInteractionTarget {
 
     protected extendedPlayerCollisionEvent(player : Player, event : CoreEvent) {
 
-        if (!this.activated) {
+        if (this.activated) 
+            return;
 
-            this.wave = Math.PI + Math.PI/2;
+        this.wave = Math.PI + Math.PI/2;
 
-            this.messageTimer = MESSAGE_TIME_MOVE + MESSAGE_TIME_WAIT;
+        this.messageTimer = MESSAGE_TIME_MOVE + MESSAGE_TIME_WAIT;
 
-            // TODO: Also heal when already active?
-            player.maximizeHealth();
-        }
+        // TODO: Also heal when already active?
+        player.maximizeHealth();
+        
+        player.progress.setNumberProperty("checkpoint", this.id);
 
         this.activated = true;
         player.setActiveCheckpointReference(this);
@@ -157,5 +159,16 @@ export class SavePoint extends StrongInteractionTarget {
             canvas.drawBitmapRegion(bmp, 0, 16, 48, 16,
                 this.pos.x - 24, y-16);
         }
+    }
+
+
+    public activate() {
+
+        this.wave = 0;
+        this.activated = true;
+
+        this.spr.setFrame(1, 0);
+
+        this.messageTimer = 0;
     }
 }
