@@ -19,6 +19,7 @@ const BASE_GRAVITY = 3.0;
 
 export class Player extends CollisionObject {
 
+    private startPos : Vector2;
 
     private jumpMargin : number;
     private jumpTimer : number;
@@ -72,6 +73,7 @@ export class Player extends CollisionObject {
     private hasTeleported : boolean;
 
     private health : number;
+    private deathTimer : number;
 
     private activeCheckpoint : SavePoint;
 
@@ -84,6 +86,8 @@ export class Player extends CollisionObject {
         progress : ProgressManager) {
 
         super(x, y+1);
+
+        this.startPos = this.pos.clone();
 
         this.spr = new Sprite(16, 16);
 
@@ -146,6 +150,7 @@ export class Player extends CollisionObject {
         this.hasTeleported = false;
 
         this.health = 3;
+        this.deathTimer = 0;
 
         this.activeCheckpoint = null;
 
@@ -756,7 +761,15 @@ export class Player extends CollisionObject {
 
             if ((this.knockbackTimer -= event.step) <= 0) {
 
-                this.invulnerabilityTimer = INV_TIME;
+                if (this.health <= 0) {
+
+                    this.deathTimer = 0;
+                    this.dying = true;
+                }
+                else {    
+
+                    this.invulnerabilityTimer = INV_TIME;
+                }
             }
             this.resetFlags();
             
@@ -773,6 +786,22 @@ export class Player extends CollisionObject {
 
             this.invulnerabilityTimer -= event.step;
         }
+    }
+
+
+    protected die(event : CoreEvent) : boolean {
+
+        const DEATH_TIME = 90;
+        const ANIM_SPEED = 4;
+
+        for (let d of this.dust) {
+
+            d.update(event);
+        }
+
+        this.spr.animate(7, 4, 7, ANIM_SPEED, event.step);
+
+        return (this.deathTimer += event.step) > DEATH_TIME;
     }
 
 
@@ -794,6 +823,7 @@ export class Player extends CollisionObject {
         this.running = false;
         this.flapping = false;
         this.spinning = false;
+        this.touchWater = false;
 
         this.target.y = BASE_GRAVITY;
     }
@@ -893,7 +923,37 @@ export class Player extends CollisionObject {
     }
 
 
+    private drawDeath(canvas : Canvas) {
+
+        const BALL_SPEED = 1.0;
+        const BALL_COUNT = 8;
+
+        let bmp = canvas.assets.getBitmap("player");
+
+        let r = this.deathTimer * BALL_SPEED;
+        let x : number;
+        let y : number;
+
+        let angle = 0;
+        for (let i = 0; i < BALL_COUNT; ++ i) {
+
+            angle = Math.PI*2 / BALL_COUNT * i;
+
+            x = this.pos.x + this.center.x + Math.cos(angle) * r;
+            y = this.pos.y + this.center.y + Math.sin(angle) * r;
+
+            canvas.drawSprite(this.spr, bmp, Math.floor(x)-8, Math.floor(y)-8);
+        }
+    }
+
+
     public draw(canvas : Canvas) {
+
+        if (this.dying) {
+
+            this.drawDeath(canvas);
+            return;
+        }
 
         let px = Math.round(this.pos.x - this.spr.width/2);
         let py = Math.round(this.pos.y - this.spr.height/2);
@@ -1047,7 +1107,7 @@ export class Player extends CollisionObject {
             this.resetProperties(false);
 
             this.health = Math.max(0, this.health-1);
-            
+
             return true;
         }
 
@@ -1202,5 +1262,45 @@ export class Player extends CollisionObject {
     public maximizeHealth() {
 
         this.health = this.maxHealth();
+    }
+
+
+    public respawn() {
+
+        if (this.activeCheckpoint == null) {
+
+            this.pos = this.startPos.clone();
+        }
+        else {
+
+            this.pos = this.activeCheckpoint.getPos().clone();
+            this.pos.y += 1;
+        }
+
+        this.exist = true;
+        this.dying = false;
+
+        this.flip = Flip.None;
+        this.invulnerabilityTimer = 0;
+        this.knockbackTimer = 0;
+
+        this.spr.setFrame(5, 1);
+
+        this.resetProperties(true);
+        this.resetFlags();
+        this.canJump = true;
+
+        this.maximizeHealth();
+    }
+
+
+    // "kill" is reserved...
+    public startDeath(event : CoreEvent) {
+
+        if (this.dying) return;
+
+        this.health = 0;
+        this.deathTimer = 0;
+        this.dying = true;
     }
 }

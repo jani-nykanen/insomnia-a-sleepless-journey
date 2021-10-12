@@ -322,7 +322,7 @@ export class Enemy extends CollisionObject {
                 
                 player.makeJump(PLAYER_JUMP);
             }
-            else if (this.canBeSpun) {
+            else if (this.canBeSpun || this.knockDownTimer > 0) {
 
                 this.spinKnockback(player);
                 this.killSelf(player.progress, event, DeathMode.Spun);

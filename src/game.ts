@@ -64,10 +64,11 @@ export class GameScene implements Scene {
                 new MenuButton(loc.findValue(["pauseMenu", "1"]),
                 event => {
 
-                    this.message.addMessages([event.localization.findValue(["respawn"])]);
+                    this.message.addMessages(event.localization.findValue(["respawn"]));
                     this.message.activate(0, true, event => {
 
-                        console.log("To be implemented");
+                        this.objects.killPlayer(event);
+                        this.pauseMenu.deactivate();
                     });
                 }),
 
@@ -240,11 +241,11 @@ export class GameScene implements Scene {
         let bmpHearts = canvas.assets.getBitmap("hearts");
 
         canvas.drawText(font, ":", 2, 1, 0, 0);
-        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars")),
+        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars", 0)),
             13, 1, -8, 0);
 
         canvas.drawText(font, "=", canvas.width-36, 1, 0, 0);
-        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("kills")),
+        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("kills", 0)),
             canvas.width-36 + 11, 1, -8, 0);
 
         let health = this.objects.getPlayerHealth();

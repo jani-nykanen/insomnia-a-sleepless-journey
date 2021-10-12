@@ -18,6 +18,7 @@ import { Switch } from "./switch.js";
 import { Vector2 } from "./vector.js";
 import { SavePoint } from "./savepoint.js";
 import { SaveManager } from "./savemanager.js";
+import { TransitionEffectType } from "./transition.js";
 
 
 export type SpawnProjectileCallback = 
@@ -246,12 +247,36 @@ export class ObjectManager {
     }
 
 
+    private respawnPlayer(camera : Camera) {
+
+        this.player.respawn();
+        camera.focusOnObject(this.player);
+    }
+
+
     public update(stage : Stage, camera : Camera, event : CoreEvent) {
 
         if (camera.isMoving()) {
 
             this.cameraCheck(camera);
             this.player.cameraMovement(camera, event);
+            return;
+        }
+
+        let p : Vector2;
+        if (!this.player.doesExist()) {
+
+            p = this.player.getPos();
+
+            event.transition.activate(true, TransitionEffectType.CirleIn,
+                1.0/30.0, event => {
+
+                    this.respawnPlayer(camera);
+
+                    let p = this.player.getPos();
+                    event.transition.setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
+                })
+                .setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
             return;
         }
 
@@ -388,6 +413,12 @@ export class ObjectManager {
                 }
             }
         }
+    }
+
+
+    public killPlayer(event : CoreEvent) {
+
+        this.player.startDeath(event);
     }
 
 
