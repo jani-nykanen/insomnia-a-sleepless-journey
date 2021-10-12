@@ -151,6 +151,7 @@ export class TransitionEffectManager {
 
 
     public isActive = () : boolean => this.active;
+    public isFadingIn = () : boolean => this.active && this.fadeIn;
 
     
     public deactivate() {

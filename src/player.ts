@@ -64,6 +64,7 @@ export class Player extends CollisionObject {
     private flapping : boolean;
 
     private showActionSymbol : boolean;
+    private actionSymbolId : number;
     private sprActionSymbol : Sprite;
 
     private holdingItem : boolean;
@@ -143,6 +144,7 @@ export class Player extends CollisionObject {
         this.flapping = false;
 
         this.showActionSymbol = false;
+        this.actionSymbolId = 0;
         this.sprActionSymbol = new Sprite(16, 16);
 
         this.holdingItem = false;
@@ -536,7 +538,7 @@ export class Player extends CollisionObject {
         let frame : number;
         let row : number;
 
-        this.sprActionSymbol.animate(0, 0, 1, SYMBOL_SPEED, event.step);
+        this.sprActionSymbol.animate(this.actionSymbolId, 0, 1, SYMBOL_SPEED, event.step);
 
         let oldFrame = this.spr.getColumn();
         if (this.spinning) {
@@ -751,6 +753,7 @@ export class Player extends CollisionObject {
         this.holdingItem = false;
         this.touchWater = false;
         this.hasTeleported = false;
+        this.actionSymbolId = 0;
     }
 
 
@@ -1039,6 +1042,12 @@ export class Player extends CollisionObject {
             this.touchLadder = !ladderTop || !this.climbing;
             this.isLadderTop = this.isLadderTop || ladderTop;
 
+            if (!this.climbing) {
+                
+                this.showActionSymbol = true;
+                this.actionSymbolId = ladderTop ? 1 : 0;
+            }
+
             return true;
         }
         return false;
@@ -1197,6 +1206,7 @@ export class Player extends CollisionObject {
     public showSymbol() {
 
         this.showActionSymbol = true;
+        this.actionSymbolId = 0;
     }
 
     

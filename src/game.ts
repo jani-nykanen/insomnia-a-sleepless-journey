@@ -1,6 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
+import { HintBox } from "./hintbox.js";
 import { WorldMap } from "./map.js";
 import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
@@ -25,6 +26,7 @@ export class GameScene implements Scene {
     private progress : ProgressManager;
     private worldMap : WorldMap;
     private saveManager : SaveManager;
+    private hintbox : HintBox;
 
     private sprHeart : Sprite;
 
@@ -36,11 +38,13 @@ export class GameScene implements Scene {
         this.message = new MessageBox(event);
         this.progress = new ProgressManager();
         this.saveManager = new SaveManager(this.progress);
+        this.hintbox = new HintBox();
 
         this.camera = new Camera(0, 0, 160, 144);
         this.stage = new Stage(this.progress, event);
         this.objects = new ObjectManager(this.stage, this.camera, 
-            this.message, this.progress, this.saveManager);
+            this.message, this.progress, 
+            this.saveManager, this.hintbox, event);
         this.worldMap = new WorldMap(this.stage, this.progress, event);
 
         this.objects.cameraCheck(this.camera);
@@ -184,6 +188,8 @@ export class GameScene implements Scene {
 
     public update(event : CoreEvent) {
 
+        this.hintbox.update(this.camera, event);
+
         if (event.transition.isActive()) {
 
             if (this.camera.wasForcedToMove()) {
@@ -286,8 +292,10 @@ export class GameScene implements Scene {
         this.objects.draw(canvas);
 
         canvas.moveTo();
+
         this.drawHUD(canvas);
 
+        this.hintbox.draw(canvas);
         this.worldMap.draw(canvas);
 
         if (!this.pauseMenu.isActive()) 

@@ -337,7 +337,7 @@ export class Stage {
     }
 
 
-    public parseObjects(objects : ObjectManager) {
+    public parseObjects(objects : ObjectManager, event : CoreEvent) {
 
         const START_INDEX = 256;
         const NPC_START_INDEX = START_INDEX + 241;
@@ -397,6 +397,11 @@ export class Stage {
                 // Save point
                 case 9:
                     objects.addSavepoint(x, y, id);
+                    break;
+
+                // Hint trigger
+                case 10:
+                    objects.addHintTrigger(x, y, id, event);
                     break;
 
                 default:

@@ -1,3 +1,4 @@
+import { ActivableObject } from "./activableobject.js";
 import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { Menu, MenuButton } from "./menu.js";
@@ -26,7 +27,7 @@ export const drawBox = (canvas : Canvas, x : number, y : number, w : number, h :
 }
 
 
-export class MessageBox {
+export class MessageBox extends ActivableObject {
 
 
     private queue : Array<string>;
@@ -38,8 +39,6 @@ export class MessageBox {
     private charPos : number;
     private ready : boolean;
 
-    private active : boolean;
-
     private waitTimer : number;
     private waveTimer : number;
 
@@ -49,6 +48,8 @@ export class MessageBox {
 
 
     constructor(event : CoreEvent) {
+
+        super();
 
         this.queue = new Array<string> ();
         this.sizes = new Array<Vector2> ();

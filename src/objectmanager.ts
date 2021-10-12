@@ -19,6 +19,8 @@ import { Vector2 } from "./vector.js";
 import { SavePoint } from "./savepoint.js";
 import { SaveManager } from "./savemanager.js";
 import { TransitionEffectType } from "./transition.js";
+import { HintBox } from "./hintbox.js";
+import { HintTrigger } from "./hinttrigger.js";
 
 
 export type SpawnProjectileCallback = 
@@ -66,17 +68,20 @@ export class ObjectManager {
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
     private readonly saveManager : SaveManager;
+    private readonly hintbox : HintBox;
 
     private projectileCb : SpawnProjectileCallback;
 
 
     constructor(stage : Stage, camera : Camera, message : MessageBox, 
-        progress : ProgressManager, saveManager : SaveManager) {
+        progress : ProgressManager, saveManager : SaveManager, hintbox : HintBox,
+        event : CoreEvent) {
         
         this.player = null;
 
         this.progress = progress;
         this.saveManager = saveManager;
+        this.hintbox = hintbox;
     
         this.projectiles = new Array<Projectile> ();
         this.projectileCb = (x : number, y : number, 
@@ -100,7 +105,7 @@ export class ObjectManager {
 
         this.message = message;
 
-        stage.parseObjects(this);
+        stage.parseObjects(this, event);
 
         this.findDoorPairs();
         this.mergeDoorsToGeneralArray();
@@ -198,6 +203,14 @@ export class ObjectManager {
         this.enemies.push(new (getEnemyType(id))
             .prototype
             .constructor(x*16+8, y*16+8, this.enemies.length));
+    }
+
+
+    public addHintTrigger(x : number, y : number, id : number, event : CoreEvent) {
+
+        this.weakInteractionTargets.push(
+            new HintTrigger(x*16, y*16, id, this.hintbox, event)
+        );
     }
 
 

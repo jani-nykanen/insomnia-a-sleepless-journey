@@ -128,6 +128,15 @@
 
     "quitGame": ["Are you sure?\nYou will lose\nall unsaved\nprogress."],
 
+    "hints": [
+        "Use left and\nright arrow keys\nto move.",
+        "Press X to jump.",
+        "Use up and down\narrow keys to\nclimb.",
+        "You can kill\nsome enemies by\nstomping them.",
+        "Some enemies cannot\nbe stomped. Press\nC to spin."
+    ],
+
+
     "titleMenu": [
         "New Game",
         "Load Game"

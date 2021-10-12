@@ -3,6 +3,7 @@ import { CoreEvent } from "./core.js";
 import { negMod } from "./math.js";
 import { Bitmap, State } from "./types.js";
 import { drawBox } from "./messagebox.js";
+import { ActivableObject } from "./activableobject.js";
 
 export class MenuButton {
 
@@ -35,18 +36,19 @@ export class MenuButton {
 }
 
 
-export class Menu {
+export class Menu extends ActivableObject {
 
 
     private buttons : Array<MenuButton>;
 
     private cursorPos : number;
-    private active : boolean;
 
     private maxLength : number;
 
 
     constructor(buttons : Array<MenuButton>) {
+
+        super();
 
         this.buttons = (new Array<MenuButton> (buttons.length))
             .fill(null)
@@ -66,12 +68,6 @@ export class Menu {
             this.cursorPos = cursorPos % this.buttons.length;
 
         this.active = true;
-    }
-
-
-    public deactivate() {
-
-        this.active = false;
     }
 
 
