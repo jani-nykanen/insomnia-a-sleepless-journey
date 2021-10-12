@@ -138,9 +138,9 @@ export class ObjectManager {
     }
 
 
-    public createPlayer(x : number, y : number) {
+    public createPlayer(x : number, y : number, inside = false) {
 
-        this.player = new Player(x*16+8, y*16+8, this.projectileCb, this.progress);
+        this.player = new Player(x*16+16, y*16+8, this.projectileCb, this.progress, inside);
     }
 
 

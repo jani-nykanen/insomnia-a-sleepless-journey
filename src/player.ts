@@ -70,6 +70,7 @@ export class Player extends CollisionObject {
     private itemID : number;
 
     private inside : boolean;
+    private startInside : boolean;
     private hasTeleported : boolean;
 
     private health : number;
@@ -83,13 +84,14 @@ export class Player extends CollisionObject {
 
 
     constructor(x : number, y : number, projectileCb : SpawnProjectileCallback,
-        progress : ProgressManager) {
+        progress : ProgressManager, inside = false) {
 
         super(x, y+1);
 
         this.startPos = this.pos.clone();
 
         this.spr = new Sprite(16, 16);
+        this.spr.setFrame(5, 1);
 
         this.hitbox = new Vector2(9, 11);
         this.center = new Vector2(0, 2);
@@ -100,7 +102,7 @@ export class Player extends CollisionObject {
 
         this.jumpTimer = 0;
         this.jumpMargin = 0;
-        this.canJump = false;
+        this.canJump = true;
         this.jumpSpeed = 0.0;
         this.doubleJump = false;
         this.jumpReleased = false;
@@ -146,7 +148,8 @@ export class Player extends CollisionObject {
         this.holdingItem = false;
         this.itemID = 0;
 
-        this.inside = false;
+        this.inside = inside;
+        this.startInside = inside;
         this.hasTeleported = false;
 
         this.health = 3;
@@ -1270,6 +1273,7 @@ export class Player extends CollisionObject {
         if (this.activeCheckpoint == null) {
 
             this.pos = this.startPos.clone();
+            this.inside = this.startInside;
         }
         else {
 

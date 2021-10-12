@@ -147,9 +147,9 @@ export class Stage {
         let shiftx = (Math.round(p.x / 4)) % bmp.width;
         let shifty = (Math.round(p.y / 4)) % bmp.height;
 
-        for (let y = -1; y <= 1; ++ y) {
+        for (let y = -2; y <= 2; ++ y) {
 
-            for (let x = -1; x <= 1; ++ x) {
+            for (let x = -2; x <= 2; ++ x) {
 
                 canvas.drawBitmap(bmp, 
                     x*bmp.width - shiftx,
@@ -360,7 +360,7 @@ export class Stage {
 
                 // Player
                 case 1:
-                    objects.createPlayer(x, y);
+                    objects.createPlayer(x, y, Boolean(this.tilemap.getProperty("startInside")));
                     break;
 
                 // Switch
