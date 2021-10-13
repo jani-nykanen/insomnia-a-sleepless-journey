@@ -1,6 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
+import { HintBox } from "./hintbox.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
 import { MessageBox } from "./messagebox.js";
 import { Player } from "./player.js";
@@ -23,11 +24,13 @@ export class Chest extends StrongInteractionTarget {
     private opened : boolean;
 
     private readonly message : MessageBox;
+    private readonly hintbox : HintBox;
     
     public readonly id : number;
 
 
-    constructor(x : number, y : number, id : number, message : MessageBox) {
+    constructor(x : number, y : number, id : number, message : MessageBox,
+        hintbox : HintBox) {
 
         super(x, y, true);
 
@@ -40,11 +43,13 @@ export class Chest extends StrongInteractionTarget {
         this.opened = false;
 
         this.message = message;
+        this.hintbox = hintbox;
     }
 
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
+        const HINT_ID = [5, 6, -1, 7, 8, 9, -1, -1, -1, -1, -1, 10];
         const WAIT_TIME = 60;
 
         if (this.opened) return;
@@ -54,7 +59,14 @@ export class Chest extends StrongInteractionTarget {
         if (text == null) return;
 
         this.message.addMessages(text);
-        this.message.activate(WAIT_TIME);
+        this.message.activate(WAIT_TIME, false, event => {
+
+            if (this.id < HINT_ID.length && HINT_ID[this.id] >= 0) {
+
+                this.hintbox.setMessage(event.localization.findValue(["hints", String(HINT_ID[this.id])]));
+                this.hintbox.activate();
+            }
+        });
 
         player.setObtainItemPose(this.id);
         player.progress.addValueToArray("items", this.id, true);

@@ -13,6 +13,28 @@ const MESSAGE_TIME_MOVE = 12;
 const MESSAGE_TIME_WAIT = 45;
 
 
+export const saveGame = (message : MessageBox, saveManager : SaveManager, event : CoreEvent) : void => {
+
+    let text = event.localization.findValue(["saveGame"]);
+
+    if (text == null) return;
+
+    message.addMessages(text);
+    message.activate(0, true, event => {
+
+        if (saveManager.save()) {
+
+            message.addMessages(event.localization.findValue(["gameSaved"]));
+        }
+        else {
+
+            message.addMessages(event.localization.findValue(["gameSaveFailed"]));
+        }
+        message.activate();
+    });
+}
+
+
 export class SavePoint extends StrongInteractionTarget {
 
 
@@ -106,23 +128,7 @@ export class SavePoint extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        let text = event.localization.findValue(["saveGame"]);
-
-        if (text == null) return;
-
-        this.message.addMessages(text);
-        this.message.activate(0, true, event => {
-
-            if (this.saveManager.save()) {
-
-                this.message.addMessages(event.localization.findValue(["gameSaved"]));
-            }
-            else {
-
-                this.message.addMessages(event.localization.findValue(["gameSaveFailed"]));
-            }
-            this.message.activate();
-        });
+        saveGame(this.message, this.saveManager, event);
     }
 
 

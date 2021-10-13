@@ -8,6 +8,7 @@ import { MessageBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
 import { SaveManager } from "./savemanager.js";
+import { saveGame } from "./savepoint.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
 import { TitleScreen } from "./titlescreen.js";
@@ -79,6 +80,7 @@ export class GameScene implements Scene {
                 new MenuButton(loc.findValue(["pauseMenu", "2"]),
                 event => {
 
+                    saveGame(this.message, this.saveManager, event);
                 }),
 
                 new MenuButton(loc.findValue(["pauseMenu", "3"]),

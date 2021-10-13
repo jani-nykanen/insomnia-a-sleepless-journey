@@ -133,7 +133,14 @@
         "Press X to jump.",
         "Use up and down\narrow keys to\nclimb.",
         "You can kill\nsome enemies by\nstomping them.",
-        "Some enemies cannot\nbe stomped. Press\nC to spin."
+        "Some enemies cannot\nbe stomped. Press\nC to spin.",
+
+        "Press Z to run.",
+        "Press Down + X on\nair to air dive.",
+        "Press S to throw\na tennis ball.",
+        "Press Down + X on\ngroud to slide.",
+        "Hold X after\njumping to use\nthe rocket pack.",
+        "Press Left Shift\nto open the map."
     ],
 
 

@@ -64,6 +64,7 @@ export class ObjectManager {
     private stars : Array<Star>;
     private chests : Array<Chest>;
     private checkpoints : Array<SavePoint>;
+    private hintTriggers : Array<HintTrigger>;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -102,6 +103,7 @@ export class ObjectManager {
         this.stars = new Array<Star> ();
         this.chests = new Array<Chest> ();
         this.checkpoints = new Array<SavePoint> ();
+        this.hintTriggers = new Array<HintTrigger> ();
 
         this.message = message;
 
@@ -171,7 +173,7 @@ export class ObjectManager {
 
     public addChest(x : number, y : number, id : number) {
 
-        let o = new Chest(x*16+8, y*16+8, id, this.message);
+        let o = new Chest(x*16+8, y*16+8, id, this.message, this.hintbox);
         this.strongInteractionTargets.push(o);
         this.chests.push(o);
     }
@@ -208,9 +210,9 @@ export class ObjectManager {
 
     public addHintTrigger(x : number, y : number, id : number, event : CoreEvent) {
 
-        this.weakInteractionTargets.push(
-            new HintTrigger(x*16, y*16, id, this.hintbox, event)
-        );
+        let o = new HintTrigger(x*16, y*16, id, this.hintbox, event);
+        this.weakInteractionTargets.push(o);
+        this.hintTriggers.push(o);
     }
 
 
@@ -384,7 +386,7 @@ export class ObjectManager {
 
             if (this.progress.doesValueExistInArray("enemiesKilled", k.entityID)) {
 
-                k.kill();
+                k.forceKill();
             }
         }
 
@@ -392,7 +394,7 @@ export class ObjectManager {
 
             if (this.progress.doesValueExistInArray("starsCollected", s.entityID)) {
 
-                s.kill();
+                s.forceKill();
             }
         }
 
@@ -424,6 +426,11 @@ export class ObjectManager {
                     
                     break;
                 }
+            }
+
+            for (let h of this.hintTriggers) {
+
+                h.forceKill();
             }
         }
     }
