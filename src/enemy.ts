@@ -514,6 +514,70 @@ export class Turtle extends Enemy {
 }
 
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle];
+export class Seal extends Enemy {
+
+
+    static JUMP_TIME = 60;
+
+
+    private jumpTimer : number;
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y+1, 3, entityID, true);
+
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(8, 8);
+
+        this.knockDownYOffset = 5;
+
+        this.jumpTimer = Seal.JUMP_TIME + (((x / 16) | 0) % 2) * Seal.JUMP_TIME / 2;
+
+        this.friction.y = 0.075;
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const EPS = 0.5;
+        const JUMP_HEIGHT = -2.25;
+
+        let frame = 0;
+
+        if (this.canJump) {
+
+            this.spr.setFrame(0, this.spr.getRow());
+
+            if ((this.jumpTimer -= event.step) <= 0) {
+
+                this.speed.y = JUMP_HEIGHT;
+                this.jumpTimer = Seal.JUMP_TIME;
+            }
+        }
+        else {
+
+            if (this.speed.y < -EPS)
+                frame = 1;
+            else if (this.speed.y > EPS)
+                frame = 2;
+
+            this.spr.setFrame(frame, this.spr.getRow());
+        }
+    }
+
+
+    protected playerEvent(player : Player, event : CoreEvent) {
+
+        if (!this.canJump) return;
+
+        this.flip = player.getPos().x < this.pos.x ? Flip.None : Flip.Horizontal;
+    }
+
+}
+
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];

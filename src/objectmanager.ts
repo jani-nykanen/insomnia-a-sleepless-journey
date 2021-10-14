@@ -328,8 +328,8 @@ export class ObjectManager {
 
             e.cameraCheck(camera);
             e.update(event);
-            e.playerCollision(this.player, event);
             stage.objectCollisions(e, camera, event);
+            e.playerCollision(this.player, event);
 
             if (e.doesExist() && !e.isDying() && e.isInCamera()) {
                 

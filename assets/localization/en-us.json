@@ -2,13 +2,14 @@
     "npc": [
 
         [
-            "Welcome to\nNostalgia, the\ndream that\nnever ends!",
-            "The only way\nto make this\ndream end, is\nto die.",
-            "Which, unfor-\ntunately, is\nnot possible\nhere."
+            "Welcome,\nstranger! I\nhave not seen\nyou before!",
+            "What is this\nplace, you\nask. Why, this\nis... hmm.",
+            "Huh, I have no\nidea, really."
         ],
         [
-            "They say there\nis a portal\nsomewhere that\nleads to another\ndream.",
-            "A dream where\none can die..."
+            "You need to stun\nsome monsters\nbefore you\ncan kill them.",
+            "Hit the ground\nwith your head\nor something.",
+            "Or just find\nsome tennis\nballs."
         ],
         [
             "Higher speed\nwill make\nyou jump\nhigher.",
