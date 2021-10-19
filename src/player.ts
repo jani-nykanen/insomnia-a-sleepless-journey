@@ -881,11 +881,13 @@ export class Player extends CollisionObject {
 
         let p = camera.getPosition();
 
+        /*
         if (this.knockbackTimer > 0) {
 
             this.wallCollision(p.x, p.y, camera.height, -1, event, true);
             this.wallCollision(p.x+160, p.y, camera.height, 1, event, true);
         }
+        */
 
         let x1 = p.x;
         let y1 = p.y;

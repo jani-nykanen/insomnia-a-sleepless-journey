@@ -252,9 +252,12 @@ export class GameScene implements Scene {
         canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars", 0)),
             13, 1, -8, 0);
 
-        canvas.drawText(font, "=", canvas.width-36, 1, 0, 0);
-        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("kills", 0)),
-            canvas.width-36 + 11, 1, -8, 0);
+        let kills = this.progress.getNumberProperty("kills", 0);
+        let shift = kills >= 10 ? 8 : 0;
+
+        canvas.drawText(font, "=", canvas.width-36 - shift, 1, 0, 0);
+        canvas.drawText(font, ";" + String(kills),
+            canvas.width-36 + 11 - shift, 1, -8, 0);
 
         let health = this.objects.getPlayerHealth();
         let maxHealth = this.objects.getPlayerMaxHealth();

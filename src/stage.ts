@@ -663,6 +663,10 @@ export class Stage {
         let y = this.waterLevel*16 + WATER_SURFACE_OFFSET;
         let offset = 16;
 
+        let cpos = camera.getPosition();
+        o.wallCollision(cpos.x, cpos.y, camera.height, -1, event);
+        o.wallCollision(cpos.x + camera.width, cpos.y, camera.height, 1, event);
+
         o.waterCollision(0, y, this.width*16, offset, true, event);
         o.waterCollision(0, y+offset, this.width*16, this.height*16 - y - offset, false, event);
 
