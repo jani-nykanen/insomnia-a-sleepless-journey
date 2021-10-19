@@ -42,7 +42,7 @@ export class Enemy extends CollisionObject {
     protected knockOnStomp : boolean;
 
     // Good variable naming here
-    protected readonly id : number;
+    protected id : number;
     public readonly entityID : number;
 
 
@@ -577,7 +577,26 @@ export class Seal extends Enemy {
 }
 
 
+export class SpikeTurtle extends Turtle {
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal];
+
+    constructor(x : number, y : number, entityID : number) {
+        
+        super(x, y, entityID);
+
+        this.canBeStomped = false;
+        this.canBeSpun = false;
+
+        this.id = 5;
+        this.spr.setFrame(0, this.id+1);
+
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(10, 10);
+    }
+
+}
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
