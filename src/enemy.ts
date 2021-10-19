@@ -21,6 +21,8 @@ enum DeathMode {
 
 export class Enemy extends CollisionObject {
 
+    protected startPos : Vector2;
+
     private deathTimer : number;
     private deathMode : DeathMode;
     private starSprite : Sprite;
@@ -51,6 +53,8 @@ export class Enemy extends CollisionObject {
         const BASE_GRAVITY = 2.0;
 
         super(x, y, true);
+
+        this.startPos = this.pos.clone();
 
         this.id = id;
         this.entityID = entityID;
@@ -417,7 +421,6 @@ export class Slime extends Enemy {
 }
 
 
-
 export class SpikeSlime extends Enemy {
 
 
@@ -597,6 +600,107 @@ export class SpikeTurtle extends Turtle {
 }
 
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle];
+class WaveObject extends Enemy {
+
+
+    protected wave : Vector2;
+    protected waveSpeed : Vector2;
+    protected amplitude : Vector2;
+
+
+    constructor(x : number, y : number, id : number, entityID : number) {
+
+        super(x, y, id, entityID, false);
+
+        this.canBeKnockedDown = false;
+
+        this.wave = new Vector2();
+        this.waveSpeed = new Vector2(0.0, 0.0);
+        this.amplitude = new Vector2(0, 0);
+    }
+
+
+    protected updateWave(event : CoreEvent) {
+        
+        this.wave.x += this.waveSpeed.x * event.step;
+        this.wave.x %= Math.PI*2;
+
+        this.wave.y += this.waveSpeed.y * event.step;
+        this.wave.y %= Math.PI*2;
+
+        this.pos.x = this.startPos.x + Math.sin(this.wave.x) * this.amplitude.x;
+        this.pos.y = this.startPos.y + Math.sin(this.wave.y) * this.amplitude.y;
+    }
+
+}
+
+
+export class Apple extends WaveObject {
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, 5, entityID);
+
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(8, 8);
+
+        this.waveSpeed = new Vector2(0.05, 0.025);
+        this.amplitude = new Vector2(4, 16);
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 6;
+
+        this.updateWave(event);
+
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, ANIM_SPEED, event.step);
+    }
+
+
+    protected playerEvent(player : Player, event : CoreEvent) {
+
+        this.flip = player.getPos().x < this.pos.x ? Flip.None : Flip.Horizontal;
+    }
+
+}
+
+
+export class Imp extends WaveObject {
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, 6, entityID);
+
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(10, 8);
+
+        this.waveSpeed = new Vector2(0.025, 0.05);
+        this.amplitude = new Vector2(16, 4);
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 6;
+
+        this.updateWave(event);
+
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, ANIM_SPEED, event.step);
+    }
+
+}
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
