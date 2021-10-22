@@ -43,16 +43,23 @@ export class Enemy extends CollisionObject {
     protected canBeSpun : boolean;
     protected knockOnStomp : boolean;
 
+    private ghost : boolean;
+
     // Good variable naming here
     protected id : number;
     public readonly entityID : number;
 
+    private readonly hasBaseGravity : boolean;
+
+
+    static BASE_GRAVITY = 2.0;
+
 
     constructor(x : number, y : number, id : number, entityID : number, baseGravity = false) {
 
-        const BASE_GRAVITY = 2.0;
-
         super(x, y, true);
+
+        this.hasBaseGravity = baseGravity;
 
         this.startPos = this.pos.clone();
 
@@ -75,7 +82,7 @@ export class Enemy extends CollisionObject {
         this.friction = new Vector2(0.1, 0.15);
         if (baseGravity) {
 
-            this.target.y = BASE_GRAVITY;
+            this.target.y = Enemy.BASE_GRAVITY;
         }   
 
         this.canJump = false;
@@ -93,6 +100,8 @@ export class Enemy extends CollisionObject {
         this.deathPos = this.pos.clone();
 
         this.dir = -1 + 2 * (Math.floor(x / 16) % 2); 
+
+        this.ghost = false;
     }
 
 
@@ -241,6 +250,11 @@ export class Enemy extends CollisionObject {
                 return;
         }
 
+        if (this.ghost) {
+
+            canvas.setGlobalAlpha(0.67);
+        }
+
         let px = Math.round(this.pos.x) - this.spr.width/2;
         let py = Math.round(this.pos.y) - this.spr.height/2;
 
@@ -252,9 +266,14 @@ export class Enemy extends CollisionObject {
             py += this.knockDownYOffset;
         }
 
-        let bmp = canvas.assets.getBitmap("enemies");
+        let bmp = canvas.assets.getBitmap(this.ghost ? "ghosts" : "enemies");
 
         canvas.drawSprite(this.spr, bmp, px, py, flip);
+
+        if (this.ghost) {
+            
+            canvas.setGlobalAlpha();
+        }
     }
 
 
@@ -271,8 +290,11 @@ export class Enemy extends CollisionObject {
 
         this.starSprite.setFrame((Math.random() * 4) | 0, 1);
 
-        progress.increaseNumberProperty("kills", 1);
-        progress.addValueToArray("enemiesKilled", this.entityID, true);
+        if (!this.ghost) {
+
+            progress.increaseNumberProperty("kills", 1);
+            progress.addValueToArray("enemiesKilled", this.entityID, true);
+        }
 
         this.deathPos = this.pos.clone();
     }
@@ -380,6 +402,51 @@ export class Enemy extends CollisionObject {
             this.canJump = true;
         }
     }
+
+
+    public makeGhost() {
+
+        this.ghost = true;
+    }
+
+
+    public isGhost = () : boolean => this.ghost;
+    
+
+    protected respawnEvent() {}
+
+
+    public respawn() {
+
+        this.canJump = false;
+        this.oldCanJump = false;
+
+        this.stopMovement();
+
+        this.spr.setFrame(0, this.id+2);
+
+        this.pos = this.startPos.clone();
+
+        this.ghost = this.ghost || (!this.exist || this.dying);
+
+        this.flip = Flip.None;
+        this.dir = 1;
+
+        this.deathTimer = 0;
+        this.dir = -1 + 2 * (Math.floor(this.pos.x / 16) % 2); 
+
+        this.dying = false;
+        this.exist = true;
+
+        this.respawnEvent();
+
+        if (this.hasBaseGravity) {
+
+            this.target.y = Enemy.BASE_GRAVITY;
+        }
+
+        this.knockDownTimer = 0;
+    }
 }
 
 
@@ -395,12 +462,18 @@ export class Slime extends Enemy {
 
         super(x, y, 0, entityID, true);
 
-        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
-
         this.center = new Vector2(0, 3);
         this.hitbox = new Vector2(8, 8);
 
         this.knockDownYOffset = 5;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
     }
 
 
@@ -464,9 +537,7 @@ export class Turtle extends Enemy {
     private baseSpeed : number;
 
 
-    constructor(x : number, y : number, entityID : number) {
-
-        const SPEED = 0.20;
+    constructor(x : number, y : number, entityID : number) { 
 
         super(x, y+1, 2, entityID, true);
 
@@ -479,6 +550,14 @@ export class Turtle extends Enemy {
         this.hitbox = new Vector2(10, 8);
 
         this.knockDownYOffset = 4;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        const SPEED = 0.20;
 
         this.baseSpeed = this.dir * SPEED;
     }
@@ -536,9 +615,17 @@ export class Seal extends Enemy {
 
         this.knockDownYOffset = 5;
 
-        this.jumpTimer = Seal.JUMP_TIME + (((x / 16) | 0) % 2) * Seal.JUMP_TIME / 2;
+        this.respawnEvent();
 
         this.friction.y = 0.1;
+    }
+
+
+    protected respawnEvent() {
+
+        let x = this.startPos.x;
+
+        this.jumpTimer = Seal.JUMP_TIME + (((x / 16) | 0) % 2) * Seal.JUMP_TIME / 2;
     }
 
 
@@ -627,7 +714,7 @@ class WaveObject extends Enemy {
         this.waveSpeed = new Vector2(0.0, 0.0);
         this.amplitude = new Vector2(0, 0);
     }
-
+    
 
     protected updateWave(event : CoreEvent) {
         
@@ -651,13 +738,21 @@ export class Apple extends WaveObject {
 
         super(x, y, 5, entityID);
 
-        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
-
         this.center = new Vector2(0, 0);
         this.hitbox = new Vector2(8, 8);
 
         this.waveSpeed = new Vector2(0.05, 0.025);
         this.amplitude = new Vector2(4, 16);
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.wave.zeros();
+
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
     }
 
 
@@ -687,13 +782,21 @@ export class Imp extends WaveObject {
 
         super(x, y, 6, entityID);
 
-        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
-
         this.center = new Vector2(0, 0);
         this.hitbox = new Vector2(10, 8);
 
         this.waveSpeed = new Vector2(0.025, 0.05);
         this.amplitude = new Vector2(16, 4);
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.wave.zeros();
+
+        this.spr.setFrame((Math.random() * 4) | 0, this.spr.getRow());
     }
 
 
@@ -728,9 +831,16 @@ export class Mushroom extends Enemy {
 
         this.knockDownYOffset = 1;
 
-        this.jumpTimer = Mushroom.JUMP_TIME + (((x / 16) | 0) % 2) * Mushroom.JUMP_TIME / 2;
-
         this.friction.y = 0.1;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        let x = this.startPos.x;
+        this.jumpTimer = Mushroom.JUMP_TIME + (((x / 16) | 0) % 2) * Mushroom.JUMP_TIME / 2;
     }
 
 

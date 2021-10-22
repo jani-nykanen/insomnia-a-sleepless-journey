@@ -19,6 +19,8 @@ const BASE_GRAVITY = 3.0;
 
 export class Player extends CollisionObject {
 
+    private sprSpin : Sprite;
+
     private startPos : Vector2;
 
     private jumpMargin : number;
@@ -88,6 +90,8 @@ export class Player extends CollisionObject {
         progress : ProgressManager, inside = false) {
 
         super(x, y+1);
+
+        this.sprSpin = new Sprite(32, 16);
 
         this.startPos = this.pos.clone();
 
@@ -447,7 +451,7 @@ export class Player extends CollisionObject {
             // this.jumpReleased = false;
             this.flapping = false;
 
-            this.spr.setFrame(0, 8);
+            this.sprSpin.setFrame(0, 0);
 
             return true;
         }
@@ -540,11 +544,11 @@ export class Player extends CollisionObject {
 
         this.sprActionSymbol.animate(this.actionSymbolId, 0, 1, SYMBOL_SPEED, event.step);
 
-        let oldFrame = this.spr.getColumn();
+        let oldFrame = this.sprSpin.getColumn();
         if (this.spinning) {
 
-            this.spr.animate(8, 0, 7, SPIN_SPEED, event.step);
-            if (oldFrame > this.spr.getColumn()) {
+            this.sprSpin.animate(0, 0, 7, SPIN_SPEED, event.step);
+            if (oldFrame > this.sprSpin.getColumn()) {
 
                 if ((++ this.spinCount) >= SPIN_MAX) {
                     
@@ -978,9 +982,18 @@ export class Player extends CollisionObject {
             Math.floor(this.invulnerabilityTimer/4) % 2 == 0)) 
             return;
 
-        canvas.drawSprite(this.spr, 
-            canvas.assets.getBitmap("player"), 
-            px, py, this.flip);
+        if (this.spinning) {
+
+            canvas.drawSprite(this.sprSpin, 
+                canvas.assets.getBitmap("spin"), 
+                px-8, py, this.flip);
+        }
+        else {
+
+            canvas.drawSprite(this.spr, 
+                canvas.assets.getBitmap("player"), 
+                px, py, this.flip);
+        }
 
         if (this.holdingItem) {
 
@@ -1187,6 +1200,8 @@ export class Player extends CollisionObject {
         this.flapping = false;
         this.jumpReleased = false;
         this.doubleJump = false;
+        this.canSpin = true;
+        this.canThrow = true;
     }
 
 
@@ -1291,6 +1306,8 @@ export class Player extends CollisionObject {
 
             this.pos = this.activeCheckpoint.getPos().clone();
             this.pos.y += 1;
+
+            this.inside = false;
         }
 
         this.exist = true;

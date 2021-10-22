@@ -262,10 +262,15 @@ export class ObjectManager {
     }
 
 
-    private respawnPlayer(camera : Camera) {
+    private reset(camera : Camera) {
 
         this.player.respawn();
         camera.focusOnObject(this.player);
+
+        for (let e of this.enemies) {
+
+            e.respawn();
+        }
     }
 
 
@@ -286,7 +291,7 @@ export class ObjectManager {
             event.transition.activate(true, TransitionEffectType.CirleIn,
                 1.0/30.0, event => {
 
-                    this.respawnPlayer(camera);
+                    this.reset(camera);
 
                     let p = this.player.getPos();
                     event.transition.setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
@@ -382,11 +387,11 @@ export class ObjectManager {
 
     public reinitializeObjectsByProgress(camera : Camera) {
 
-        for (let k of this.enemies) {
+        for (let e of this.enemies) {
 
-            if (this.progress.doesValueExistInArray("enemiesKilled", k.entityID)) {
+            if (this.progress.doesValueExistInArray("enemiesKilled", e.entityID)) {
 
-                k.forceKill();
+                e.makeGhost();
             }
         }
 
