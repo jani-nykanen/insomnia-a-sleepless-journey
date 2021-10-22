@@ -622,7 +622,7 @@ export class Stage {
 
     public objectCollisions(o : CollisionObject, camera : Camera, event : CoreEvent) {
 
-        const RADIUS = 2;
+        const RADIUS = 3;
         const BASE_TILE_MAX = 15;
         const WATER_SURFACE_OFFSET = 4;
 

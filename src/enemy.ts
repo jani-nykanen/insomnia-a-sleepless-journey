@@ -686,8 +686,8 @@ export class SpikeTurtle extends Turtle {
         this.canBeStomped = false;
         this.canBeSpun = false;
 
-        this.id = 5;
-        this.spr.setFrame(0, this.id+1);
+        this.id = 4;
+        this.spr.setFrame(0, this.id+2);
 
         this.center = new Vector2(0, 3);
         this.hitbox = new Vector2(10, 10);

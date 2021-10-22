@@ -457,8 +457,21 @@ export class ObjectManager {
         width : number, height : number) : boolean => 
         objectInArea(this.stars, dx, dy, width, height);
 
-    public hasEnemyInArea = 
-        (dx : number, dy : number, 
-        width : number, height : number) : boolean => 
-        objectInArea(this.enemies, dx, dy, width, height);
+
+    public hasEnemyInArea(dx : number, dy : number, 
+        width : number, height : number) : boolean {
+
+        let p : Vector2;
+
+        for (let a of this.enemies) {
+
+            if (!a.doesExist() || a.isDying() || a.isGhost()) 
+                continue;
+
+            p = a.getPos();
+            if (p.x >= dx && p.y >= dy && p.x <= dx + width && p.y <= dy + height)
+                return true;
+        }
+        return false;
+    }
 }
