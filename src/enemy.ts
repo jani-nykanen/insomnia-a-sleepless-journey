@@ -938,7 +938,7 @@ export class FakeBlock extends Enemy {
 
         super(x, y-1, 8, entityID, false);
 
-        this.center = new Vector2(0, 2);
+        this.center = new Vector2(0, 1);
         this.hitbox = new Vector2(12, 12);
 
         this.canBeKnockedDown = false;
@@ -984,6 +984,8 @@ export class FakeBlock extends Enemy {
                 this.stopMovement();
 
                 this.phase = 0;
+
+                this.spr.setFrame(0, this.spr.getRow());
             }
         }
     }
