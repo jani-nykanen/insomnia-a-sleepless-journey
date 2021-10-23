@@ -332,6 +332,8 @@ export class ObjectManager {
         for (let e of this.enemies) {
 
             e.cameraCheck(camera);
+            e.cameraEvent(camera);
+
             e.update(event);
             stage.objectCollisions(e, camera, event);
             e.playerCollision(this.player, event);

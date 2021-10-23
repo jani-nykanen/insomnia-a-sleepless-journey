@@ -961,6 +961,8 @@ export class Player extends CollisionObject {
 
     public draw(canvas : Canvas) {
 
+        if (!this.exist) return;
+
         if (this.dying) {
 
             this.drawDeath(canvas);

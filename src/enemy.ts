@@ -1,3 +1,4 @@
+import { Camera } from "./camera.js";
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { CollisionObject } from "./gameobject.js";
@@ -44,6 +45,9 @@ export class Enemy extends CollisionObject {
     protected knockOnStomp : boolean;
 
     private ghost : boolean;
+
+    private forceReset : boolean;
+    private oldCameraState : boolean;
 
     // Good variable naming here
     protected id : number;
@@ -102,6 +106,8 @@ export class Enemy extends CollisionObject {
         this.dir = -1 + 2 * (Math.floor(x / 16) % 2); 
 
         this.ghost = false;
+
+        this.oldCameraState = false;
     }
 
 
@@ -118,6 +124,12 @@ export class Enemy extends CollisionObject {
 
                 this.exist = false;
             }
+            return;
+        }
+
+        if (!this.inCamera && this.oldCameraState) {
+
+            this.forceReset = true;
         }
     }
 
@@ -171,6 +183,8 @@ export class Enemy extends CollisionObject {
 
 
     protected preMovementEvent(event : CoreEvent) {
+
+        this.oldCameraState = this.inCamera;
 
         if (this.canJump && event.isShaking() &&
             (this.knockDownTimer <= 0 || !this.previousShakeState)) {
@@ -273,6 +287,18 @@ export class Enemy extends CollisionObject {
         if (this.ghost) {
             
             canvas.setGlobalAlpha();
+        }
+    }
+
+
+    public cameraEvent(camera : Camera) {
+
+        if (!this.inCamera && this.forceReset &&
+            !camera.isMoving()) {
+
+            this.reset();
+
+            this.forceReset = false;
         }
     }
 
@@ -416,7 +442,9 @@ export class Enemy extends CollisionObject {
     protected respawnEvent() {}
 
 
-    public respawn() {
+    private reset() {
+
+        if (!this.exist || this.dying) return;
 
         this.canJump = false;
         this.oldCanJump = false;
@@ -427,16 +455,11 @@ export class Enemy extends CollisionObject {
 
         this.pos = this.startPos.clone();
 
-        this.ghost = this.ghost || (!this.exist || this.dying);
-
         this.flip = Flip.None;
         this.dir = 1;
 
         this.deathTimer = 0;
         this.dir = -1 + 2 * (Math.floor(this.pos.x / 16) % 2); 
-
-        this.dying = false;
-        this.exist = true;
 
         this.respawnEvent();
 
@@ -446,6 +469,17 @@ export class Enemy extends CollisionObject {
         }
 
         this.knockDownTimer = 0;
+    }
+
+
+    public respawn() {
+
+        this.ghost = this.ghost || (!this.exist || this.dying);
+
+        this.dying = false;
+        this.exist = true;
+
+        this.reset();
     }
 }
 
@@ -551,6 +585,8 @@ export class Turtle extends Enemy {
 
         this.knockDownYOffset = 4;
 
+        this.baseSpeed = 0;
+
         this.respawnEvent();
     }
 
@@ -615,6 +651,7 @@ export class Seal extends Enemy {
 
         this.knockDownYOffset = 5;
 
+        this.jumpTimer = 0;
         this.respawnEvent();
 
         this.friction.y = 0.1;
@@ -833,6 +870,8 @@ export class Mushroom extends Enemy {
 
         this.friction.y = 0.1;
 
+        this.jumpTimer = 0;
+
         this.respawnEvent();
     }
 
@@ -883,7 +922,102 @@ export class Mushroom extends Enemy {
 }
 
 
+export class FakeBlock extends Enemy {
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom];
+
+    private phase : number;
+    private shakeTimer : number;
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y-1, 8, entityID, false);
+
+        this.center = new Vector2(0, 2);
+        this.hitbox = new Vector2(12, 12);
+
+        this.canBeKnockedDown = false;
+
+        this.phase = 0;
+        this.shakeTimer = 0;
+
+        this.friction.y = 0.25;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.phase = 0;
+        this.shakeTimer = 0;
+
+        this.spr.setFrame(0, this.spr.getRow());
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const RETURN_SPEED = -1.0;
+
+        if (this.phase == 2) {
+
+            if ((this.shakeTimer -= event.step) <= 0) {
+
+                this.phase = 3;
+                this.speed.y = RETURN_SPEED;
+                this.target.y = RETURN_SPEED;
+
+                this.spr.setFrame(2, this.spr.getRow());
+            }
+        }
+        else if (this.phase == 3) {
+
+            if (this.pos.y < this.startPos.y) {
+
+                this.pos.y =  this.startPos.y;
+                this.stopMovement();
+
+                this.phase = 0;
+            }
+        }
+    }
+
+
+    protected playerEvent(player : Player, event : CoreEvent) {
+
+        const MARGIN = 32;
+        const GRAVITY = 8.0;
+
+        let p = player.getPos();
+    
+        if (this.phase > 0 ||
+            p.y < this.pos.y ||
+            Math.abs(p.x - this.pos.x) > MARGIN) return;
+
+        this.phase = 1;
+        this.target.y = GRAVITY;
+
+        this.spr.setFrame(1, this.spr.getRow());
+    }
+
+
+    protected verticalCollisionEvent(dir : number, event : CoreEvent) {
+
+        const SHAKE_TIME = 60;
+        const MAGNITUDE = 1;
+
+        if (dir != 1 || this.phase != 1)
+            return;
+
+        this.phase = 2;
+        this.shakeTimer = SHAKE_TIME;
+
+        event.shake(SHAKE_TIME, MAGNITUDE);
+    }
+}
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];

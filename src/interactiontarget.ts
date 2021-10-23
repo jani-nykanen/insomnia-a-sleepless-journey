@@ -24,7 +24,8 @@ export class WeakInteractionTarget extends WeakGameObject {
 
     public playerCollision(player : Player, camera : Camera, event : CoreEvent) : boolean {
 
-        if (!this.canInteract || !this.exist || !this.inCamera || this.dying) 
+        if (player.isDying() || !player.doesExist() ||
+            !this.canInteract || !this.exist || !this.inCamera || this.dying) 
             return false;
 
         this.playerEvent(player, event);
