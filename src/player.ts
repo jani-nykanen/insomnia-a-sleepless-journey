@@ -427,7 +427,8 @@ export class Player extends CollisionObject {
 
     private spin(event : CoreEvent) : boolean {
 
-        if (this.climbing || this.throwing) return false;
+        if (this.climbing || this.throwing || this.downAttacking ||
+            this.downAttackWaitTimer > 0) return false;
 
         let s = event.input.getAction("fire3");
         if (this.spinning) {

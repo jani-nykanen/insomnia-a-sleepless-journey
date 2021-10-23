@@ -44,7 +44,7 @@ export class Enemy extends CollisionObject {
     protected canBeSpun : boolean;
     protected knockOnStomp : boolean;
 
-    private ghost : boolean;
+    protected ghost : boolean;
 
     private forceReset : boolean;
     private oldCameraState : boolean;
@@ -251,6 +251,9 @@ export class Enemy extends CollisionObject {
     }
 
 
+    protected preDraw(canvas : Canvas) {}
+
+
     public draw(canvas : Canvas) {
 
         if (!this.exist || !this.inCamera) 
@@ -268,6 +271,8 @@ export class Enemy extends CollisionObject {
 
             canvas.setGlobalAlpha(0.67);
         }
+
+        this.preDraw(canvas);
 
         let px = Math.round(this.pos.x) - this.spr.width/2;
         let py = Math.round(this.pos.y) - this.spr.height/2;
@@ -1018,6 +1023,94 @@ export class FakeBlock extends Enemy {
 }
 
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock];
+export class Spinner extends Enemy {
+
+
+    static RADIUS = 16;
+
+
+    private angle : number;
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, 9, entityID, true);
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(8, 8);
+
+        this.canBeKnockedDown = false;
+        this.canBeSpun = false;
+        this.canBeStomped = false;
+
+        this.angle = 0;
+
+        this.offCameraRadius = Spinner.RADIUS*2;
+
+        this.disableCollisions = true;
+        
+        this.respawnEvent();
+    }
+
+
+    private computePosition() {
+
+        this.pos.x = this.startPos.x + Math.round(Math.cos(this.angle) * Spinner.RADIUS * this.dir);
+        this.pos.y = this.startPos.y + Math.round(Math.sin(this.angle) * Spinner.RADIUS);
+    }
+
+
+    protected respawnEvent() {
+        
+        this.angle = (this.startPos.y % 360) / 360.0 * (Math.PI * 2);
+        this.dir = ((this.startPos.x / 16) | 0) % 2 == 0 ? 1 : -1;
+
+        this.computePosition();
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 8;
+        const ROTATION_SPEED = 0.05;
+
+        this.angle = (this.angle + ROTATION_SPEED * event.step) % (Math.PI * 2);
+        this.computePosition();
+
+        let startFrame = this.dir < 0 ? 0 : 2;
+        this.spr.animate(this.spr.getRow(), 
+            startFrame, startFrame+1,
+             ANIM_SPEED, event.step);
+    }
+
+
+    protected preDraw(canvas : Canvas) {
+
+        const CHAIN_PIECE_COUNT = 3;
+
+        let radiusStep = Spinner.RADIUS / (CHAIN_PIECE_COUNT);
+
+        let bmp = canvas.assets.getBitmap("enemies");
+
+        let r = 0;
+        let x : number;
+        let y : number;
+        for (let i = 0; i < CHAIN_PIECE_COUNT; ++ i) {
+
+            x = this.startPos.x + Math.round(Math.cos(this.angle) * this.dir * r);
+            y = this.startPos.y + Math.round(Math.sin(this.angle) * r);
+
+            canvas.drawSpriteFrame(this.spr, bmp, 
+                4, this.spr.getRow(),
+                x-8, y-8);
+
+            r += radiusStep;
+        }
+    }
+}
+
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock, Spinner];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
