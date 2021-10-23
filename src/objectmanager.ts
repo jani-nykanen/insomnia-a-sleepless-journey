@@ -57,8 +57,8 @@ export class ObjectManager {
     private switches : Array<Switch>;
     private weakInteractionTargets : Array<WeakInteractionTarget>;
     private strongInteractionTargets : Array<StrongInteractionTarget>;
-    private doors : Array<Door>;
     private enemies : Array<Enemy>;
+    private doors : Array<Door>;
     
     // Refer to the weak interaction target array
     private stars : Array<Star>;
@@ -141,7 +141,7 @@ export class ObjectManager {
 
             this.strongInteractionTargets.push(d);
         }
-        this.doors = null;
+        // this.doors = null;
     }
 
 
@@ -410,6 +410,14 @@ export class ObjectManager {
             if (this.progress.doesValueExistInArray("items", c.id)) {
 
                 c.forceOpen();
+            }
+        }
+
+        for (let d of this.doors) {
+
+            if (this.progress.doesValueExistInArray("doors", d.id)) {
+
+                d.forceOpen();
             }
         }
 

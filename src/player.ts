@@ -1339,4 +1339,7 @@ export class Player extends CollisionObject {
         this.deathTimer = 0;
         this.dying = true;
     }
+
+
+    public isSwimming = () : boolean => this.touchWater;
 }

@@ -43,6 +43,8 @@ export class Enemy extends CollisionObject {
     protected canBeStomped : boolean;
     protected canBeSpun : boolean;
     protected knockOnStomp : boolean;
+    protected killOnStomp : boolean;
+    protected dieOnProjectile : boolean;
 
     protected ghost : boolean;
 
@@ -98,6 +100,8 @@ export class Enemy extends CollisionObject {
         this.canBeStomped = true;
         this.canBeSpun = true;
         this.knockOnStomp = false;
+        this.killOnStomp = true;
+        this.dieOnProjectile = true;
 
         this.deathTimer = 0;
         this.deathMode = DeathMode.Normal;
@@ -370,6 +374,7 @@ export class Enemy extends CollisionObject {
         }
 
         if ((this.canBeStomped || this.knockDownTimer > 0) &&
+            (!player.isSwimming() || player.isSpinning()) &&
             player.getSpeed().y > SPEED_EPS &&
             px + hbox.x >= this.pos.x - this.hitbox.x/2 - STOMP_EXTRA_RANGE &&
             px <= this.pos.x + this.hitbox.x/2 + STOMP_EXTRA_RANGE &&
@@ -383,6 +388,7 @@ export class Enemy extends CollisionObject {
 
                 this.spinKnockback(player);
                 this.killSelf(player.progress, event, DeathMode.Spun);
+
                 return true;
             }
 
@@ -390,7 +396,7 @@ export class Enemy extends CollisionObject {
 
                 this.knockDown(false);
             }
-            else {
+            else if (this.killOnStomp || player.isDownAttacking()) {
 
                 this.killSelf(player.progress, event);
             }
@@ -417,7 +423,9 @@ export class Enemy extends CollisionObject {
         if (this.overlayObject(p)) {
 
             p.destroy(event);
-            this.killSelf(player.progress, event);
+
+            if (this.dieOnProjectile)
+                this.killSelf(player.progress, event);
 
             return true;
         }
@@ -938,10 +946,13 @@ export class FakeBlock extends Enemy {
 
         super(x, y-1, 8, entityID, false);
 
-        this.center = new Vector2(0, 1);
-        this.hitbox = new Vector2(12, 12);
+        this.center = new Vector2(0, 0);
+        this.collisionBox.y = 16;
+        this.hitbox = new Vector2(10, 10);
 
         this.canBeKnockedDown = false;
+        this.killOnStomp = false;
+        this.dieOnProjectile = false;
 
         this.phase = 0;
         this.shakeTimer = 0;
@@ -964,6 +975,7 @@ export class FakeBlock extends Enemy {
     protected updateAI(event : CoreEvent) { 
 
         const RETURN_SPEED = -1.0;
+        const EPS = 2.0;
 
         if (this.phase == 2) {
 
@@ -978,9 +990,9 @@ export class FakeBlock extends Enemy {
         }
         else if (this.phase == 3) {
 
-            if (this.pos.y < this.startPos.y) {
+            if (this.pos.y <= this.startPos.y + EPS) {
 
-                this.pos.y =  this.startPos.y;
+                this.pos.y = this.startPos.y;
                 this.stopMovement();
 
                 this.phase = 0;
@@ -1112,7 +1124,88 @@ export class Spinner extends Enemy {
 }
 
 
+export class Fish extends Enemy {
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock, Spinner];
+
+    private baseSpeed : number;
+    private wave : number;
+
+
+    constructor(x : number, y : number, entityID : number) { 
+
+        super(x, y+1, 10, entityID, false);
+
+        this.spr.setFrame(0, this.spr.getRow());
+
+        this.canBeKnockedDown = false;
+
+        this.collisionBox.y = 2;
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(10, 8);
+
+        this.baseSpeed = 0;
+        this.wave = 0;
+
+        this.friction.y = 0.05;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        const SPEED = 0.20;
+
+        this.baseSpeed = this.dir * SPEED;
+        this.wave = 0;
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const WAVE_SPEED = 0.10;
+        const BASE_TARGET_Y = 0.25;
+        const EPS = 0.075;
+
+        if (this.oldCanJump && !this.canJump) {
+
+            this.pos.x -= this.speed.x * event.step;
+
+            this.baseSpeed *= -1;
+        }
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+
+        this.wave = (this.wave + WAVE_SPEED * event.step) % (Math.PI * 2);
+        this.target.y = Math.sin(this.wave) * BASE_TARGET_Y;
+
+        let frame = 0;
+        if (this.speed.y < -EPS)
+            frame = 2;
+        else if (this.speed.y > EPS)
+            frame = 1;
+
+        this.spr.setFrame(frame, this.spr.getRow());
+
+        this.flip = this.baseSpeed > 0 ? Flip.Horizontal : Flip.None;
+    }
+
+
+    protected wallCollisionEvent(dir : number, event : CoreEvent) {
+
+        this.dir = -dir;
+        this.baseSpeed = Math.abs(this.baseSpeed) * this.dir;
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+    }
+
+}
+
+
+
+const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock, Spinner, Fish];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];

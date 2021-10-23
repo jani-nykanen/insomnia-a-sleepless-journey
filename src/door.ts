@@ -63,6 +63,8 @@ export class Door extends StrongInteractionTarget {
 
                 msg = event.localization.findValue(["open"]);
                 this.open = true;
+
+                player.progress.addValueToArray("doors", this.id, true);
             }
 
             if (msg == null) return;
@@ -105,5 +107,11 @@ export class Door extends StrongInteractionTarget {
         canvas.drawSprite(this.spr, bmp, 
             this.pos.x - this.spr.width/2,
             this.pos.y - 24);
+    }
+
+
+    public forceOpen() {
+
+        this.open = true;
     }
 }
