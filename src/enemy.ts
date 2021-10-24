@@ -591,7 +591,8 @@ export class SpikeSlime extends Enemy {
 export class Turtle extends Enemy {
 
 
-    private baseSpeed : number;
+    protected baseSpeed : number;
+    protected animSpeed : number;
 
 
     constructor(x : number, y : number, entityID : number) { 
@@ -609,6 +610,7 @@ export class Turtle extends Enemy {
         this.knockDownYOffset = 4;
 
         this.baseSpeed = 0;
+        this.animSpeed = 6;
 
         this.respawnEvent();
     }
@@ -624,10 +626,8 @@ export class Turtle extends Enemy {
 
     protected updateAI(event : CoreEvent) { 
 
-        const ANIM_SPEED = 6;
-
         this.spr.animate(this.spr.getRow(), 
-            0, 3, ANIM_SPEED, event.step);
+            0, 3, this.animSpeed, event.step);
 
         if (this.oldCanJump && !this.canJump) {
 
@@ -658,11 +658,10 @@ export class Turtle extends Enemy {
 export class Seal extends Enemy {
 
 
-    static JUMP_TIME = 30;
-    static MOVE_SPEED = 0.5;
-
-
     private jumpTimer : number;
+    protected jumpInterval : number;
+    protected jumpHeight : number;
+    protected moveSpeed : number;
 
 
     constructor(x : number, y : number, entityID : number) {
@@ -675,6 +674,10 @@ export class Seal extends Enemy {
         this.knockDownYOffset = 5;
 
         this.jumpTimer = 0;
+        this.jumpInterval = 30;
+        this.jumpHeight = -1.75;
+        this.moveSpeed = 0.5;
+
         this.respawnEvent();
 
         this.friction.y = 0.1;
@@ -685,14 +688,13 @@ export class Seal extends Enemy {
 
         let x = this.startPos.x;
 
-        this.jumpTimer = Seal.JUMP_TIME + (((x / 16) | 0) % 2) * Seal.JUMP_TIME / 2;
+        this.jumpTimer = this.jumpInterval + (((x / 16) | 0) % 2) * this.jumpInterval / 2;
     }
 
 
     protected updateAI(event : CoreEvent) { 
 
         const EPS = 0.5;
-        const JUMP_HEIGHT = -1.75;
 
         let frame = 0;
 
@@ -703,10 +705,10 @@ export class Seal extends Enemy {
             this.target.x = 0;
             if ((this.jumpTimer -= event.step) <= 0) {
 
-                this.speed.y = JUMP_HEIGHT;
-                this.jumpTimer = Seal.JUMP_TIME;
+                this.speed.y = this.jumpHeight;
+                this.jumpTimer = this.jumpInterval;
 
-                this.speed.x = this.dir * Seal.MOVE_SPEED;
+                this.speed.x = this.dir * this.moveSpeed;
                 this.target.x = this.speed.x;
             }
         }
@@ -729,7 +731,7 @@ export class Seal extends Enemy {
         if (this.canJump) return;
 
         this.dir = -dir;
-        this.speed.x = this.dir * Seal.MOVE_SPEED;
+        this.speed.x = this.dir * this.moveSpeed;
         this.target.x = this.speed.x;
     }
 
@@ -751,8 +753,17 @@ export class SpikeTurtle extends Turtle {
 
         this.center = new Vector2(0, 3);
         this.hitbox = new Vector2(10, 10);
+
+        this.animSpeed = 5;
     }
 
+
+    protected respawnEvent() {
+
+        const SPEED = 0.30;
+
+        this.baseSpeed = this.dir * SPEED;
+    }
 }
 
 
@@ -1344,6 +1355,8 @@ class FaceRight extends Enemy {
         this.mouthOpen = false;
 
         this.spr.setFrame(0, this.spr.getRow());
+
+        this.flip = this.dir < 0 ? Flip.Horizontal : Flip.None;
     }
 
 
@@ -1397,11 +1410,36 @@ export class FaceLeft extends FaceRight {
 }
 
 
+
+export class SpikeSeal extends Seal {
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, entityID);
+
+        this.id = 13;
+        this.spr.setFrame(0, this.id+2);
+
+        this.knockDownYOffset = 4;
+
+        this.jumpInterval = 20;
+        this.jumpHeight = -2.0;
+        this.moveSpeed = 0.50;
+
+        this.canBeStomped = false;
+        this.canBeSpun = false;
+
+        this.respawnEvent();
+    }
+}
+
+
 const ENEMY_TYPES = [
     Slime, SpikeSlime, Turtle, 
     Seal, SpikeTurtle, Apple, 
     Imp, Mushroom, FakeBlock, 
     Spinner, Fish, Eye,
-    FaceRight, FaceLeft];
+    FaceRight, FaceLeft, SpikeSeal];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
