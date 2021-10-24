@@ -956,7 +956,7 @@ export class FakeBlock extends Enemy {
 
         super(x, y-1, 8, entityID, false);
 
-        this.center = new Vector2(0, 0);
+        this.center = new Vector2(0, -1);
         this.collisionBox.y = 16;
         this.hitbox = new Vector2(10, 10);
 
@@ -1310,10 +1310,98 @@ export class Eye extends Enemy {
 }
 
 
+class FaceRight extends Enemy {
+
+
+    static WAIT_TIME = 60;
+
+
+    private waitTime : number;
+    private mouthOpen : boolean;
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, 12, entityID, false);
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(10, 8);
+
+        this.canBeKnockedDown = false;
+
+        this.waitTime = 0;
+        this.mouthOpen = false;
+
+        this.dir = 1;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.waitTime = FaceRight.WAIT_TIME;
+        this.mouthOpen = false;
+
+        this.spr.setFrame(0, this.spr.getRow());
+    }
+
+
+    private shootBullet(event : CoreEvent) {
+
+        const SPEED = 2.0;
+
+        this.projectileCb(this.pos.x + this.dir*4, this.pos.y+2,
+            SPEED * this.dir, 0, false, 1, false);
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 30;
+
+        if (!this.mouthOpen) {
+
+            if ((this.waitTime -= event.step) <= 0) {
+
+                this.shootBullet(event);
+                this.mouthOpen = true;
+
+                this.spr.setFrame(1, this.spr.getRow());
+            }
+        }
+        else {
+
+            this.spr.animate(this.spr.getRow(), 1, 0, ANIM_SPEED, event.step);
+            if (this.spr.getColumn() == 0) {
+
+                this.mouthOpen = false;
+
+                this.waitTime = FaceRight.WAIT_TIME;
+            }
+        }
+    }
+}
+
+
+export class FaceLeft extends FaceRight {
+    
+    
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, entityID);
+
+        this.dir = -1;
+        this.flip = Flip.Horizontal;
+    }
+}
+
+
 const ENEMY_TYPES = [
     Slime, SpikeSlime, Turtle, 
     Seal, SpikeTurtle, Apple, 
     Imp, Mushroom, FakeBlock, 
-    Spinner, Fish, Eye];
+    Spinner, Fish, Eye,
+    FaceRight, FaceLeft];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
