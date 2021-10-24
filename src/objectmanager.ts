@@ -202,9 +202,12 @@ export class ObjectManager {
 
     public addEnemy(x : number, y : number, id : number) {
 
-        this.enemies.push(new (getEnemyType(id))
+        let e = <Enemy> (new (getEnemyType(id))
             .prototype
             .constructor(x*16+8, y*16+8, this.enemies.length));
+        e.setProjectileCallback(this.projectileCb);
+
+        this.enemies.push(e);
     }
 
 
@@ -312,6 +315,8 @@ export class ObjectManager {
 
                 p.update(event);
                 stage.objectCollisions(p, camera, event);
+            
+                this.player.projectileCollision(p, event);
             }
         } 
 

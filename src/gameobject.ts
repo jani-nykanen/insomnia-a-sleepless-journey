@@ -258,6 +258,7 @@ export abstract class CollisionObject extends GameObject {
 
     protected collisionBox : Vector2;
     protected disableCollisions : boolean;
+    protected takeCameraBorderCollision : boolean;
 
     protected ignoreFenceCollisions : boolean;
 
@@ -269,6 +270,7 @@ export abstract class CollisionObject extends GameObject {
         this.collisionBox = new Vector2();
         this.disableCollisions = false;
         this.ignoreFenceCollisions = false;
+        this.takeCameraBorderCollision = true;
     }
 
 
@@ -394,5 +396,6 @@ export abstract class CollisionObject extends GameObject {
 
     public getCollisionBox = () : Vector2 => this.collisionBox.clone();
     public doesIgnoreFenceCollisions = () : boolean => this.ignoreFenceCollisions;
+    public doesTakeCameraBorderCollision = () : boolean => this.takeCameraBorderCollision;
 }
 

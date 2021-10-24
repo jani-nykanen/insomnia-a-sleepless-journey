@@ -3,6 +3,7 @@ import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { CollisionObject } from "./gameobject.js";
 import { clamp } from "./math.js";
+import { SpawnProjectileCallback } from "./objectmanager.js";
 import { Player } from "./player";
 import { ProgressManager } from "./progress.js";
 import { Projectile } from "./projectile.js";
@@ -47,6 +48,8 @@ export class Enemy extends CollisionObject {
     protected dieOnProjectile : boolean;
 
     protected ghost : boolean;
+
+    protected projectileCb : SpawnProjectileCallback;
 
     private forceReset : boolean;
     private oldCameraState : boolean;
@@ -112,6 +115,12 @@ export class Enemy extends CollisionObject {
         this.ghost = false;
 
         this.oldCameraState = false;
+    }
+
+
+    public setProjectileCallback(cb : SpawnProjectileCallback) {
+
+        this.projectileCb = cb;
     }
 
 
@@ -416,7 +425,8 @@ export class Enemy extends CollisionObject {
 
     public projectileCollision(p : Projectile, player : Player, event : CoreEvent) : boolean {
 
-        if (!this.exist || !this.inCamera || this.dying ||
+        if (!p.isFriendly() ||
+            !this.exist || !this.inCamera || this.dying ||
             !p.doesExist() || p.isDying()) 
             return false;
 
@@ -1040,7 +1050,7 @@ export class FakeBlock extends Enemy {
 export class Spinner extends Enemy {
 
 
-    static RADIUS = 16;
+    static RADIUS = 24;
 
 
     private angle : number;
@@ -1205,7 +1215,105 @@ export class Fish extends Enemy {
 }
 
 
+export class Eye extends Enemy {
 
-const ENEMY_TYPES = [Slime, SpikeSlime, Turtle, Seal, SpikeTurtle, Apple, Imp, Mushroom, FakeBlock, Spinner, Fish];
+
+    static WAIT_TIME = 60;
+
+
+    private waitTime : number;
+    private animationPhase : number;
+
+    private direction : Vector2;
+
+
+    constructor(x : number, y : number, entityID : number) {
+
+        super(x, y, 11, entityID, false);
+
+        this.center = new Vector2(0, 0);
+        this.hitbox = new Vector2(10, 10);
+
+        this.canBeKnockedDown = false;
+
+        this.waitTime = 0;
+        this.animationPhase = 0;
+
+        this.direction = new Vector2();
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        this.waitTime = Eye.WAIT_TIME;
+        this.animationPhase = 0;
+
+        this.spr.setFrame(0, this.spr.getRow());
+    }
+
+
+    private shootBullet(event : CoreEvent) {
+
+        const SPEED = 1.5;
+
+        let speed = Vector2.scalarMultiply(this.direction, SPEED);
+
+        this.projectileCb(this.pos.x, this.pos.y,
+            speed.x, speed.y, false, 1, false);
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 8;
+        const OPEN_TIME = 30;
+
+        if (this.animationPhase == 0) {
+
+            if ((this.waitTime -= event.step) <= 0) {
+
+                this.shootBullet(event);
+
+                this.animationPhase = 1;   
+            }
+        }
+        else if (this.animationPhase == 1) {
+
+            this.spr.animate(this.spr.getRow(),
+                1, 4, this.spr.getColumn() == 3 ? OPEN_TIME : ANIM_SPEED,
+                event.step);
+            if (this.spr.getColumn() == 4) {
+
+                this.animationPhase = 2;
+                this.spr.setFrame(3, this.spr.getRow());
+            }
+        }
+        else if (this.animationPhase == 2) {
+
+            this.spr.animate(this.spr.getRow(), 3, 0,
+                ANIM_SPEED, event.step);
+            if (this.spr.getColumn() == 0) {
+
+                this.animationPhase = 0;
+                this.waitTime = Eye.WAIT_TIME;
+            }
+        }
+    }
+
+
+    protected playerEvent(player : Player, event : CoreEvent) {
+
+        this.direction = Vector2.direction(this.pos, player.getPos());
+    }
+}
+
+
+const ENEMY_TYPES = [
+    Slime, SpikeSlime, Turtle, 
+    Seal, SpikeTurtle, Apple, 
+    Imp, Mushroom, FakeBlock, 
+    Spinner, Fish, Eye];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];

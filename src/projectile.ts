@@ -26,6 +26,7 @@ export class Projectile extends CollisionObject {
 
         this.friction = new Vector2(0.1, 0.1);
 
+        this.takeCameraBorderCollision = false;
         this.ignoreFenceCollisions = true;
     }
 
@@ -45,11 +46,15 @@ export class Projectile extends CollisionObject {
 
         this.friendly = friendly;
 
-        this.spr.setFrame(id, 0);
+        this.spr.setFrame(id*2, 0);
         this.id = id;
 
         this.exist = true;
         this.dying = false;
+        
+        let d = this.friendly ? 10 : 0;
+        this.hitbox.x = d;
+        this.hitbox.y = d;
     }
 
 
@@ -57,7 +62,7 @@ export class Projectile extends CollisionObject {
 
         const DIE_SPEED = 4;
 
-        this.spr.animate(1, 0, 4, DIE_SPEED, event.step);
+        this.spr.animate(this.id*2 + 1, 0, 4, DIE_SPEED, event.step);
 
         return this.spr.getColumn() == 4;
     }
@@ -76,6 +81,18 @@ export class Projectile extends CollisionObject {
     public outsideCameraEvent() {
 
         this.exist = false;
+        this.dying = false;
+    }
+
+
+    protected preMovementEvent(event : CoreEvent) {
+
+        const ANIM_SPEED = 4;
+
+        if (this.id == 1) {
+
+            this.spr.animate(2, 0, 2, ANIM_SPEED, event.step);
+        }
     }
 
 

@@ -6,6 +6,7 @@ import { boxOverlay, CollisionObject, nextObject, WeakGameObject } from "./gameo
 import { negMod } from "./math.js";
 import { SpawnProjectileCallback } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
+import { Projectile } from "./projectile.js";
 import { SavePoint } from "./savepoint.js";
 import { Sprite } from "./sprite.js";
 import { Stage } from "./stage.js";
@@ -766,6 +767,8 @@ export class Player extends CollisionObject {
 
         const INV_TIME = 60;
 
+        this.takeCameraBorderCollision = this.knockbackTimer > 0;
+
         this.updateDust(event);
 
         if (this.knockbackTimer > 0) {
@@ -1110,14 +1113,32 @@ export class Player extends CollisionObject {
 
         return boxOverlay(this.pos, this.center, this.collisionBox, x, y, w, h);
     }
+
+
+
+    private hurt(dir : number, event : CoreEvent) {
+
+        const KNOCKBACK_TIME = 30;
+        const KNOCKBACK_SPEED = 2.0;
+
+        this.spr.setFrame(4, 3);
+        this.knockbackTimer = KNOCKBACK_TIME;
+
+        if (dir == 0) 
+            dir = -this.faceDir;
+            
+        this.target.x = 0;
+        this.speed.x = KNOCKBACK_SPEED * dir;
+
+        this.resetProperties(false);
+
+        this.health = Math.max(0, this.health-1);
+    }
     
 
     public hurtCollision(x : number, y : number, 
         w : number, h : number, dir : number, 
         event : CoreEvent) : boolean {
-
-        const KNOCKBACK_TIME = 30;
-        const KNOCKBACK_SPEED = 2.0;
 
         if (this.dying ||
             this.invulnerabilityTimer > 0 ||
@@ -1125,19 +1146,7 @@ export class Player extends CollisionObject {
 
         if (boxOverlay(this.pos, this.center, this.hitbox, x, y, w, h)) {
 
-            this.spr.setFrame(4, 3);
-            this.knockbackTimer = KNOCKBACK_TIME;
-
-            if (dir == 0) 
-                dir = -this.faceDir;
-            
-            this.target.x = 0;
-            this.speed.x = KNOCKBACK_SPEED * dir;
-
-            this.resetProperties(false);
-
-            this.health = Math.max(0, this.health-1);
-
+            this.hurt(dir, event);
             return true;
         }
 
@@ -1190,6 +1199,26 @@ export class Player extends CollisionObject {
             }
         }
 
+        return false;
+    }
+
+
+    public projectileCollision(p : Projectile, event : CoreEvent) : boolean {
+
+        if (p.isFriendly() ||
+            p.isDying() || !p.doesExist() ||
+            !this.doesExist() ||
+            this.dying ||
+            this.invulnerabilityTimer > 0 ||
+            this.knockbackTimer > 0) return false;
+        
+        if (this.overlayObject(p)) {
+
+            this.hurt(Math.sign(this.pos.x - p.getPos().x), event);
+            p.destroy(event);
+
+            return true;
+        }
         return false;
     }
 

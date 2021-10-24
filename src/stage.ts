@@ -664,8 +664,12 @@ export class Stage {
         let offset = 16;
 
         let cpos = camera.getPosition();
-        o.wallCollision(cpos.x, cpos.y, camera.height, -1, event);
-        o.wallCollision(cpos.x + camera.width, cpos.y, camera.height, 1, event);
+
+        if (o.doesTakeCameraBorderCollision()) {
+            
+            o.wallCollision(cpos.x, cpos.y, camera.height, -1, event);
+            o.wallCollision(cpos.x + camera.width, cpos.y, camera.height, 1, event);
+        }
 
         o.waterCollision(0, y, this.width*16, offset, true, event);
         o.waterCollision(0, y+offset, this.width*16, this.height*16 - y - offset, false, event);
