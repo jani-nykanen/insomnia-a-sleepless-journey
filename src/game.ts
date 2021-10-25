@@ -245,6 +245,8 @@ export class GameScene implements Scene {
 
     private drawHUD(canvas : Canvas, drawTarget = false) {
 
+        const X_OFF = -8;
+
         let font = canvas.assets.getBitmap("fontBig");
         let bmpHearts = canvas.assets.getBitmap("hearts");
 
@@ -253,7 +255,7 @@ export class GameScene implements Scene {
             s += "/" + this.objects.getStarCount();
 
         canvas.drawText(font, ":", 2, 1, 0, 0);
-        canvas.drawText(font, ";" + s, 13, 1, -8, 0);
+        canvas.drawText(font, ";" + s, 13, 1, X_OFF, 0);
 
         let kills = this.progress.getNumberProperty("kills", 0);
 
@@ -261,10 +263,10 @@ export class GameScene implements Scene {
         if (drawTarget)
             s += "/" + this.objects.getEnemyCount();
 
-        let shift = (s.length-1) * 8;
+        let shift = (s.length-1) * (-X_OFF);
 
         canvas.drawText(font, "=", canvas.width-36 - shift, 1, 0, 0);
-        canvas.drawText(font, ";" + s, canvas.width-36 + 11 - shift, 1, -8, 0);
+        canvas.drawText(font, ";" + s, canvas.width-36 + 11 - shift, 1, X_OFF, 0);
 
         let health = this.objects.getPlayerHealth();
         let maxHealth = this.objects.getPlayerMaxHealth();
