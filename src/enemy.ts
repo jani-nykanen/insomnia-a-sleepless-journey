@@ -269,6 +269,8 @@ export class Enemy extends CollisionObject {
 
     public draw(canvas : Canvas) {
 
+        const GHOST_ALPHA = 0.75;
+
         if (!this.exist || !this.inCamera) 
             return;
 
@@ -282,7 +284,7 @@ export class Enemy extends CollisionObject {
 
         if (this.ghost) {
 
-            canvas.setGlobalAlpha(0.67);
+            canvas.setGlobalAlpha(GHOST_ALPHA);
         }
 
         this.preDraw(canvas);

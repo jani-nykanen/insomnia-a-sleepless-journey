@@ -489,4 +489,8 @@ export class ObjectManager {
         }
         return false;
     }
+
+
+    public getEnemyCount = () : number => this.enemies.length;
+    public getStarCount = () : number => this.stars.length;
 }

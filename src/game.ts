@@ -243,21 +243,28 @@ export class GameScene implements Scene {
     }
 
 
-    private drawHUD(canvas : Canvas) {
+    private drawHUD(canvas : Canvas, drawTarget = false) {
 
         let font = canvas.assets.getBitmap("fontBig");
         let bmpHearts = canvas.assets.getBitmap("hearts");
 
+        let s = String(String(this.progress.getNumberProperty("stars", 0)));
+        if (drawTarget)
+            s += "/" + this.objects.getStarCount();
+
         canvas.drawText(font, ":", 2, 1, 0, 0);
-        canvas.drawText(font, ";" + String(this.progress.getNumberProperty("stars", 0)),
-            13, 1, -8, 0);
+        canvas.drawText(font, ";" + s, 13, 1, -8, 0);
 
         let kills = this.progress.getNumberProperty("kills", 0);
-        let shift = kills >= 10 ? 8 : 0;
+
+        s = String(kills);
+        if (drawTarget)
+            s += "/" + this.objects.getEnemyCount();
+
+        let shift = (s.length-1) * 8;
 
         canvas.drawText(font, "=", canvas.width-36 - shift, 1, 0, 0);
-        canvas.drawText(font, ";" + String(kills),
-            canvas.width-36 + 11 - shift, 1, -8, 0);
+        canvas.drawText(font, ";" + s, canvas.width-36 + 11 - shift, 1, -8, 0);
 
         let health = this.objects.getPlayerHealth();
         let maxHealth = this.objects.getPlayerMaxHealth();
@@ -298,7 +305,8 @@ export class GameScene implements Scene {
 
         canvas.moveTo();
 
-        this.drawHUD(canvas);
+        if (!this.pauseMenu.isActive())
+            this.drawHUD(canvas);
 
         this.hintbox.draw(canvas);
         this.worldMap.draw(canvas);
@@ -319,6 +327,8 @@ export class GameScene implements Scene {
 
                 this.pauseMenu.draw(canvas, 0, 0, 0, 10, true); 
             }
+
+            this.drawHUD(canvas, true);
         }
     }
 
