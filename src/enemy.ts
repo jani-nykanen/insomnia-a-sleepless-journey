@@ -1435,11 +1435,119 @@ export class SpikeSeal extends Seal {
 }
 
 
+export class Plant extends Enemy {
+
+
+    private baseSpeed : number;
+    private shootTimer : number;
+    private shootWait : number;
+
+
+    constructor(x : number, y : number, entityID : number) { 
+
+        super(x, y+1, 14, entityID, true);
+
+        this.spr.setFrame(0, this.spr.getRow());
+
+        this.collisionBox.x = 4;
+        this.center = new Vector2(0, 3);
+        this.hitbox = new Vector2(8, 10);
+
+        this.knockDownYOffset = 4;
+
+        this.baseSpeed = 0;
+
+        this.shootTimer = 0;
+        this.shootWait = 0;
+
+        this.respawnEvent();
+    }
+
+
+    protected respawnEvent() {
+
+        const SPEED = 0.25;
+
+        this.shootTimer = 0;
+        this.shootWait = 0;
+
+        this.baseSpeed = this.dir * SPEED;
+    }
+
+
+    private shootBullet(event : CoreEvent) {
+
+        const SPEED_Y = -2.5;
+        const SPEED_X = 0.75;
+
+        for (let i = -1; i <= 1; i += 2) {
+
+            this.projectileCb(this.pos.x, this.pos.y-2,
+               SPEED_X * i, SPEED_Y, true, 1, false);
+        }
+    }
+
+
+    protected updateAI(event : CoreEvent) { 
+
+        const ANIM_SPEED = 7;
+        const SHOOT_TIME = 120;
+        const SHOOT_WAIT = 30;
+
+        if (this.shootWait > 0) {
+
+            this.shootWait -= event.step;
+            return;
+        }
+
+        if ((this.shootTimer += event.step) >= SHOOT_TIME) {
+
+            this.shootTimer = 0;
+            this.shootWait = SHOOT_WAIT;
+
+            this.target.x = 0;
+            this.speed.x = 0;
+
+            this.spr.setFrame(4, this.spr.getRow());
+
+            this.shootBullet(event);
+
+            return;
+        }
+
+        this.spr.animate(this.spr.getRow(), 
+            0, 3, ANIM_SPEED, event.step);
+
+        if (this.oldCanJump && !this.canJump) {
+
+            this.pos.x -= this.speed.x * event.step;
+
+            this.baseSpeed *= -1;
+        }
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+    }
+
+
+    protected wallCollisionEvent(dir : number, event : CoreEvent) {
+
+        this.dir = -dir;
+        this.baseSpeed = Math.abs(this.baseSpeed) * this.dir;
+
+        this.target.x = this.baseSpeed;
+        this.speed.x = this.target.x;
+    }
+
+}
+
+
 const ENEMY_TYPES = [
     Slime, SpikeSlime, Turtle, 
     Seal, SpikeTurtle, Apple, 
     Imp, Mushroom, FakeBlock, 
     Spinner, Fish, Eye,
-    FaceRight, FaceLeft, SpikeSeal];
+    FaceRight, FaceLeft, SpikeSeal,
+    Plant];
 
 export const getEnemyType = (index : number) : Function => ENEMY_TYPES[clamp(index, 0, ENEMY_TYPES.length-1)];
