@@ -1,11 +1,9 @@
+import { AudioIntro } from "./audiointro.js";
 import { Core } from "./core.js";
-import { GameScene } from "./game.js";
-import { TitleScreen } from "./titlescreen.js";
-import { RGBA } from "./vector.js";
 
 
 window.onload = () => (new Core(160, 144))
-    .run(TitleScreen, "assets/index.json",
+    .run(AudioIntro, "assets/index.json",
     event => {
 
         event.input

@@ -16,6 +16,8 @@ import { TransitionEffectType } from "./transition.js";
 import { State } from "./types.js";
 
 
+const THEME_VOLUME = 0.60;
+
 
 export class GameScene implements Scene {
 
@@ -131,6 +133,8 @@ export class GameScene implements Scene {
 
             this.loadGame();
         }
+
+        event.audio.fadeInMusic(event.assets.getSample("theme"), THEME_VOLUME, 1000);
     }
 
 

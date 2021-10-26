@@ -360,6 +360,7 @@ export class Player extends CollisionObject {
 
         if (this.progress.doesValueExistInArray("items", 1) &&
             !this.canJump && 
+            !this.spinning &&
             event.input.getStick().y > DOWN_EPS &&
             s == State.Pressed) {
 

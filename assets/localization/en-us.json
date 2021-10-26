@@ -151,6 +151,9 @@
     ],
 
 
-    "loadError": ["Failed to load\nthe save data!\nMaybe it does\nnot exist yet?"]
+    "loadError": ["Failed to load\nthe save data!\nMaybe it does\nnot exist yet?"],
+
+
+    "audioIntro": "Would you like\nto enable audio?\nPress ENTER to\nconfirm."
     
 }
