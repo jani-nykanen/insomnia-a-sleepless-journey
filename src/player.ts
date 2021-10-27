@@ -234,6 +234,8 @@ export class Player extends CollisionObject {
 
                 if (Math.abs(sx) > EPS)
                     this.faceDir = sx > 0 ? 1 : -1;
+
+                event.audio.playSample(event.assets.getSample("jump"), 0.50);
             }
         }
     }
@@ -325,6 +327,8 @@ export class Player extends CollisionObject {
 
             this.computeCollisionBoxHeight();
 
+            event.audio.playSample(event.assets.getSample("jump"), 0.50);
+
             return true;
         }
         return false;
@@ -386,6 +390,8 @@ export class Player extends CollisionObject {
                 this.jumpMargin = 0;
 
                 this.jumpTimer = JUMP_TIME;
+
+                event.audio.playSample(event.assets.getSample("jump"), 0.50);
             }
             else {
 
@@ -432,18 +438,11 @@ export class Player extends CollisionObject {
         if (this.climbing || this.throwing || this.downAttacking ||
             this.downAttackWaitTimer > 0) return false;
 
-        let s = event.input.getAction("fire3");
-        if (this.spinning) {
-            
-            if (this.spinCount > 0 && (s & State.DownOrPressed) == 0) {
-
-                this.spinning = false;
-                return false;
-            }
-
+        
+        if (this.spinning) 
             return true;
-        }
-
+        
+        let s = event.input.getAction("fire3");    
         if (!this.spinning && this.canSpin &&
             s == State.Pressed) {
 
@@ -455,6 +454,8 @@ export class Player extends CollisionObject {
             this.flapping = false;
 
             this.sprSpin.setFrame(0, 0);
+
+            event.audio.playSample(event.assets.getSample("spin"), 0.50);
 
             return true;
         }
@@ -548,15 +549,20 @@ export class Player extends CollisionObject {
         this.sprActionSymbol.animate(this.actionSymbolId, 0, 1, SYMBOL_SPEED, event.step);
 
         let oldFrame = this.sprSpin.getColumn();
+        let s = event.input.getAction("fire3");
         if (this.spinning) {
 
             this.sprSpin.animate(0, 0, 7, SPIN_SPEED, event.step);
             if (oldFrame > this.sprSpin.getColumn()) {
 
-                if ((++ this.spinCount) >= SPIN_MAX) {
+                if ((++ this.spinCount) >= SPIN_MAX || (s & State.DownOrPressed) == 0) {
                     
                     this.spinning = false;
                     this.spinCount = 0;
+                }
+                else if (s == State.Down) {
+
+                    event.audio.playSample(event.assets.getSample("spin"), 0.50);
                 }
             }
             if (this.spinning)

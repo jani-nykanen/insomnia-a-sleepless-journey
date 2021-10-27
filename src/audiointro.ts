@@ -25,7 +25,7 @@ export class AudioIntro implements Scene {
                     event => {
 
                         event.audio.toggle(true);
-
+        
                         event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
                         event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
 

@@ -16,7 +16,7 @@ import { TransitionEffectType } from "./transition.js";
 import { State } from "./types.js";
 
 
-const THEME_VOLUME = 0.60;
+const THEME_VOLUME = 0.50;
 
 
 export class GameScene implements Scene {
