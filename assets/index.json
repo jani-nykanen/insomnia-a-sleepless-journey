@@ -37,6 +37,8 @@
 
         {"name": "jump", "path": "jump.wav"},
         {"name": "spin", "path": "spin.wav"},
+        {"name": "rocket", "path": "rocket.wav"},
+        {"name": "climb", "path": "climb.wav"},
 
         {"name": "theme", "path": "theme.ogg"}
     ],

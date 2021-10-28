@@ -606,8 +606,16 @@ export class Player extends CollisionObject {
 
         if (this.climbing) {
 
+            oldFrame = this.spr.getColumn();
+
             if (Math.abs(this.speed.y) > EPS)
                 this.spr.animate(2, 3, 4, CLIMB_SPEED, event.step);
+
+            if (oldFrame != this.spr.getColumn() &&
+                oldFrame != 3) {
+
+                event.audio.playSample(event.assets.getSample("climb"), 0.70);
+            }
 
             return;
         }
@@ -751,6 +759,11 @@ export class Player extends CollisionObject {
             nextObject(this.dust, Dust)
                 .spawn(pos.x, pos.y, DUST_ANIM_SPEED, speed,
                 rocketActive ? 1 : 0);
+
+            if (rocketActive) {
+
+                event.audio.playSample(event.assets.getSample("rocket"), 0.50);
+            }
 
             this.dustTimer -= genTime;
         }
