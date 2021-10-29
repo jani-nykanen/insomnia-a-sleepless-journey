@@ -31,12 +31,11 @@ export class AudioSample {
 
     public play(ctx : AudioContext, vol = 1.0, loop = false, startTime = 0.0) {
 
-        this.fadeIn(ctx, vol, vol, loop, startTime);
+        this.fadeIn(ctx, vol, vol, loop, startTime, 0);
     }
 
 
     public fadeIn(ctx : AudioContext, initial : number, end : number, loop = false, startTime = 0, fadeTime = 0) {
-
 
         if (this.activeBuffer != null) {
 
@@ -63,13 +62,13 @@ export class AudioSample {
 
         this.startTime = ctx.currentTime - startTime;
         this.pauseTime = 0;
-        this.playVol = initial;
+        this.playVol = end;
         this.loop = loop;
 
         bufferSource.connect(this.gain).connect(ctx.destination);
         bufferSource.start(0, startTime);
 
-        if (fadeTime != null) {
+        if (fadeTime > 0) {
 
             this.gain.gain.exponentialRampToValueAtTime(end, startTime + fadeTime/1000.0);
         }

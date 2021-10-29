@@ -39,6 +39,16 @@
         {"name": "spin", "path": "spin.wav"},
         {"name": "rocket", "path": "rocket.wav"},
         {"name": "climb", "path": "climb.wav"},
+        {"name": "shake", "path": "shake.wav"},
+        {"name": "throw", "path": "throw.wav"},
+        {"name": "hit", "path": "hit.wav"},
+        {"name": "hurt", "path": "hurt.wav"},
+        {"name": "kill", "path": "kill.wav"},
+        {"name": "die", "path": "die.wav"},
+        {"name": "star", "path": "star.wav"},
+        {"name": "choose", "path": "choose.wav"},
+        {"name": "select", "path": "select.wav"},
+        {"name": "pause", "path": "pause.wav"},
 
         {"name": "theme", "path": "theme.ogg"}
     ],

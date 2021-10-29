@@ -67,6 +67,8 @@ export class Star extends WeakInteractionTarget {
 
         player.progress.increaseNumberProperty("stars", 1);
         player.progress.addValueToArray("starsCollected", this.entityID, true);
+
+        event.audio.playSample(event.assets.getSample("star"), 0.50);
     }
 
 

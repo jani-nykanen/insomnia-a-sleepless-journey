@@ -21,6 +21,7 @@ import { SaveManager } from "./savemanager.js";
 import { TransitionEffectType } from "./transition.js";
 import { HintBox } from "./hintbox.js";
 import { HintTrigger } from "./hinttrigger.js";
+import { THEME_VOLUME } from "./game.js";
 
 
 export type SpawnProjectileCallback = 
@@ -298,6 +299,12 @@ export class ObjectManager {
 
                     let p = this.player.getPos();
                     event.transition.setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
+
+                    if (!this.player.isInside()) {
+                        
+                        event.audio.fadeInMusic(
+                            event.assets.getSample("theme"), THEME_VOLUME, 1000);
+                    }
                 })
                 .setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
             return;

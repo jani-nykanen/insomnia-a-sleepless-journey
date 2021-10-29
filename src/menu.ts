@@ -89,6 +89,8 @@ export class Menu extends ActivableObject {
         if (oldPos != this.cursorPos) {
 
             this.cursorPos = negMod(this.cursorPos, this.buttons.length);
+
+            event.audio.playSample(event.assets.getSample("choose"), 0.70);
         }
 
         let activeButton = this.buttons[this.cursorPos];
@@ -96,6 +98,7 @@ export class Menu extends ActivableObject {
         if (event.input.getAction("select") == State.Pressed ||
             event.input.getAction("start") == State.Pressed) {
 
+            event.audio.playSample(event.assets.getSample("select"), 0.50);    
             activeButton.evaluateCallback(event);
         }
     }

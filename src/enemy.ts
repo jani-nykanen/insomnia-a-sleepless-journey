@@ -343,6 +343,8 @@ export class Enemy extends CollisionObject {
         }
 
         this.deathPos = this.pos.clone();
+
+        event.audio.playSample(event.assets.getSample("kill"), 0.50);
     }
 
 

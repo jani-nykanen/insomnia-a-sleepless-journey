@@ -75,6 +75,8 @@ export class Projectile extends CollisionObject {
         this.spr.setFrame(0, 1);
 
         this.stopMovement();
+
+        event.audio.playSample(event.assets.getSample("hit"), 0.60);
     }
 
 

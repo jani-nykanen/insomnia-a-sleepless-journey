@@ -274,6 +274,8 @@ export class Player extends CollisionObject {
                 this.pos.x + this.faceDir*6, this.pos.y-2,
                 this.faceDir * ROCK_SPEED_X, ROCK_JUMP, true, 0, true);
 
+            event.audio.playSample(event.assets.getSample("throw"), 0.60);
+
             return true;
         }
         return false;
@@ -797,8 +799,7 @@ export class Player extends CollisionObject {
 
                 if (this.health <= 0) {
 
-                    this.deathTimer = 0;
-                    this.dying = true;
+                    this.startDeath(event);
                 }
                 else {    
 
@@ -1053,6 +1054,7 @@ export class Player extends CollisionObject {
                 this.downAttackWaitTimer = HIT_WAIT;
 
                 event.shake(HIT_WAIT, HIT_MAGNITUDE);
+                event.audio.playSample(event.assets.getSample("shake"), 0.50);
             }
         }
         else {
@@ -1153,6 +1155,8 @@ export class Player extends CollisionObject {
         this.resetProperties(false);
 
         this.health = Math.max(0, this.health-1);
+
+        event.audio.playSample(event.assets.getSample("hurt"), 0.60);
     }
     
 
@@ -1387,6 +1391,9 @@ export class Player extends CollisionObject {
         this.health = 0;
         this.deathTimer = 0;
         this.dying = true;
+
+        event.audio.stopMusic();
+        event.audio.playSample(event.assets.getSample("die"), 0.45);
     }
 
 

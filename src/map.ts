@@ -95,6 +95,8 @@ export class WorldMap {
 
         if (event.input.anyPressed()) {
 
+            event.audio.playSample(event.assets.getSample("select"), 0.50);
+
             this.active = false;
         }
         

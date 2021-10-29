@@ -41,7 +41,7 @@ export class AudioPlayer {
 
         if (!this.enabled) return;
 
-        this.fadeInMusic(sample, vol, null);
+        this.fadeInMusic(sample, vol, 0.0);
     }
 
 

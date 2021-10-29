@@ -66,6 +66,7 @@ export class GameScene implements Scene {
                 event => {
                     
                     this.pauseMenu.deactivate();
+                    event.audio.resumeMusic();
                 }),
 
                 new MenuButton(loc.findValue(["pauseMenu", "1"]),
@@ -73,6 +74,8 @@ export class GameScene implements Scene {
 
                     this.message.addMessages(event.localization.findValue(["respawn"]));
                     this.message.activate(0, true, event => {
+
+                        event.audio.resumeMusic();
 
                         this.objects.killPlayer(event);
                         this.pauseMenu.deactivate();
@@ -93,6 +96,7 @@ export class GameScene implements Scene {
                         }, event)) {
 
                         this.pauseMenu.deactivate();
+                        event.audio.resumeMusic();
                     }
                 }),
 
@@ -229,11 +233,17 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("start") == State.Pressed) {
 
+            event.audio.playSample(event.assets.getSample("pause"), 0.50);
+
+            event.audio.pauseMusic();
+
             this.pauseMenu.activate(0);
             return;
         }
 
         if (event.input.getAction("map") == State.Pressed) {
+
+            event.audio.playSample(event.assets.getSample("pause"), 0.50);
 
             this.activateMap(() => {}, event);
             return;
