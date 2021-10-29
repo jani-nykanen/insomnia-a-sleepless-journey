@@ -11,6 +11,7 @@ import { Vector2 } from "./vector.js";
 import { Sprite } from "./sprite.js";
 import { NPC } from "./npc.js";
 import { ProgressManager } from "./progress.js";
+import { SnowflakeGenerator } from "./snowflakes.js";
 
 
 const COLLISION_DOWN = 0b0001;
@@ -55,6 +56,8 @@ export class Stage {
     private waterPos : number;
     private waterWave : number;
 
+    private snowflakeGen : SnowflakeGenerator;
+
     public readonly width : number;
     public readonly height : number;
     public readonly waterLevel : number;
@@ -62,7 +65,7 @@ export class Stage {
     private readonly progress : ProgressManager;
 
 
-    constructor(progress : ProgressManager, event : CoreEvent) {
+    constructor(camera : Camera, progress : ProgressManager, event : CoreEvent) {
 
         this.tilemap = event.assets.getTilemap("base");
         this.collisionMap = event.assets.getTilemap("collisionMap")
@@ -81,6 +84,8 @@ export class Stage {
 
         this.waterPos = 0;
         this.waterWave = 0;
+
+        this.snowflakeGen = new SnowflakeGenerator(camera);
 
         this.progress = progress;
     }
@@ -112,7 +117,7 @@ export class Stage {
     }
 
 
-    public update(camera : Camera, event : CoreEvent) {
+    public update(camera : Camera, event : CoreEvent, inside = false) {
 
         const FENCE_ANIM_SPEED = 4;
         const WATER_SPEED = 0.25;
@@ -129,6 +134,11 @@ export class Stage {
         if (this.progress.getBooleanProperty("fansEnabled")) {
 
             this.fansEnabled = true;
+        }
+
+        if (!inside) {
+
+            this.snowflakeGen.update(camera, event);
         }
 
         this.waterPos = (this.waterPos + WATER_SPEED*event.step) % 16;
@@ -334,6 +344,14 @@ export class Stage {
 
             p.draw(canvas);
         }
+    }
+
+
+    public postDraw(canvas : Canvas, inside = false) {
+
+        if (inside) return;
+
+        this.snowflakeGen.draw(canvas);
     }
 
 

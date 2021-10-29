@@ -44,7 +44,7 @@ export class GameScene implements Scene {
         this.hintbox = new HintBox();
 
         this.camera = new Camera(0, 0, 160, 144);
-        this.stage = new Stage(this.progress, event);
+        this.stage = new Stage(this.camera, this.progress, event);
         this.objects = new ObjectManager(this.stage, this.camera, 
             this.message, this.progress, 
             this.saveManager, this.hintbox, event);
@@ -256,7 +256,7 @@ export class GameScene implements Scene {
             this.objects.checkLoop(this.stage);
             this.camera.checkLoop(this.stage);
         }
-        this.stage.update(this.camera, event);
+        this.stage.update(this.camera, event, this.objects.isPlayerInside());
         this.objects.update(this.stage, this.camera, event);
     }
 
@@ -324,6 +324,8 @@ export class GameScene implements Scene {
         this.objects.draw(canvas);
 
         canvas.moveTo();
+
+        this.stage.postDraw(canvas, this.objects.isPlayerInside());
 
         if (!this.pauseMenu.isActive())
             this.drawHUD(canvas);

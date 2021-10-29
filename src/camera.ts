@@ -97,6 +97,9 @@ export class Camera {
         this.renderPos.x * this.width, 
         this.renderPos.y * this.height);
     public getRealPosition = () : Vector2 => this.pos.clone();
+    public getDelta = () : Vector2 => new Vector2(
+        (this.renderPos.x - this.pos.x) * this.width,
+        (this.renderPos.y - this.pos.y) * this.height);
 
 
     public getDirection = () : Vector2 => 
