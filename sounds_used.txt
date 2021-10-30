@@ -1,0 +1,9 @@
+The following CC0-licensed sound files were used to produce the audio track played when the player is inside a building (inside.ogg):
+
+- https://freesound.org/people/deleted_user_2104797/sounds/166326/
+- https://freesound.org/people/florianreichelt/sounds/459977/
+- https://freesound.org/people/NachtmahrTV/sounds/556707/
+- https://freesound.org/people/Zixem/sounds/69391/
+- https://freesound.org/people/Tetrisrocker/sounds/458627/
+
+Special thanks to the people who made and shared this things.

@@ -17,6 +17,7 @@ import { State } from "./types.js";
 
 
 export const THEME_VOLUME = 0.40;
+export const INSIDE_THEME_VOLUME = 0.70;
 
 
 export class GameScene implements Scene {
@@ -138,11 +139,11 @@ export class GameScene implements Scene {
             this.loadGame();
         }
 
-        if (!this.objects.isPlayerInside()) {
-
-            event.audio.fadeInMusic(
-                event.assets.getSample("theme"), THEME_VOLUME, 1000);
-        }
+        event.audio.fadeInMusic(
+            event.assets.getSample(this.objects.isPlayerInside() ? "inside" : "theme"), 
+            this.objects.isPlayerInside() ? INSIDE_THEME_VOLUME : THEME_VOLUME, 
+            1000);
+        
     }
 
 
@@ -233,7 +234,7 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("start") == State.Pressed) {
 
-            event.audio.playSample(event.assets.getSample("pause"), 0.50);
+            event.audio.playSample(event.assets.getSample("pause"), 0.40);
 
             event.audio.pauseMusic();
 
@@ -243,7 +244,7 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("map") == State.Pressed) {
 
-            event.audio.playSample(event.assets.getSample("pause"), 0.50);
+            event.audio.playSample(event.assets.getSample("pause"), 0.40);
 
             this.activateMap(() => {}, event);
             return;

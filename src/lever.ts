@@ -51,6 +51,8 @@ export class Lever extends StrongInteractionTarget {
 
         player.setUsePose();
         player.progress.setBooleanProperty("fansEnabled");
+
+        event.audio.playSample(event.assets.getSample("lever"), 0.50);
     }
 
 

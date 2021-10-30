@@ -1,7 +1,7 @@
 import { Camera } from "./camera.js";
 import { Canvas, Flip } from "./canvas.js";
 import { CoreEvent } from "./core.js";
-import { THEME_VOLUME } from "./game.js";
+import { INSIDE_THEME_VOLUME, THEME_VOLUME } from "./game.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
 import { MessageBox } from "./messagebox.js";
 import { Player } from "./player.js";
@@ -82,10 +82,8 @@ export class Door extends StrongInteractionTarget {
 
         this.canInteract = false;
 
-        if (!this.inside) {
-
-            event.audio.stopMusic();
-        }
+        event.audio.stopMusic();
+        event.audio.playSample(event.assets.getSample("door"), 0.50);
 
         event.transition.activate(true, TransitionEffectType.CirleIn, 1.0/30.0,
             event => {
@@ -100,11 +98,11 @@ export class Door extends StrongInteractionTarget {
                 p = player.getPos();
                 event.transition.setCenter(new Vector2(p.x % 160, p.y % 144));
 
-                if (this.inside) {
-
-                    event.audio.fadeInMusic(
-                        event.assets.getSample("theme"), THEME_VOLUME, 1000);
-                }
+                event.audio.fadeInMusic(
+                    event.assets.getSample(!this.inside ? "inside" : "theme"), 
+                    !this.inside ? INSIDE_THEME_VOLUME : THEME_VOLUME, 
+                    1000)
+                
             })
             .setCenter(new Vector2(p.x % 160, p.y % 144));
     }

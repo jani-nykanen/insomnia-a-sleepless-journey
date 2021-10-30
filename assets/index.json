@@ -49,8 +49,12 @@
         {"name": "choose", "path": "choose.wav"},
         {"name": "select", "path": "select.wav"},
         {"name": "pause", "path": "pause.wav"},
+        {"name": "door", "path": "door.wav"},
+        {"name": "break", "path": "break.wav"},
+        {"name": "lever", "path": "lever.wav"},
 
-        {"name": "theme", "path": "theme.ogg"}
+        {"name": "theme", "path": "theme.ogg"},
+        {"name": "inside", "path": "inside.ogg"}
     ],
 
     "tilemapPath" : "assets/tilemaps/",

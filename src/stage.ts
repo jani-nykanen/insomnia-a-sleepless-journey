@@ -594,6 +594,8 @@ export class Stage {
 
                     this.removeFences(camera);
                 }
+
+                event.audio.playSample(event.assets.getSample("break"), 0.60);
             }
             else {
 
