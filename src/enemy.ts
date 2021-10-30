@@ -396,6 +396,12 @@ export class Enemy extends CollisionObject {
             if (!player.isSpinning()) {
                 
                 player.makeJump(PLAYER_JUMP);
+
+                if ((!this.killOnStomp || this.knockOnStomp) &&
+                    !player.isDownAttacking()) {
+
+                    event.audio.playSample(event.assets.getSample("hop"), 0.55);
+                }
             }
             else if (this.canBeSpun || this.knockDownTimer > 0) {
 
@@ -408,6 +414,7 @@ export class Enemy extends CollisionObject {
             if (this.knockOnStomp && !player.isDownAttacking() && !player.isSpinning()) {
 
                 this.knockDown(false);
+                // event.audio.playSample(event.assets.getSample("hop"), 0.55);
             }
             else if (this.killOnStomp || player.isDownAttacking()) {
 
@@ -483,10 +490,9 @@ export class Enemy extends CollisionObject {
         this.pos = this.startPos.clone();
 
         this.flip = Flip.None;
-        this.dir = 1;
 
         this.deathTimer = 0;
-        this.dir = -1 + 2 * (Math.floor(this.pos.x / 16) % 2); 
+        // this.dir = -1 + 2 * (Math.floor(this.startPos.x / 16) % 2); 
 
         this.respawnEvent();
 
@@ -625,6 +631,8 @@ export class Turtle extends Enemy {
         const SPEED = 0.20;
 
         this.baseSpeed = this.dir * SPEED;
+
+        this.dir = -1 + 2 * (Math.floor(this.startPos.x / 16) % 2); 
     }
 
 
@@ -693,6 +701,8 @@ export class Seal extends Enemy {
         let x = this.startPos.x;
 
         this.jumpTimer = this.jumpInterval + (((x / 16) | 0) % 2) * this.jumpInterval / 2;
+
+        this.dir = -1 + 2 * (Math.floor(this.startPos.x / 16) % 2); 
     }
 
 
@@ -714,6 +724,8 @@ export class Seal extends Enemy {
 
                 this.speed.x = this.dir * this.moveSpeed;
                 this.target.x = this.speed.x;
+
+                event.audio.playSample(event.assets.getSample("enemyJump"), 0.50);
             }
         }
         else {
@@ -767,6 +779,8 @@ export class SpikeTurtle extends Turtle {
         const SPEED = 0.30;
 
         this.baseSpeed = this.dir * SPEED;
+        
+        this.dir = -1 + 2 * (Math.floor(this.startPos.x / 16) % 2); 
     }
 }
 
@@ -936,6 +950,8 @@ export class Mushroom extends Enemy {
 
                 this.speed.y = JUMP_HEIGHT;
                 this.jumpTimer = Mushroom.JUMP_TIME;
+
+                event.audio.playSample(event.assets.getSample("enemyJump"), 0.50);
             }
         }
         else {
@@ -1058,6 +1074,8 @@ export class FakeBlock extends Enemy {
         this.shakeTimer = SHAKE_TIME;
 
         event.shake(SHAKE_TIME, MAGNITUDE);
+
+        event.audio.playSample(event.assets.getSample("shake"), 0.50);
     }
 }
 
@@ -1184,6 +1202,8 @@ export class Fish extends Enemy {
 
         this.baseSpeed = this.dir * SPEED;
         this.wave = 0;
+
+        this.dir = -1 + 2 * (Math.floor(this.startPos.x / 16) % 2); 
     }
 
 
@@ -1277,6 +1297,8 @@ export class Eye extends Enemy {
 
         this.projectileCb(this.pos.x, this.pos.y,
             speed.x, speed.y, false, 1, false);
+
+        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
     }
 
 
@@ -1370,6 +1392,8 @@ class FaceRight extends Enemy {
 
         this.projectileCb(this.pos.x + this.dir*4, this.pos.y+2,
             SPEED * this.dir, 0, false, 1, false);
+
+        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
     }
 
 
@@ -1489,6 +1513,8 @@ export class Plant extends Enemy {
             this.projectileCb(this.pos.x, this.pos.y-2,
                SPEED_X * i, SPEED_Y, true, 1, false);
         }
+
+        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
     }
 
 

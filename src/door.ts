@@ -66,6 +66,8 @@ export class Door extends StrongInteractionTarget {
                 this.open = true;
 
                 player.progress.addValueToArray("doors", this.id, true);
+
+                event.audio.playSample(event.assets.getSample("open"), 0.60);
             }
 
             if (msg == null) return;

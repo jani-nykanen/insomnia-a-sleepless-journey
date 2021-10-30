@@ -54,6 +54,8 @@ export class Switch extends WeakGameObject {
             player.progress.setBooleanProperty("switchState",
                 !player.progress.getBooleanProperty("switchState"));
 
+            event.audio.playSample(event.assets.getSample("toggle"), 0.50);
+
             return true;
         }
 

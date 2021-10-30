@@ -123,12 +123,16 @@ export class SavePoint extends StrongInteractionTarget {
 
         this.activated = true;
         player.setActiveCheckpointReference(this);
+
+        event.audio.playSample(event.assets.getSample("checkpoint"), 0.50);
     }
 
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
         saveGame(this.message, this.saveManager, event);
+
+        event.audio.playSample(event.assets.getSample("select"), 0.50);
     }
 
 

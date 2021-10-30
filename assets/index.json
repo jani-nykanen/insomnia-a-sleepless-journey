@@ -52,6 +52,12 @@
         {"name": "door", "path": "door.wav"},
         {"name": "break", "path": "break.wav"},
         {"name": "lever", "path": "lever.wav"},
+        {"name": "hop", "path": "hop.wav"},
+        {"name": "open", "path": "open.wav"},
+        {"name": "enemyJump", "path": "enemy_jump.wav"},
+        {"name": "checkpoint", "path": "checkpoint.wav"},
+        {"name": "shoot", "path": "shoot.wav"},
+        {"name": "toggle", "path": "toggle.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
         {"name": "inside", "path": "inside.ogg"}

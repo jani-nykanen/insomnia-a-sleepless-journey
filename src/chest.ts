@@ -58,6 +58,8 @@ export class Chest extends StrongInteractionTarget {
 
         if (text == null) return;
 
+        event.audio.pauseMusic();
+
         this.message.addMessages(text);
         this.message.activate(WAIT_TIME, false, event => {
 
@@ -66,6 +68,8 @@ export class Chest extends StrongInteractionTarget {
                 this.hintbox.setMessage(event.localization.findValue(["hints", String(HINT_ID[this.id])]));
                 this.hintbox.activate();
             }
+
+            event.audio.resumeMusic();
         });
 
         player.setObtainItemPose(this.id);

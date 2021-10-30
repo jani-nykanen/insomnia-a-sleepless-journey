@@ -54,6 +54,8 @@ export class NPC extends StrongInteractionTarget {
 
         this.message.addMessages(text);
         this.message.activate();
+
+        event.audio.playSample(event.assets.getSample("select"), 0.50);
     }
 
 
