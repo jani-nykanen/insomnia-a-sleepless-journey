@@ -50,13 +50,15 @@ export class Chest extends StrongInteractionTarget {
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
         const HINT_ID = [5, 6, -1, 7, 8, 9, -1, -1, -1, -1, -1, 10];
-        const WAIT_TIME = 60;
+        const WAIT_TIME = 45;
 
         if (this.opened) return;
 
         let text = <Array<string>> event.localization.findValue(["chest", String(this.id)]);
 
         if (text == null) return;
+
+        event.audio.playSample(event.assets.getSample("item"), 0.40);
 
         event.audio.pauseMusic();
 

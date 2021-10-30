@@ -197,7 +197,7 @@ export class MessageBox extends ActivableObject {
                     this.ready = false;
                 }
 
-                event.audio.playSample(event.assets.getSample("choose"), 0.70);
+                event.audio.playSample(event.assets.getSample("choose"), 0.80);
             }
         }
     }

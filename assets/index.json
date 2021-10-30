@@ -58,6 +58,7 @@
         {"name": "checkpoint", "path": "checkpoint.wav"},
         {"name": "shoot", "path": "shoot.wav"},
         {"name": "toggle", "path": "toggle.wav"},
+        {"name": "item", "path": "item.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
         {"name": "inside", "path": "inside.ogg"}

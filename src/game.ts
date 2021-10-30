@@ -17,7 +17,7 @@ import { State } from "./types.js";
 
 
 export const THEME_VOLUME = 0.40;
-export const INSIDE_THEME_VOLUME = 0.70;
+export const INSIDE_THEME_VOLUME = 0.80;
 
 
 export class GameScene implements Scene {
