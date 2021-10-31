@@ -59,6 +59,7 @@
         {"name": "shoot", "path": "shoot.wav"},
         {"name": "toggle", "path": "toggle.wav"},
         {"name": "item", "path": "item.wav"},
+        {"name": "dive", "path": "dive.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
         {"name": "inside", "path": "inside.ogg"}

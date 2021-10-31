@@ -378,6 +378,8 @@ export class Player extends CollisionObject {
             this.speed.y = DOWN_ATTACK_JUMP;
             this.target.y = DOWN_ATTACK_GRAVITY;
 
+            event.audio.playSample(event.assets.getSample("dive"), 0.55);
+
             return;
         }
 

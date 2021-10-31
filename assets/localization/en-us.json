@@ -2,9 +2,9 @@
     "npc": [
 
         [
-            "Welcome,\nstranger! I\nhave not seen\nyou before!",
-            "What is this\nplace, you\nask. Why, this\nis... hmm.",
-            "Huh, I have no\nidea, really."
+            "Welcome to\nIMSOMNIA, the\nworld of the\nsleepless ones!",
+            "Humans visit\nthis world\nquite often...",
+            "...but rarely\nin their\nphysical form."
         ],
         [
             "You need to stun\nsome monsters\nbefore you\ncan kill them.",
@@ -14,6 +14,48 @@
         [
             "Higher speed\nwill make\nyou jump\nhigher.",
             "Just sayin'."
+        ],
+        [
+            "If it moves\nit is probably\na monster, so\nthere should\nbe a way to\nkill it.",
+            "You might just\nneed some\nadditional\nequipment..."
+        ],
+        [
+            "There are no\nmonsters in\nthis world,\njust spirits of\nthe sleepless\nnights.",
+            "We call them\nmonsters, though,\nsince it is\nmore convenient."
+        ],
+        [
+            "Once you kill\na monster, it\nmight come back,\nbut as a ghost.",
+            "They can still\nhurt you, but\nkilling them\nagain has very\nlittle meaning."
+        ],
+        [
+            "These stars\nrepresent the\ndreams you\nnever had.",
+            "Maybe you\nshould try\nto collect\nthem all?"
+        ],
+        [
+            "Since you are\nhere, you\nprobably have\nsome bad\nmemories or\ntraumas that\nprevent you\ngetting any\nsleep.",
+            "If you could\nonly put them\ninto a giant\nchest and eat\nthe key..."
+        ],
+        [
+            "To open this\ndoor, you\nhave to break\nthe seals first.",
+            "Because what\nlies on the\nother side...\nwell, you\nwill see."
+        ],
+        [
+            "My mother told\nme to eat more.\nIt makes\nswimming much\neasier."
+        ],
+        [
+            "Who are we,\nyou ask. We\nare the people\nwho never found\na way out.",
+            "It has been\na hundred\nyears since\nI last time\nhad any sleep."
+        ],
+        [
+            "They say there\nis another\nswitch some-\nwhere in this\nworld."
+        ],
+        [
+            "I once built\na rocket pack,\nbut I forgot\nwhere I put it."
+        ],
+        [
+            "I have heard\nrumors that\nthere is a\nportal some-\nwhere.",
+            "It takes you\nto a place\nwhere you...\nfall. Like\nin a dream.",
+            "But there should\nbe a treasure\nwaiting in the\nbottom."
         ]
     ],
 
