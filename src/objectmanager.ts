@@ -22,6 +22,7 @@ import { TransitionEffectType } from "./transition.js";
 import { HintBox } from "./hintbox.js";
 import { HintTrigger } from "./hinttrigger.js";
 import { INSIDE_THEME_VOLUME, THEME_VOLUME } from "./game.js";
+import { Orb } from "./orb.js";
 
 
 export type SpawnProjectileCallback = 
@@ -66,6 +67,7 @@ export class ObjectManager {
     private chests : Array<Chest>;
     private checkpoints : Array<SavePoint>;
     private hintTriggers : Array<HintTrigger>;
+    private orbs : Array<Orb>;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -100,6 +102,7 @@ export class ObjectManager {
         this.strongInteractionTargets = new Array<StrongInteractionTarget> ();
         this.doors = new Array<Door> ();
         this.enemies = new Array<Enemy> ();
+        this.orbs = new Array<Orb> ();
 
         this.stars = new Array<Star> ();
         this.chests = new Array<Chest> ();
@@ -114,6 +117,24 @@ export class ObjectManager {
         this.mergeDoorsToGeneralArray();
 
         camera.focusOnObject(this.player);
+
+        this.passItemCountToOrbs();
+    }
+
+
+    private passItemCountToOrbs() {
+
+        for (let o of this.orbs) {
+
+            if (o.id == 0) {
+
+                o.setItemCount(this.stars.length);
+            }
+            else if (o.id == 1) {
+
+                o.setItemCount(this.enemies.length);
+            }
+        }
     }
 
 
@@ -198,6 +219,14 @@ export class ObjectManager {
             this.message, this.saveManager);
         this.strongInteractionTargets.push(o);
         this.checkpoints.push(o);
+    }
+
+
+    public addOrb(x : number, y : number, id : number) {
+
+        let o = new Orb(x*16+8, y*16+8, id, this.message, this.progress);
+        this.strongInteractionTargets.push(o);
+        this.orbs.push(o);
     }
 
 
@@ -388,6 +417,11 @@ export class ObjectManager {
         for (let p of this.projectiles) {
 
             p.draw(canvas);
+        }
+
+        for (let o of this.strongInteractionTargets) {
+
+            o.postDraw(canvas);
         }
     }
 

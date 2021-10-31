@@ -422,6 +422,17 @@ export class Stage {
                     objects.addHintTrigger(x, y, id, event);
                     break;
 
+                // Orbs
+                case 11:
+                case 12:
+                    objects.addOrb(x, y, tid-11);
+                    break;
+
+                // Portal
+                case 13:
+                    // ...
+                    break;
+
                 default:
 
                     if (tid >= 17 && tid < 17+16) {

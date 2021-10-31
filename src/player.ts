@@ -736,6 +736,7 @@ export class Player extends CollisionObject {
         }
 
         let rocketActive = !this.spinning &&
+            !this.throwing &&
             ((this.doubleJump && this.jumpTimer > 0) || this.flapping);
 
         if (!rocketActive && (this.sliding || !this.canJump || this.spinning ||

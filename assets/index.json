@@ -29,6 +29,7 @@
         {"name": "brickwall", "path": "brickwall.png"},
         {"name": "spin", "path": "spin.png"},
         {"name": "ghosts", "path": "ghosts.png"},
+        {"name": "orb", "path": "orb.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

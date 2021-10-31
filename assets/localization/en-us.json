@@ -191,6 +191,21 @@
         "Press Left Shift\nto open the map."
     ],
 
+    "orbFail": [
+        "Nothing happens."
+    ],
+
+    "orb": [
+
+        "The seal of\nnight is\nbroken.",
+        "The seal of\nblood is\nbroken."
+    ],
+
+    "portal": [
+        "Warning: once\nyou use the\nportal, you\ncannot go\nback.",
+        "Proceed?"  
+    ],
+
 
     "titleMenu": [
         "New Game",
