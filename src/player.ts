@@ -139,7 +139,7 @@ export class Player extends CollisionObject {
         this.spinCount = 0;
         this.spinning = false;
         this.canSpin = false;
-        this.spinHitbox = new Vector2(24, 4);
+        this.spinHitbox = new Vector2(24, 6);
 
         this.downAttackWaitTimer = 0;
         this.downAttacking = false;
@@ -795,7 +795,7 @@ export class Player extends CollisionObject {
 
         const INV_TIME = 60;
 
-        this.takeCameraBorderCollision = this.knockbackTimer > 0;
+        this.takeCameraBorderCollision = this.isInFinalArea || this.knockbackTimer > 0;
 
         this.updateDust(event);
 

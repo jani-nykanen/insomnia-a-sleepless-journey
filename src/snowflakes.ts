@@ -92,7 +92,6 @@ class Snowflake extends GameObject {
         let px = Math.round(this.renderPos.x - this.size/2);
         let py = Math.round(this.renderPos.y - this.size/2);
 
-        canvas.setFillColor(255, 255, 255, ALPHA);
         canvas.fillRect(px, py, this.size, this.size);
     }
 }
@@ -178,7 +177,12 @@ export class SnowflakeGenerator {
     }
 
 
-    public draw(canvas : Canvas) {
+    public draw(canvas : Canvas, isBlack = false) {
+
+        const ALPHA = 0.67;
+
+        let c = isBlack ? 0 : 255;
+        canvas.setFillColor(c, c, c, ALPHA);
 
         for (let o of this.snowflakes) {
 

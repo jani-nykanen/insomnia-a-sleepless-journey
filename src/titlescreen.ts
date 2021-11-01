@@ -7,6 +7,8 @@ import { TransitionEffectType } from "./transition.js";
 import { Vector2 } from "./vector.js";
 
 
+const TITLE_MUSIC_VOLUME = 0.60;
+
 
 export class TitleScreen implements Scene {
 
@@ -59,10 +61,14 @@ export class TitleScreen implements Scene {
         this.menu.activate(0);
     
         this.message = new MessageBox(event);
+
+        event.audio.fadeInMusic(event.assets.getSample("title"), TITLE_MUSIC_VOLUME, 1000);
     }
 
 
     private goToGame(load : boolean, event : CoreEvent) {
+
+        event.audio.stopMusic();
 
         this.loadGame = load;
         event.transition.activate(true, TransitionEffectType.CirleIn,

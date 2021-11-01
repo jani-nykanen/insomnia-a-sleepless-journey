@@ -69,7 +69,7 @@ export class Orb extends StrongInteractionTarget {
         player.setUsePose(this.pos.x, true);
 
         event.audio.pauseMusic();
-        event.audio.playSample(event.assets.getSample("orb"), 0.50);
+        event.audio.playSample(event.assets.getSample("orb"), 0.60);
 
         this.message.addMessages([event.localization.findValue(["orb", String(this.id)])]);
         this.message.activate(1, false, event => {

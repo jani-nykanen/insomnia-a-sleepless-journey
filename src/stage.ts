@@ -176,6 +176,17 @@ export class Stage {
     private drawFinalBackground(canvas : Canvas, camera : Camera) {
 
         canvas.clear(255, 255, 255);
+
+        let bmp = canvas.assets.getBitmap("dreamBackground");
+
+        let p = camera.getPosition();
+
+        let shifty = (Math.round(p.y / 2)) % bmp.height;
+
+        for (let i = 0; i < 2; ++ i) {
+
+            canvas.drawBitmap(bmp, 0, i*bmp.height - shifty);
+        }
     }
 
 
@@ -367,7 +378,7 @@ export class Stage {
 
         if (inside) return;
 
-        this.snowflakeGen.draw(canvas);
+        this.snowflakeGen.draw(canvas, this.isFinal);
     }
 
 
@@ -395,7 +406,7 @@ export class Stage {
                 // Player
                 case 1:
                     objects.createPlayer(x, y, 
-                        Boolean(this.tilemap.getProperty("startInside")), 
+                        Number(this.tilemap.getProperty("startInside")) == 1, 
                         this.isFinal);
                     break;
 
@@ -714,8 +725,7 @@ export class Stage {
 
         let cpos = camera.getPosition();
 
-        if (o.doesTakeCameraBorderCollision() ||
-            this.isFinal) {
+        if (o.doesTakeCameraBorderCollision()) {
             
             o.wallCollision(cpos.x, cpos.y, camera.height, -1, event);
             o.wallCollision(cpos.x + camera.width, cpos.y, camera.height, 1, event);

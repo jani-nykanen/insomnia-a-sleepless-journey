@@ -229,7 +229,7 @@ export class MessageBox extends ActivableObject {
 
             if (this.confirm && this.queue.length == 0) {
 
-                this.yesNoBox.draw(canvas, w/4, h-2, 0, 12, true);
+                this.yesNoBox.draw(canvas, w/4, h/2 + 20, 0, 10, true);
             }
             else {
 

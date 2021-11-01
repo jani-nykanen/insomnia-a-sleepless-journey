@@ -37,17 +37,31 @@ export class Portal extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        event.audio.stopMusic();
+        event.audio.playSample(event.assets.getSample("select"), 0.50);
 
-        event.transition.activate(true, TransitionEffectType.CirleIn,
-            1.0/60.0, event => {
+        this.message.addMessages(event.localization.findValue(["portal"]));
+        this.message.activate(0, true, event => {
 
-                this.cb(event);
-            }, [255, 255, 255])
-            .setCenter(new Vector2(
+            event.audio.stopMusic();
 
-                this.pos.x % camera.width,
-                (this.pos.y-16) % camera.height));
+            event.audio.playSample(event.assets.getSample("teleport"), 0.50);
+
+            player.setUsePose(this.pos.x);
+            event.shake(120, 4);
+
+            event.transition.activate(true, TransitionEffectType.CirleIn,
+                1.0/120.0, event => {
+
+                    event.transition.activate(false, TransitionEffectType.Fade, 1.0/60.0,
+                        null, [255, 255, 255], 4);
+                    this.cb(event);
+
+                }, [255, 255, 255])
+                .setCenter(new Vector2(
+
+                    this.pos.x % camera.width,
+                    (this.pos.y-16) % camera.height));
+        });
     }
 
 
@@ -56,6 +70,9 @@ export class Portal extends StrongInteractionTarget {
         const ANIM_SPEED = 6;
 
         this.spr.animate(1, 0, 2, ANIM_SPEED, event.step);
+
+        this.canInteract = this.progress.doesValueExistInArray("orbsDestroyed", 0) &&
+            this.progress.doesValueExistInArray("orbsDestroyed", 1);
     }
 
 

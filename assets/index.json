@@ -31,6 +31,7 @@
         {"name": "ghosts", "path": "ghosts.png"},
         {"name": "orb", "path": "orb.png"},
         {"name": "bigDoor", "path": "big_door.png"},
+        {"name": "dreamBackground", "path": "dream_background.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
@@ -63,9 +64,11 @@
         {"name": "item", "path": "item.wav"},
         {"name": "dive", "path": "dive.wav"},
         {"name": "orb", "path": "orb.wav"},
+        {"name": "teleport", "path": "teleport.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
         {"name": "inside", "path": "inside.ogg"},
+        {"name": "title", "path": "title.ogg"},
         {"name": "final", "path": "final.ogg"}
     ],
 
