@@ -6,6 +6,7 @@ import { MessageBox } from "./messagebox.js";
 import { Player } from "./player.js";
 import { ProgressManager } from "./progress.js";
 import { Sprite } from "./sprite.js";
+import { TransitionEffectType } from "./transition.js";
 import { Vector2 } from "./vector.js";
 
 
@@ -53,7 +54,26 @@ export class Orb extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        // let msg : Array<string>;        
+        // let msg : Array<string>;    
+        
+        player.setUsePose(this.pos.x, true);
+
+        event.audio.pauseMusic();
+        event.audio.playSample(event.assets.getSample("orb"), 0.50);
+
+        this.message.addMessages([event.localization.findValue(["orb", String(this.id)])]);
+        this.message.activate(1, false, event => {
+
+            event.audio.resumeMusic();
+        });
+
+        event.transition.activate(true,TransitionEffectType.Fade,
+            1.0/60.0, event => {
+
+                this.breakSeal();
+                this.progress.addValueToArray("orbsDestroyed", this.id, true);
+
+            }, [255, 255, 255], 4);
     }
 
 
@@ -70,11 +90,15 @@ export class Orb extends StrongInteractionTarget {
         const Y_OFF = -4;
         const AMPLITUDE = 3;
 
+        if (!this.inCamera) return;
+
         let bmp = canvas.assets.getBitmap("orb");
 
-        if (!this.inCamera || this.broken) return;
-
-        let y = this.pos.y-24 + Y_OFF + Math.round(Math.sin(this.wave) * AMPLITUDE);
+        let y = this.pos.y-24;
+        if (!this.broken) 
+            y += Y_OFF + Math.round(Math.sin(this.wave) * AMPLITUDE);
+        else
+            y += 1;
 
         canvas.drawSprite(this.spr, bmp, 
             this.pos.x - this.spr.width/2, y);
@@ -104,5 +128,7 @@ export class Orb extends StrongInteractionTarget {
 
         this.broken = true;
         this.spr.setFrame(this.id, 1);
+
+        this.canInteract = false;
     }
 }

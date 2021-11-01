@@ -44,10 +44,7 @@ export class Lever extends StrongInteractionTarget {
 
         event.shake(WAIT_TIME, 2.0);
 
-        this.activated = true;
-        this.canInteract = false;
-
-        this.spr.setFrame(1, 0);
+        this.enable();
 
         player.setUsePose();
         player.progress.setBooleanProperty("fansEnabled");
@@ -65,5 +62,14 @@ export class Lever extends StrongInteractionTarget {
         canvas.drawSprite(this.spr, bmp, 
             this.pos.x - this.spr.width/2,
             this.pos.y - this.spr.height/2);
+    }
+
+
+    public enable() {
+
+        this.activated = true;
+        this.canInteract = false;
+
+        this.spr.setFrame(1, 0);
     }
 }

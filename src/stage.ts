@@ -430,7 +430,7 @@ export class Stage {
 
                 // Portal
                 case 13:
-                    // ...
+                    objects.addPortal(x, y);
                     break;
 
                 default:

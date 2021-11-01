@@ -30,6 +30,7 @@
         {"name": "spin", "path": "spin.png"},
         {"name": "ghosts", "path": "ghosts.png"},
         {"name": "orb", "path": "orb.png"},
+        {"name": "bigDoor", "path": "big_door.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
@@ -61,6 +62,7 @@
         {"name": "toggle", "path": "toggle.wav"},
         {"name": "item", "path": "item.wav"},
         {"name": "dive", "path": "dive.wav"},
+        {"name": "orb", "path": "orb.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
         {"name": "inside", "path": "inside.ogg"}

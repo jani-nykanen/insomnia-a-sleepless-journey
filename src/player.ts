@@ -1298,10 +1298,10 @@ export class Player extends CollisionObject {
     }
 
 
-    public setUsePose(pos = -1) {
+    public setUsePose(pos = -1, handsUp = false) {
 
         this.stopMovement();
-        this.spr.setFrame(3, 3);
+        this.spr.setFrame(handsUp ? 5 : 3, 3);
 
         if (pos >= 0) {
 

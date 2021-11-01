@@ -23,6 +23,7 @@ import { HintBox } from "./hintbox.js";
 import { HintTrigger } from "./hinttrigger.js";
 import { INSIDE_THEME_VOLUME, THEME_VOLUME } from "./game.js";
 import { Orb } from "./orb.js";
+import { Portal } from "./portal.js";
 
 
 export type SpawnProjectileCallback = 
@@ -68,6 +69,7 @@ export class ObjectManager {
     private checkpoints : Array<SavePoint>;
     private hintTriggers : Array<HintTrigger>;
     private orbs : Array<Orb>;
+    private lever : Lever;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -203,7 +205,8 @@ export class ObjectManager {
 
     public addLever(x : number, y : number) {
 
-        this.strongInteractionTargets.push(new Lever(x*16+8, y*16+8, this.message));
+        this.lever = new Lever(x*16+8, y*16+8, this.message);
+        this.strongInteractionTargets.push(this.lever);
     }
 
 
@@ -227,6 +230,13 @@ export class ObjectManager {
         let o = new Orb(x*16+8, y*16+8, id, this.message, this.progress);
         this.strongInteractionTargets.push(o);
         this.orbs.push(o);
+    }
+
+
+    public addPortal(x : number, y : number) {
+
+        let o = new Portal((x+1)*16, y*16+8, this.message, this.progress);
+        this.strongInteractionTargets.push(o);
     }
 
 
@@ -493,6 +503,20 @@ export class ObjectManager {
                 h.forceKill();
             }
         }
+
+        for (let o of this.orbs) {
+
+            if (this.progress.doesValueExistInArray("orbsDestroyed", o.id)) {
+
+                o.breakSeal();
+            }
+        }
+
+        if (this.lever != null &&
+            this.progress.getBooleanProperty("fansEnabled")) {
+        
+            this.lever.enable();
+        } 
     }
 
 
