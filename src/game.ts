@@ -18,6 +18,28 @@ import { State } from "./types.js";
 
 export const THEME_VOLUME = 0.40;
 export const INSIDE_THEME_VOLUME = 0.80;
+export const FINAL_THEME_VOLUME = 0.40;
+
+
+export const playTheme = (event : CoreEvent, inside = false, finalArea = false) => {
+
+    let trackName = "theme";
+    let vol = THEME_VOLUME;
+
+    if (finalArea) {
+
+        trackName = "final";
+        vol = FINAL_THEME_VOLUME;
+    }
+    else if (inside) {
+
+        trackName = "inside";
+        vol = INSIDE_THEME_VOLUME;
+    }
+        
+
+    event.audio.fadeInMusic(event.assets.getSample(trackName), vol, 1000);
+}
 
 
 export class GameScene implements Scene {
@@ -36,6 +58,8 @@ export class GameScene implements Scene {
 
     private pauseMenu : Menu;
 
+    private isFinalArea : boolean;
+
 
     constructor(param : any, event : CoreEvent) {
 
@@ -48,7 +72,8 @@ export class GameScene implements Scene {
         this.stage = new Stage(this.camera, this.progress, event);
         this.objects = new ObjectManager(this.stage, this.camera, 
             this.message, this.progress, 
-            this.saveManager, this.hintbox, event);
+            this.saveManager, this.hintbox, event,
+            event => this.enterFinalArea(event));
         this.worldMap = new WorldMap(this.stage, this.progress, event);
 
         this.objects.cameraCheck(this.camera);
@@ -86,7 +111,15 @@ export class GameScene implements Scene {
                 new MenuButton(loc.findValue(["pauseMenu", "2"]),
                 event => {
 
-                    saveGame(this.message, this.saveManager, event);
+                    if (!this.isFinalArea) {
+
+                        saveGame(this.message, this.saveManager, event);
+                    }
+                    else {
+
+                        this.message.addMessages([event.localization.findValue(["cannotSave"])]);
+                        this.message.activate();
+                    }
                 }),
 
                 new MenuButton(loc.findValue(["pauseMenu", "3"]),
@@ -104,17 +137,8 @@ export class GameScene implements Scene {
                 new MenuButton("DEBUG", 
                 event => {
 
-                    for (let i = 0; i <= 12; ++ i) {
-
-                        this.progress.addValueToArray("items", i, true);
-                    }
-                    this.progress.setBooleanProperty("fansEnabled");
-                    this.progress.setBooleanProperty("switchState",
-                        !this.progress.getBooleanProperty("switchState"));
-
-                    this.stage.toggleSpecialBlocks();
-
-                    this.pauseMenu.deactivate();
+                    this.debug();
+                    event.audio.resumeMusic();
                 }),
 
                 new MenuButton(loc.findValue(["pauseMenu", "4"]),
@@ -139,11 +163,53 @@ export class GameScene implements Scene {
             this.loadGame();
         }
 
-        event.audio.fadeInMusic(
-            event.assets.getSample(this.objects.isPlayerInside() ? "inside" : "theme"), 
-            this.objects.isPlayerInside() ? INSIDE_THEME_VOLUME : THEME_VOLUME, 
-            1000);
+        playTheme(event, this.objects.isPlayerInside(), this.isFinalArea);
         
+        this.isFinalArea = false;
+    }
+
+
+    private debug() {
+
+        for (let i = 0; i <= 12; ++ i) {
+
+            this.progress.addValueToArray("items", i, true);
+        }
+        this.progress.setBooleanProperty("fansEnabled");
+        this.progress.setBooleanProperty("switchState",
+            !this.progress.getBooleanProperty("switchState"));
+
+        this.stage.toggleSpecialBlocks();
+
+        this.pauseMenu.deactivate();
+
+        this.objects.debugDestroyObjects();
+        this.progress.setNumberProperty("kills", 99);
+        this.progress.setNumberProperty("stars", 99);
+
+        for (let i = 0; i < 99; ++ i) {
+
+            this.progress.addValueToArray("enemiesKilled", i);
+            this.progress.addValueToArray("starsCollected", i);
+        }
+    }
+
+
+    private enterFinalArea(event : CoreEvent) {
+
+        this.isFinalArea = true;
+
+        this.stage = new Stage(this.camera, this.progress, event, true);
+        this.objects = new ObjectManager(this.stage, this.camera, 
+            this.message, this.progress, 
+            this.saveManager, this.hintbox, event);
+        this.worldMap = new WorldMap(this.stage, this.progress, event);
+
+        this.objects.cameraCheck(this.camera);
+
+        this.objects.reinitializeObjectsByProgress(this.camera);
+
+        playTheme(event, this.objects.isPlayerInside(), this.isFinalArea);
     }
 
 
@@ -176,6 +242,13 @@ export class GameScene implements Scene {
 
 
     private activateMap(cb : (event : CoreEvent) => void, event : CoreEvent): boolean {
+
+        if (this.isFinalArea) {
+
+            this.message.addMessages([event.localization.findValue(["cannotSave"])]);
+            this.message.activate();
+            return false;
+        }
 
         if (!this.progress.doesValueExistInArray("items", 11)) {
 

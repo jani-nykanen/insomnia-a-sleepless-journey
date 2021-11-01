@@ -85,10 +85,11 @@ export class Player extends CollisionObject {
     private projectileCb : SpawnProjectileCallback;
 
     public readonly progress : ProgressManager;
+    public readonly isInFinalArea : boolean;
 
 
     constructor(x : number, y : number, projectileCb : SpawnProjectileCallback,
-        progress : ProgressManager, inside = false) {
+        progress : ProgressManager, inside = false, isInFinalArea = false) {
 
         super(x, y+1);
 
@@ -167,6 +168,8 @@ export class Player extends CollisionObject {
         this.projectileCb = projectileCb;
 
         this.progress = progress;
+
+        this.isInFinalArea = isInFinalArea;
     }
 
 
@@ -939,6 +942,9 @@ export class Player extends CollisionObject {
             diry = -1;
         else if (this.pos.y + HIT_RANGE_Y > y2)
             diry = 1;
+
+        if (this.isInFinalArea)
+            dirx = 0;
 
         let cp : Vector2;
         if (dirx != 0 || diry != 0) {

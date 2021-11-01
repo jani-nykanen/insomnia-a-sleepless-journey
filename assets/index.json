@@ -65,13 +65,15 @@
         {"name": "orb", "path": "orb.wav"},
 
         {"name": "theme", "path": "theme.ogg"},
-        {"name": "inside", "path": "inside.ogg"}
+        {"name": "inside", "path": "inside.ogg"},
+        {"name": "final", "path": "final.ogg"}
     ],
 
     "tilemapPath" : "assets/tilemaps/",
     "tilemaps" : [
         {"name": "collisionMap", "path": "collision_map.tmx"},
-        {"name": "base", "path": "base.tmx"}
+        {"name": "base", "path": "base.tmx"},
+        {"name": "finalArea", "path": "final_area.tmx"}
     ],
 
     "documentPath" : "assets/localization/",

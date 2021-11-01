@@ -21,7 +21,7 @@ import { SaveManager } from "./savemanager.js";
 import { TransitionEffectType } from "./transition.js";
 import { HintBox } from "./hintbox.js";
 import { HintTrigger } from "./hinttrigger.js";
-import { INSIDE_THEME_VOLUME, THEME_VOLUME } from "./game.js";
+import { INSIDE_THEME_VOLUME, playTheme, THEME_VOLUME } from "./game.js";
 import { Orb } from "./orb.js";
 import { Portal } from "./portal.js";
 
@@ -31,6 +31,8 @@ export type SpawnProjectileCallback =
     speedx : number, speedy : number, 
     getGravity : boolean, id : number,
     friendly : boolean) => void;
+
+export type PortalCallback = (event : CoreEvent) => void;
 
 
 const objectInArea = (arr : Array<WeakGameObject>,
@@ -77,11 +79,12 @@ export class ObjectManager {
     private readonly hintbox : HintBox;
 
     private projectileCb : SpawnProjectileCallback;
+    private portalCb : PortalCallback;
 
 
     constructor(stage : Stage, camera : Camera, message : MessageBox, 
         progress : ProgressManager, saveManager : SaveManager, hintbox : HintBox,
-        event : CoreEvent) {
+        event : CoreEvent, portalCb = <PortalCallback> (event => {})) {
         
         this.player = null;
 
@@ -112,6 +115,8 @@ export class ObjectManager {
         this.hintTriggers = new Array<HintTrigger> ();
 
         this.message = message;
+
+        this.portalCb = portalCb;
 
         stage.parseObjects(this, event);
 
@@ -169,9 +174,10 @@ export class ObjectManager {
     }
 
 
-    public createPlayer(x : number, y : number, inside = false) {
+    public createPlayer(x : number, y : number, inside = false, isFinalArea = false) {
 
-        this.player = new Player(x*16+16, y*16+8, this.projectileCb, this.progress, inside);
+        this.player = new Player(x*16+16, y*16+8, 
+            this.projectileCb, this.progress, inside, isFinalArea);
     }
 
 
@@ -235,7 +241,7 @@ export class ObjectManager {
 
     public addPortal(x : number, y : number) {
 
-        let o = new Portal((x+1)*16, y*16+8, this.message, this.progress);
+        let o = new Portal((x+1)*16, y*16+8, this.message, this.progress, this.portalCb);
         this.strongInteractionTargets.push(o);
     }
 
@@ -339,10 +345,7 @@ export class ObjectManager {
                     let p = this.player.getPos();
                     event.transition.setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
 
-                    event.audio.fadeInMusic(
-                        event.assets.getSample(this.isPlayerInside() ? "inside" : "theme"), 
-                        this.isPlayerInside() ? INSIDE_THEME_VOLUME : THEME_VOLUME, 
-                        1000);
+                    playTheme(event, this.isPlayerInside(), this.player.isInFinalArea);
                 })
                 .setCenter(new Vector2(p.x % camera.width, p.y % camera.height));
             return;
@@ -517,6 +520,20 @@ export class ObjectManager {
         
             this.lever.enable();
         } 
+    }
+
+
+    public debugDestroyObjects() {
+
+        for (let e of this.enemies) {
+
+            e.forceKill();
+        }
+
+        for (let s of this.stars) {
+
+            s.forceKill();
+        }
     }
 
 

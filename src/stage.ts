@@ -63,11 +63,13 @@ export class Stage {
     public readonly waterLevel : number;
 
     private readonly progress : ProgressManager;
+    
+    public readonly isFinal : boolean;
 
 
-    constructor(camera : Camera, progress : ProgressManager, event : CoreEvent) {
+    constructor(camera : Camera, progress : ProgressManager, event : CoreEvent, isFinal = false) {
 
-        this.tilemap = event.assets.getTilemap("base");
+        this.tilemap = event.assets.getTilemap(isFinal ? "finalArea" : "base");
         this.collisionMap = event.assets.getTilemap("collisionMap")
 
         this.width = this.tilemap.width;
@@ -88,6 +90,8 @@ export class Stage {
         this.snowflakeGen = new SnowflakeGenerator(camera);
 
         this.progress = progress;
+
+        this.isFinal = isFinal;
     }
 
 
@@ -169,9 +173,21 @@ export class Stage {
     }
 
 
+    private drawFinalBackground(canvas : Canvas, camera : Camera) {
+
+        canvas.clear(255, 255, 255);
+    }
+
+
     public drawBackground(canvas : Canvas, camera : Camera, inside = false) {
         
         const FOREST_BASE_SHIFT = 80;
+
+        if (this.isFinal) {
+
+            this.drawFinalBackground(canvas, camera);
+            return;
+        }
 
         if (inside) {
 
@@ -378,7 +394,9 @@ export class Stage {
 
                 // Player
                 case 1:
-                    objects.createPlayer(x, y, Boolean(this.tilemap.getProperty("startInside")));
+                    objects.createPlayer(x, y, 
+                        Boolean(this.tilemap.getProperty("startInside")), 
+                        this.isFinal);
                     break;
 
                 // Switch
@@ -696,7 +714,8 @@ export class Stage {
 
         let cpos = camera.getPosition();
 
-        if (o.doesTakeCameraBorderCollision()) {
+        if (o.doesTakeCameraBorderCollision() ||
+            this.isFinal) {
             
             o.wallCollision(cpos.x, cpos.y, camera.height, -1, event);
             o.wallCollision(cpos.x + camera.width, cpos.y, camera.height, 1, event);

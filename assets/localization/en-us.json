@@ -191,10 +191,8 @@
         "Press Left Shift\nto open the map."
     ],
 
-    "orbFail": [
-        "Nothing happens."
-    ],
-
+    "orbFail": "Nothing\nhappens.",
+    
     "orb": [
 
         "The seal of\nnight is\nbroken.",
@@ -205,6 +203,9 @@
         "Warning: once\nyou use the\nportal, you\ncannot go\nback.",
         "Proceed?"  
     ],
+
+
+    "cannotSave": "You cannot do\nthat here.",
 
 
     "titleMenu": [

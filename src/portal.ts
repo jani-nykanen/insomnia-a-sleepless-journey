@@ -3,6 +3,7 @@ import { Canvas } from "./canvas.js";
 import { CoreEvent } from "./core.js";
 import { StrongInteractionTarget } from "./interactiontarget.js";
 import { MessageBox } from "./messagebox.js";
+import { PortalCallback } from "./objectmanager.js";
 import { Player } from "./player.js";
 import { ProgressManager } from "./progress.js";
 import { Sprite } from "./sprite.js";
@@ -15,9 +16,11 @@ export class Portal extends StrongInteractionTarget {
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
+
+    private readonly cb : PortalCallback;
     
 
-    constructor(x : number, y : number, message : MessageBox, progress : ProgressManager) {
+    constructor(x : number, y : number, message : MessageBox, progress : ProgressManager, cb : PortalCallback) {
 
         super(x, y, true);
 
@@ -28,13 +31,23 @@ export class Portal extends StrongInteractionTarget {
         this.message = message;
         this.progress = progress;
 
-        // this.offCameraRadius = 16;
+        this.cb = cb;
     }
 
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        // let msg : Array<string>;    
+        event.audio.stopMusic();
+
+        event.transition.activate(true, TransitionEffectType.CirleIn,
+            1.0/60.0, event => {
+
+                this.cb(event);
+            }, [255, 255, 255])
+            .setCenter(new Vector2(
+
+                this.pos.x % camera.width,
+                (this.pos.y-16) % camera.height));
     }
 
 

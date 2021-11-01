@@ -10,6 +10,7 @@ export const enum TransitionEffectType {
     CirleIn = 2,
     BoxVertical = 3,
     BoxHorizontal = 4,
+    CircleOut = 5,
 }
 
 
@@ -141,6 +142,20 @@ export class TransitionEffectManager {
             
             canvas.fillRect(0, 0, canvas.width, radius);
             canvas.fillRect(0, canvas.height - radius, canvas.width, radius);
+
+            break;
+
+        case TransitionEffectType.CircleOut:
+
+            maxRadius = Math.max(
+                Math.hypot(this.center.x, this.center.y),
+                Math.hypot(canvas.width - this.center.x, this.center.y),
+                Math.hypot(canvas.width - this.center.x, canvas.height - this.center.y),
+                Math.hypot(this.center.x, canvas.height - this.center.y)
+            );
+
+            radius = t * maxRadius;
+            canvas.fillCircle(radius, this.center.x, this.center.y);
 
             break;
 

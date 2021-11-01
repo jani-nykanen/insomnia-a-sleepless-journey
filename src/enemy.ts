@@ -1298,7 +1298,7 @@ export class Eye extends Enemy {
         this.projectileCb(this.pos.x, this.pos.y,
             speed.x, speed.y, false, 1, false);
 
-        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
+        event.audio.playSample(event.assets.getSample("shoot"), 0.40);
     }
 
 
@@ -1393,7 +1393,7 @@ class FaceRight extends Enemy {
         this.projectileCb(this.pos.x + this.dir*4, this.pos.y+2,
             SPEED * this.dir, 0, false, 1, false);
 
-        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
+        event.audio.playSample(event.assets.getSample("shoot"), 0.40);
     }
 
 
@@ -1514,7 +1514,7 @@ export class Plant extends Enemy {
                SPEED_X * i, SPEED_Y, true, 1, false);
         }
 
-        event.audio.playSample(event.assets.getSample("shoot"), 0.50);
+        event.audio.playSample(event.assets.getSample("shoot"), 0.40);
     }
 
 

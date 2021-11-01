@@ -10,6 +10,9 @@ import { TransitionEffectType } from "./transition.js";
 import { Vector2 } from "./vector.js";
 
 
+const REQUIRED_VAR_NAME = ["stars", "kills"];
+
+
 export class Orb extends StrongInteractionTarget {
 
 
@@ -54,7 +57,14 @@ export class Orb extends StrongInteractionTarget {
 
     protected interactionEvent(player : Player, camera : Camera, event : CoreEvent) {
 
-        // let msg : Array<string>;    
+        if (this.progress.getNumberProperty(REQUIRED_VAR_NAME[this.id]) < this.itemCount) {
+
+            event.audio.playSample(event.assets.getSample("select"), 0.50);
+
+            this.message.addMessages([event.localization.findValue(["orbFail"])]);
+            this.message.activate();
+            return;
+        }
         
         player.setUsePose(this.pos.x, true);
 
@@ -67,13 +77,22 @@ export class Orb extends StrongInteractionTarget {
             event.audio.resumeMusic();
         });
 
-        event.transition.activate(true,TransitionEffectType.Fade,
+        event.shake(60.0, 2.0);
+
+        event.transition.activate(true, TransitionEffectType.CircleOut,
             1.0/60.0, event => {
 
                 this.breakSeal();
                 this.progress.addValueToArray("orbsDestroyed", this.id, true);
 
-            }, [255, 255, 255], 4);
+                event.transition.activate(false, 
+                    TransitionEffectType.Fade, 1.0/60.0,
+                    null, [255, 255, 255], 4);
+
+            }, [255, 255, 255])
+            .setCenter(new Vector2(
+                this.pos.x % camera.width, 
+                this.pos.y % camera.height));
     }
 
 
@@ -107,13 +126,13 @@ export class Orb extends StrongInteractionTarget {
 
     public postDraw(canvas : Canvas) {
 
-        const TYPE = ["stars", "kills"];
         const SYMBOL = [":", "="];
-        const TEXT_OFF = -45;
+        const TEXT_OFF = -44;
 
         if (!this.inCamera || this.broken) return;
 
-        let s = String(String(this.progress.getNumberProperty(TYPE[this.id], 0))) 
+        let s = String(String(this.progress.getNumberProperty(
+                REQUIRED_VAR_NAME[this.id], 0))) 
             + "/" + String(this.itemCount);
 
         let font = canvas.assets.getBitmap("fontBig");
