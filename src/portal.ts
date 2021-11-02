@@ -25,6 +25,7 @@ export class Portal extends StrongInteractionTarget {
         super(x, y, true);
 
         this.spr = new Sprite(32, 48);
+        this.spr.setFrame(0, 1);
 
         this.hitbox = new Vector2(16, 8);
 
@@ -44,7 +45,7 @@ export class Portal extends StrongInteractionTarget {
 
             event.audio.stopMusic();
 
-            event.audio.playSample(event.assets.getSample("teleport"), 0.50);
+            event.audio.playSample(event.assets.getSample("teleport"), 0.40);
 
             player.setUsePose(this.pos.x);
             event.shake(120, 4);
@@ -71,8 +72,7 @@ export class Portal extends StrongInteractionTarget {
 
         this.spr.animate(1, 0, 2, ANIM_SPEED, event.step);
 
-        this.canInteract = this.progress.doesValueExistInArray("orbsDestroyed", 0) &&
-            this.progress.doesValueExistInArray("orbsDestroyed", 1);
+        this.setInteractionState();
     }
 
 
@@ -98,4 +98,10 @@ export class Portal extends StrongInteractionTarget {
         }
     }
 
+    
+    public setInteractionState() {
+
+        this.canInteract = this.progress.doesValueExistInArray("orbsDestroyed", 0) &&
+            this.progress.doesValueExistInArray("orbsDestroyed", 1);
+    }
 }

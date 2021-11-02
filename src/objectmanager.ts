@@ -24,6 +24,7 @@ import { HintTrigger } from "./hinttrigger.js";
 import { INSIDE_THEME_VOLUME, playTheme, THEME_VOLUME } from "./game.js";
 import { Orb } from "./orb.js";
 import { Portal } from "./portal.js";
+import { GiantChest } from "./giantchest.js";
 
 
 export type SpawnProjectileCallback = 
@@ -72,6 +73,7 @@ export class ObjectManager {
     private hintTriggers : Array<HintTrigger>;
     private orbs : Array<Orb>;
     private lever : Lever;
+    private portal : Portal;
 
     private readonly message : MessageBox;
     private readonly progress : ProgressManager;
@@ -108,6 +110,9 @@ export class ObjectManager {
         this.doors = new Array<Door> ();
         this.enemies = new Array<Enemy> ();
         this.orbs = new Array<Orb> ();
+
+        this.lever = null;
+        this.portal = null;
 
         this.stars = new Array<Star> ();
         this.chests = new Array<Chest> ();
@@ -241,8 +246,15 @@ export class ObjectManager {
 
     public addPortal(x : number, y : number) {
 
-        let o = new Portal((x+1)*16, y*16+8, this.message, this.progress, this.portalCb);
-        this.strongInteractionTargets.push(o);
+        this.portal = new Portal((x+1)*16, y*16+8, this.message, this.progress, this.portalCb);
+        this.strongInteractionTargets.push(this.portal);
+    }
+
+
+    public addGiantChest(x : number, y : number) {
+
+        this.strongInteractionTargets.push(
+            new GiantChest(x*16, y*16 + 8, this.message));
     }
 
 
@@ -520,6 +532,11 @@ export class ObjectManager {
         
             this.lever.enable();
         } 
+
+        if (this.portal != null) {
+            
+            this.portal.setInteractionState();
+        }
     }
 
 

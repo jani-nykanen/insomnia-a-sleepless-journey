@@ -32,6 +32,7 @@
         {"name": "orb", "path": "orb.png"},
         {"name": "bigDoor", "path": "big_door.png"},
         {"name": "dreamBackground", "path": "dream_background.png"},
+        {"name": "giantChest", "path": "giant_chest.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 

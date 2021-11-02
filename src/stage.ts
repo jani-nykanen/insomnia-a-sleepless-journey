@@ -462,6 +462,11 @@ export class Stage {
                     objects.addPortal(x, y);
                     break;
 
+                // Giant chest
+                case 14:
+                    objects.addGiantChest(x, y);
+                    break;
+
                 default:
 
                     if (tid >= 17 && tid < 17+16) {
