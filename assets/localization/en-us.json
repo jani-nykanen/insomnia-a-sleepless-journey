@@ -205,6 +205,28 @@
         "Proceed?"  
     ],
 
+    "preEnding": [
+
+        [
+            "You put all\nyour bad\nmemories into\nthe chest.",
+            "Then you\nclose the\nchest\ncarefully."
+        ],
+        [
+            "When the chest\nis closed, it\nrefuses to\nopen again.",
+            "Maybe it will\nstay closed\nfor good?"
+        ],
+        [
+            "Suddenly, you\nfeel very...\nvery tired..."
+        ]
+    ],
+
+    "ending": [
+        "You finally fall\nasleep, and you\nsleep for the\nnext three days\nwithout seeing\nany dreams.",
+        "When you wake\nup, you are\nback to your\nown house.",
+        "And all the bad\nmemories that\nkept you awake...",
+        "They are all gone.\nMaybe this time\nfor good."
+    ],
+
 
     "cannotSave": "You cannot do\nthat here.",
 

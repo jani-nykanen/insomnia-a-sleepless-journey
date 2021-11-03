@@ -184,8 +184,9 @@ export class MessageBox extends ActivableObject {
 
                 if (this.queue.length == 0) {
 
-                    this.confirmEvent(event);
+                    // TODO: Check that this order won't break things
                     this.deactivate();
+                    this.confirmEvent(event);
                 }
                 else {
 
@@ -203,7 +204,7 @@ export class MessageBox extends ActivableObject {
     }
 
 
-    public draw(canvas : Canvas) {
+    public draw(canvas : Canvas, box = true) {
 
         const SYMBOL_AMPLITUDE = 1.0;
 
@@ -217,7 +218,8 @@ export class MessageBox extends ActivableObject {
         let x = canvas.width/2 - w/2;
         let y = canvas.height/2 - h/2;
 
-        drawBox(canvas, x, y, w, h);
+        if (box)
+            drawBox(canvas, x, y, w, h);
 
         canvas.drawText(font,
             this.currentMessage.substring(0, this.charPos),

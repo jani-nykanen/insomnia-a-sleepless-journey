@@ -43,12 +43,6 @@ export class CoreEvent {
     }
 
 
-    public setCanvasFilter = (contrast : number, tintColor : RGBA) : void =>
-        this.canvas.setFilter(contrast, tintColor);
-
-    public createBlackBorderOverlayEffect = (scale : number, radius : number) => 
-        this.canvas.createBlackBorderOverlayEffect(scale, radius);
-
     public shake = (time : number, magnitude : number) : void =>
         this.canvas.shake(time, magnitude);
     public isShaking = () : boolean => this.canvas.isShaking();
@@ -57,6 +51,13 @@ export class CoreEvent {
     public prepareLocalization(name : string) {
 
         this.localization.initialize(this.assets.getDocument(name));
+    }
+
+
+    public copyCanvasToBuffer() {
+        
+        this.core.forceRedraw();
+        this.canvas.copyCanvasToBuffer();
     }
 }
 
@@ -183,7 +184,6 @@ export class Core {
 
             this.drawLoadingScreen(this.canvas);
         }
-        this.canvas.applyFilter();
 
         window.requestAnimationFrame(ts => this.loop(ts, onLoad));
     }
@@ -203,6 +203,12 @@ export class Core {
         onStart(this.event);
 
         this.loop(0, onLoad);
+    }
+
+
+    public forceRedraw() {
+
+        this.activeScene.redraw(this.canvas);
     }
 
 

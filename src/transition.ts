@@ -11,6 +11,7 @@ export const enum TransitionEffectType {
     BoxVertical = 3,
     BoxHorizontal = 4,
     CircleOut = 5,
+    HorizontalWavesWithFading = 6,
 }
 
 
@@ -24,7 +25,9 @@ export class TransitionEffectManager {
     private active : boolean;
     private center : Vector2;
     private speed : number;
+    // Oh noes
     private param : number;
+    private vecParam : Vector2;
     
     private callback : ((event : CoreEvent) => void);
 
@@ -46,7 +49,8 @@ export class TransitionEffectManager {
 
     public activate(fadeIn : boolean, type : TransitionEffectType, speed : number, 
         callback : (event : CoreEvent) => any, 
-        color = <[number, number, number]> [0, 0, 0], specialParam = 0) : TransitionEffectManager {
+        color = <[number, number, number]> [0, 0, 0], 
+        specialParam = 0, vecParam = new Vector2()) : TransitionEffectManager {
 
         this.fadeIn = fadeIn;
         this.speed = speed;
@@ -56,6 +60,7 @@ export class TransitionEffectManager {
         this.color = color;
 
         this.param = specialParam;
+        this.vecParam = vecParam.clone();
 
         this.active = true;
 
@@ -91,6 +96,19 @@ export class TransitionEffectManager {
     }
 
 
+    private fade(canvas : Canvas, t : number, param : number) {
+
+        if (param > 0) {
+
+            t = Math.round(t * param) / param;
+        }
+
+        canvas.setGlobalAlpha(t);
+        canvas.fillRect(0, 0, canvas.width, canvas.height);
+        canvas.setGlobalAlpha();
+    }
+
+
     public draw(canvas : Canvas) {
 
         if (!this.active || this.effectType == TransitionEffectType.None)
@@ -111,15 +129,7 @@ export class TransitionEffectManager {
 
         case TransitionEffectType.Fade:
 
-            if (this.param > 0) {
-
-                t = Math.round(t * this.param) / this.param;
-            }
-
-            canvas.setGlobalAlpha(t);
-            canvas.fillRect(0, 0, canvas.width, canvas.height);
-            canvas.setGlobalAlpha();
-
+            this.fade(canvas, t, this.param);
             break;
 
         case TransitionEffectType.CirleIn:
@@ -157,6 +167,14 @@ export class TransitionEffectManager {
             radius = t * maxRadius;
             canvas.fillCircle(radius, this.center.x, this.center.y);
 
+            break;
+
+        case TransitionEffectType.HorizontalWavesWithFading:
+
+            // canvas.clear(0, 0, 0);
+            canvas.fillScreenWithWavingCenteredImage(null, this.vecParam.x, this.vecParam.y, t);
+
+            this.fade(canvas, t, this.param);
             break;
 
         default:

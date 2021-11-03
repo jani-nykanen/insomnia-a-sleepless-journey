@@ -61,21 +61,28 @@ const drawRoundedRectangle = (ctx : CanvasRenderingContext2D,
 
     
 export const createHtml5Canvas = (cdiv : HTMLDivElement,
-    width : number, height : number) : HTMLCanvasElement => {
+    width : number, height : number, useAsMainCanvas = true) : HTMLCanvasElement => {
 
     let canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
 
-    canvas.setAttribute(
-        "style", 
-        "position: absolute; top: 0; left: 0; z-index: -1;" + 
-        "image-rendering: optimizeSpeed;" + 
-        "image-rendering: pixelated;" +
-        "image-rendering: -moz-crisp-edges;"
-        );
-    cdiv.appendChild(canvas);
-    document.body.appendChild(cdiv);
+    if (useAsMainCanvas) {
+
+        canvas.setAttribute(
+            "style", 
+            "position: absolute; top: 0; left: 0; z-index: -1;" + 
+            "image-rendering: optimizeSpeed;" + 
+            "image-rendering: pixelated;" +
+            "image-rendering: -moz-crisp-edges;"
+            );
+    }
+
+    if (cdiv != null) {
+
+        cdiv.appendChild(canvas);
+        document.body.appendChild(cdiv);
+    }
     
     return canvas;
 }
@@ -89,10 +96,8 @@ export class Canvas {
 
     private canvasDiv : HTMLDivElement;
     private canvas : HTMLCanvasElement;
-    private canvasOverlay : HTMLCanvasElement;
+    private canvasCopyBuffer : HTMLCanvasElement;
     private ctx : CanvasRenderingContext2D;
-
-    private tintColor : RGBA;
 
     private translation : Vector2;
 
@@ -110,16 +115,15 @@ export class Canvas {
 
         this.canvasDiv = createCanvasDiv();
         this.canvas = createHtml5Canvas(this.canvasDiv, width, height);
-        this.canvasOverlay = null;
-
         this.ctx = this.canvas.getContext("2d");
         this.ctx.imageSmoothingEnabled = false;
+
+        this.canvasCopyBuffer = createHtml5Canvas(null, width*3, height, false);
+        this.canvasCopyBuffer.getContext("2d").imageSmoothingEnabled = false;
 
         window.addEventListener("resize", () => this.resize(
             window.innerWidth, window.innerHeight));
         this.resize(window.innerWidth, window.innerHeight);
-
-        this.tintColor = null;
 
         this.shakeTimer = 0;
         this.shakeMagnitude = 0;
@@ -153,15 +157,6 @@ export class Canvas {
         
         c.style.top = top;
         c.style.left = left;
-
-        if (this.canvasOverlay != null) {
-
-            this.canvasOverlay.style.width = c.style.width;
-            this.canvasOverlay.style.height = c.style.height;
-
-            this.canvasOverlay.style.top = c.style.top;
-            this.canvasOverlay.style.left = c.style.left;
-        }
     }
 
 
@@ -393,57 +388,6 @@ export class Canvas {
     }
 
 
-    public setFilter(contrast : number, tintColor : RGBA) {
-
-        let oldStyle = this.canvas.getAttribute("style");
-
-        this.canvas.setAttribute("style",
-            oldStyle + 
-            "filter: contrast(" + String(contrast | 0) + "%);");
-
-        this.tintColor = tintColor.clone();
-    }
-
-
-    public createBlackBorderOverlayEffect(scale : number, radius : number) {
-
-        let w = (this.width * scale) | 0;
-        let h = (this.height * scale) | 0;
-
-        this.canvasOverlay = document.createElement("canvas");
-        this.canvasOverlay.width = w;
-        this.canvasOverlay.height = h;
-
-        this.canvasOverlay.setAttribute("style", 
-            "position: absolute; top: 0; left: 0; z-index: 0;");
-        this.canvasDiv.appendChild(this.canvasOverlay);
-
-        let ctx = this.canvasOverlay.getContext("2d");
-
-        ctx.strokeStyle = "black";
-        
-        let lineWidth = Math.max(w, h) / 32;
-        drawRoundedRectangle(ctx, -lineWidth/2, -lineWidth/2, w+lineWidth, h+lineWidth, radius, lineWidth);
-
-        this.resize(window.innerWidth, window.innerHeight);
-    }
-
-
-    public applyFilter() {
-
-        if (this.tintColor == null) return;
-
-        this.moveTo();
-
-        this.setFillColor(
-            this.tintColor.r, 
-            this.tintColor.g, 
-            this.tintColor.b, 
-            this.tintColor.a);
-        this.fillRect(0, 0, this.width, this.height);
-    }
-
-
     public update(event : CoreEvent) {
 
         if (this.shakeTimer > 0) {
@@ -472,4 +416,35 @@ export class Canvas {
 
 
     public isShaking = () : boolean => this.shakeTimer > 0;
+
+
+    public copyCanvasToBuffer() {
+
+        let ctx = this.canvasCopyBuffer.getContext("2d");
+
+        for (let i = 0; i < 3; ++ i) {
+
+            ctx.drawImage(this.canvas, i*this.canvas.width, 0);
+        }
+    }
+
+
+    // What do you mean this is oddly specific function
+    public fillScreenWithWavingCenteredImage(bmp : Bitmap, param1 : number, param2 : number, t : number) {
+
+        if (bmp == null) {
+
+            bmp = this.canvasCopyBuffer;
+        }
+
+        let r : number;
+        let x = -bmp.width/3;
+
+        for (let y = 0; y < this.height; ++ y) {
+
+            r = Math.round(Math.sin(((y / bmp.height) * param2 + t) * Math.PI*2) * param1 * t);
+
+            this.drawBitmapRegion(bmp, 0, y, bmp.width, 1, x - r, y);
+        }
+    }    
 }

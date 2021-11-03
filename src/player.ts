@@ -117,7 +117,7 @@ export class Player extends CollisionObject {
         this.touchWater = false;
 
         this.faceDir = 1;
-        this.flip = Flip.None;
+        this.flip = isInFinalArea ? Flip.Horizontal : Flip.None;
 
         this.inCamera = true;
 
@@ -1403,6 +1403,12 @@ export class Player extends CollisionObject {
 
         event.audio.stopMusic();
         event.audio.playSample(event.assets.getSample("die"), 0.45);
+    }
+
+
+    public setSleepPose() {
+
+        this.spr.setFrame(5, 1);
     }
 
 
