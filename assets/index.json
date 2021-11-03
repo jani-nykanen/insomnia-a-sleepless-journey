@@ -34,6 +34,7 @@
         {"name": "dreamBackground", "path": "dream_background.png"},
         {"name": "giantChest", "path": "giant_chest.png"},
         {"name": "theEnd", "path": "the_end.png"},
+        {"name": "logo", "path": "logo.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
@@ -67,6 +68,7 @@
         {"name": "dive", "path": "dive.wav"},
         {"name": "orb", "path": "orb.wav"},
         {"name": "teleport", "path": "teleport.wav"},
+        {"name": "start", "path": "start.wav"},
         {"name": "asleep", "path": "asleep.ogg"},
 
         {"name": "theme", "path": "theme.ogg"},

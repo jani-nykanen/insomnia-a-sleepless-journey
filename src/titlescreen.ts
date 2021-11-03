@@ -4,10 +4,11 @@ import { GameScene } from "./game.js";
 import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
 import { TransitionEffectType } from "./transition.js";
+import { State } from "./types.js";
 import { Vector2 } from "./vector.js";
 
 
-const TITLE_MUSIC_VOLUME = 0.60;
+const TITLE_MUSIC_VOLUME = 0.50;
 
 
 export class TitleScreen implements Scene {
@@ -18,8 +19,14 @@ export class TitleScreen implements Scene {
     private message : MessageBox;
 
 
+    private phase : number;
+    private enterTimer : number;
+
+
     constructor(param : any, event : CoreEvent) {
 
+        this.phase = param == null ? 1 : 0;
+        this.enterTimer = 1.0;
 
         this.loadGame = false;
         this.menu = new Menu(
@@ -63,6 +70,10 @@ export class TitleScreen implements Scene {
         this.message = new MessageBox(event);
 
         event.audio.fadeInMusic(event.assets.getSample("title"), TITLE_MUSIC_VOLUME, 1000);
+
+        event.transition.activate(false, TransitionEffectType.CirleIn,
+            1.0/30.0, null)
+            .setCenter(new Vector2(80, 72));
     }
 
 
@@ -82,8 +93,23 @@ export class TitleScreen implements Scene {
 
     public update(event : CoreEvent) {
 
+        const ENTER_SPEED = 1.0/60.0;
+
         if (event.transition.isActive())
             return;
+
+        if (this.phase == 0) {
+
+            this.enterTimer = (this.enterTimer + ENTER_SPEED*event.step) % 1.0;
+
+            if (event.input.getAction("start") == State.Pressed ||
+                event.input.getAction("accept") == State.Pressed) {
+
+                event.audio.playSample(event.assets.getSample("start"), 0.70);
+                ++ this.phase;
+            }
+            return;
+        }
 
         if (this.message.isActive()) {
 
@@ -99,14 +125,33 @@ export class TitleScreen implements Scene {
 
         canvas.clear(0, 85, 170);
 
-        this.menu.draw(canvas, 0, 32, 0, 12, true);
+        canvas.drawBitmap(canvas.assets.getBitmap("sky"), 14, -10);
+        canvas.drawBitmap(canvas.assets.getBitmap("forest"), 0, 144-76);
 
-        if (this.message.isActive()) {
+        canvas.drawBitmap(canvas.assets.getBitmap("logo"), 0, 8);
 
-            canvas.setFillColor(0, 0, 0, 0.67);
-            canvas.fillRect();
-            this.message.draw(canvas);
+        if (this.phase == 0) {
+            
+            if (this.enterTimer < 0.5) {
+
+                canvas.drawText(canvas.assets.getBitmap("fontYellow"), 
+                    "PRESS ENTER", canvas.width/2, canvas.height-32, 0, 0, true);
+            }
         }
+        else {
+
+            this.menu.draw(canvas, 0, 36, 0, 12, true);
+
+            if (this.message.isActive()) {
+
+                canvas.setFillColor(0, 0, 0, 0.67);
+                canvas.fillRect();
+                this.message.draw(canvas);
+            }
+        }
+
+        canvas.drawText(canvas.assets.getBitmap("font"), "©2021 Jani Nykänen",
+            canvas.width/2, canvas.height-10, 0, 0, true);
     }
 
 
