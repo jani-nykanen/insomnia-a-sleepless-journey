@@ -18,7 +18,7 @@ export class SaveManager {
 
         let str = "{\n" + this.progress.dump() + "\n}";
 
-        console.log("DEBUG (savefile):\n" + str);
+        // console.log("DEBUG (savefile):\n" + str);
 
         try {
 

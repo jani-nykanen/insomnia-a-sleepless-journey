@@ -139,7 +139,7 @@ export class Player extends CollisionObject {
         this.spinCount = 0;
         this.spinning = false;
         this.canSpin = false;
-        this.spinHitbox = new Vector2(24, 6);
+        this.spinHitbox = new Vector2(28, 6);
 
         this.downAttackWaitTimer = 0;
         this.downAttacking = false;

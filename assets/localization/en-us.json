@@ -101,8 +101,7 @@
 
         [
             "You obtain a\n\"ROCKET\nEXPANSION!\"",
-            "It makes your\nROCKET PACK\na bit more\npowerful.",
-            "Press X after the\nfirst jump to\nperform a double\njump."
+            "It makes your\nROCKET PACK\na bit more\npowerful."
         ],
 
         [
@@ -134,7 +133,8 @@
 
         [
             "You obtain a\n\"BRAIN!\"",
-            "It will show\nyou ALL the\nstars and\nenemies you\nhave not yet\nfound/killed."
+            "It will show\nyou ALL the\nstars and\nenemies you\nhave not yet\nfound/killed in\nyour map.",
+            "If you have\none, that\nis."
         ]
     ],
 

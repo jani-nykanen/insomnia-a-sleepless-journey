@@ -54,7 +54,7 @@ export class Portal extends StrongInteractionTarget {
                 1.0/120.0, event => {
 
                     event.transition.activate(false, TransitionEffectType.Fade, 1.0/60.0,
-                        null, [255, 255, 255], 8);
+                        null, [255, 255, 255], 4);
                     this.cb(event);
 
                 }, [255, 255, 255])
