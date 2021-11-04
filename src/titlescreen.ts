@@ -7,9 +7,12 @@ import { StoryIntro } from "./storyintro.js";
 import { TransitionEffectType } from "./transition.js";
 import { State } from "./types.js";
 import { Vector2 } from "./vector.js";
+import { VERSION } from "./version.js";
 
 
 const TITLE_MUSIC_VOLUME = 0.50;
+
+const INITIAL_TIME = 60;
 
 
 export class TitleScreen implements Scene {
@@ -19,15 +22,16 @@ export class TitleScreen implements Scene {
     private loadGame : boolean;
     private message : MessageBox;
 
-
     private phase : number;
     private enterTimer : number;
+    private initialTimer : number;
 
 
     constructor(param : any, event : CoreEvent) {
 
         this.phase = param == null ? 1 : 0;
         this.enterTimer = 1.0;
+        this.initialTimer = 0;
 
         this.loadGame = false;
         this.menu = new Menu(
@@ -72,9 +76,8 @@ export class TitleScreen implements Scene {
 
         event.audio.fadeInMusic(event.assets.getSample("title"), TITLE_MUSIC_VOLUME, 1000);
 
-        event.transition.activate(false, TransitionEffectType.BoxVertical,
-            1.0/30.0, null)
-            .setCenter(new Vector2(80, 72));
+        event.transition.activate(false, TransitionEffectType.Fade,
+            1.0/30.0, null, [0, 0, 0], 4);
     }
 
 
@@ -96,10 +99,19 @@ export class TitleScreen implements Scene {
 
         const ENTER_SPEED = 1.0/60.0;
 
+        if (this.phase == 0) {
+
+            if ((this.initialTimer += event.step) >= INITIAL_TIME) {
+
+                ++ this.phase;
+            }
+            return;
+        }
+
         if (event.transition.isActive())
             return;
 
-        if (this.phase == 0) {
+        if (this.phase == 1) {
 
             this.enterTimer = (this.enterTimer + ENTER_SPEED*event.step) % 1.0;
 
@@ -124,14 +136,31 @@ export class TitleScreen implements Scene {
 
     public redraw(canvas : Canvas) {
 
+        const LOGO_POS = 8;
+        const FOREST_OFF = 32;
+
+        let t = 0.0;
+        if (this.phase == 0)
+            t = 1.0 - this.initialTimer / INITIAL_TIME;
+
+        let y : number;
+
         canvas.clear(0, 85, 170);
 
         canvas.drawBitmap(canvas.assets.getBitmap("sky"), 14, -10);
-        canvas.drawBitmap(canvas.assets.getBitmap("forest"), 0, 144-76);
 
-        canvas.drawBitmap(canvas.assets.getBitmap("logo"), 0, 8);
+        y = Math.round(FOREST_OFF * t);
+        canvas.drawBitmap(canvas.assets.getBitmap("forest"), 0, 144-76 + y);
 
-        if (this.phase == 0) {
+        let bmp = canvas.assets.getBitmap("logo");
+        y = LOGO_POS - Math.round((bmp.height + LOGO_POS) * t);
+
+        canvas.drawBitmap(bmp, 0, y);
+
+        if (this.phase == 0)
+            return;
+
+        if (this.phase == 1) {
             
             if (this.enterTimer < 0.5) {
 
@@ -139,7 +168,7 @@ export class TitleScreen implements Scene {
                     "PRESS ENTER", canvas.width/2, canvas.height-32, 0, 0, true);
             }
         }
-        else {
+        else if (this.phase == 2) {
 
             this.menu.draw(canvas, 0, 36, 0, 12, true);
 
@@ -153,6 +182,9 @@ export class TitleScreen implements Scene {
 
         canvas.drawText(canvas.assets.getBitmap("font"), "©2021 Jani Nykänen",
             canvas.width/2, canvas.height-10, 0, 0, true);
+
+        canvas.drawText(canvas.assets.getBitmap("fontYellow"), VERSION,
+            1, 1, -1, 0);
     }
 
 
