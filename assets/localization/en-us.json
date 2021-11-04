@@ -240,6 +240,17 @@
     "loadError": ["Failed to load\nthe save data!\nMaybe it does\nnot exist yet?"],
 
 
-    "audioIntro": "Would you like\nto enable audio?\nPress ENTER to\nconfirm."
+    "audioIntro": "Would you like\nto enable audio?\nPress ENTER to\nconfirm.",
+
+
+    "storyIntro": [
+
+        "It is 3 a.m.\nand you are\nstill awake.",
+        "Bad memories\nand traumatic\nexperiences\nare makingit \nimpossible to\nfall asleep.",
+        "You close your\neyes, hoping that\nyou could finally\nget some sleep...",
+        "...but suddenly\nyou fall out\nof your bed.",
+        "When you open\nyour eyes, you\nrealize some-\nthing.",
+        "This is not\nyour house."
+    ]
     
 }

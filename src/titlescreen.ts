@@ -3,6 +3,7 @@ import { Scene, CoreEvent } from "./core.js";
 import { GameScene } from "./game.js";
 import { Menu, MenuButton } from "./menu.js";
 import { MessageBox } from "./messagebox.js";
+import { StoryIntro } from "./storyintro.js";
 import { TransitionEffectType } from "./transition.js";
 import { State } from "./types.js";
 import { Vector2 } from "./vector.js";
@@ -71,7 +72,7 @@ export class TitleScreen implements Scene {
 
         event.audio.fadeInMusic(event.assets.getSample("title"), TITLE_MUSIC_VOLUME, 1000);
 
-        event.transition.activate(false, TransitionEffectType.CirleIn,
+        event.transition.activate(false, TransitionEffectType.BoxVertical,
             1.0/30.0, null)
             .setCenter(new Vector2(80, 72));
     }
@@ -85,7 +86,7 @@ export class TitleScreen implements Scene {
         event.transition.activate(true, TransitionEffectType.CirleIn,
             1.0/30.0, event => {
 
-                event.changeScene(GameScene);
+                event.changeScene(load ? GameScene : StoryIntro);
             })
             .setCenter(new Vector2(80, 72));
     }
@@ -103,7 +104,7 @@ export class TitleScreen implements Scene {
             this.enterTimer = (this.enterTimer + ENTER_SPEED*event.step) % 1.0;
 
             if (event.input.getAction("start") == State.Pressed ||
-                event.input.getAction("accept") == State.Pressed) {
+                event.input.getAction("select") == State.Pressed) {
 
                 event.audio.playSample(event.assets.getSample("start"), 0.70);
                 ++ this.phase;
