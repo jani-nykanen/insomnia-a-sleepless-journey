@@ -1,5 +1,6 @@
 import { Canvas } from "./canvas.js";
 import { CoreEvent, Scene } from "./core.js";
+import { Intro } from "./intro.js";
 import { Menu, MenuButton } from "./menu.js";
 import { TitleScreen } from "./titlescreen.js";
 
@@ -19,6 +20,8 @@ export class AudioIntro implements Scene {
 
     constructor(param : any, event : CoreEvent) {
 
+        const START_SCENE = Intro;
+
         this.yesNoMenu = new Menu(
             [
                 new MenuButton("YES",
@@ -29,7 +32,7 @@ export class AudioIntro implements Scene {
                         event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
                         event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
 
-                        event.changeScene(TitleScreen);
+                        event.changeScene(START_SCENE);
                     }),
 
                 new MenuButton("NO",
@@ -37,7 +40,7 @@ export class AudioIntro implements Scene {
 
                         event.audio.toggle(false);
 
-                        event.changeScene(TitleScreen);
+                        event.changeScene(START_SCENE);
                     })
             ]
         );

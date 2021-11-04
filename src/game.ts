@@ -133,14 +133,14 @@ export class GameScene implements Scene {
                         event.audio.resumeMusic();
                     }
                 }),
-
+/*
                 new MenuButton("DEBUG", 
                 event => {
 
                     this.debug();
                     event.audio.resumeMusic();
                 }),
-
+*/
                 new MenuButton(loc.findValue(["pauseMenu", "4"]),
                 event => {
 

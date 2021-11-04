@@ -35,6 +35,7 @@
         {"name": "giantChest", "path": "giant_chest.png"},
         {"name": "theEnd", "path": "the_end.png"},
         {"name": "logo", "path": "logo.png"},
+        {"name": "intro", "path": "intro.png"},
         {"name": "tileset", "path": "tileset.png"}
     ],
 
