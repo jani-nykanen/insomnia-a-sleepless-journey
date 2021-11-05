@@ -6,8 +6,7 @@ import { drawBox } from "./messagebox.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ProgressManager } from "./progress.js";
 import { Stage } from "./stage.js";
-import { Vector2 } from "./vector.js";
-
+import { Rect, Vector2 } from "./vector.js";
 
 
 export class WorldMap {
@@ -16,6 +15,7 @@ export class WorldMap {
     private stars : Array<boolean>;
     private enemies : Array<boolean>;
     private visited : Array<boolean>;
+    private connections : Array<Rect>;
 
     private pos : Vector2;
 
@@ -38,6 +38,7 @@ export class WorldMap {
         this.stars = (new Array<boolean> (this.width*this.height)).fill(false);
         this.enemies = (new Array<boolean> (this.width*this.height)).fill(false);
         this.visited = (new Array<boolean> (this.width*this.height)).fill(false);
+        this.connections = (new Array<Rect> (this.width*this.height)).fill(null);
 
         this.progress = progress;
 
@@ -47,6 +48,29 @@ export class WorldMap {
         this.flickerTime = 0;
 
         this.loc = event.localization;
+    }
+
+
+    private removeDuplicateConnections() {
+
+        for (let i = 0; i < this.connections.length; ++ i) {
+
+            if (this.connections[i] == null)
+                continue;
+
+            for (let j = 0; j < this.connections.length; ++ j) {
+
+                if (i == j) continue;
+
+                if (this.connections[j] == null)
+                    continue;
+
+                if (this.connections[i].isEqualToOpposite(this.connections[j])) {
+
+                    this.connections[j] = null;
+                }
+            }
+        }
     }
 
 
@@ -74,13 +98,20 @@ export class WorldMap {
                 this.enemies[i] = objects.hasEnemyInArea(
                     dx*camera.width, dy*camera.height, 
                     camera.width, camera.height);
+
+                this.connections[i] = objects.getDoorConnectionInArea(
+                    dx*camera.width, dy*camera.height, 
+                    camera.width, camera.height, camera);
             }
             else {
 
                 this.stars[i] = false;
                 this.enemies[i] = false;
+                this.connections[i] = null;
             }
         }
+
+        this.removeDuplicateConnections();
 
         this.active = true;
         this.flickerTime = 0;
@@ -125,15 +156,42 @@ export class WorldMap {
 
         let sx : number;
 
+        // Background Tiles
         for (let y = 0; y < this.height; ++ y) {
 
             for (let x = 0; x < this.width; ++ x) {
 
-                if (this.visited[y * this.width + x]) {
+                if (!this.visited[y * this.width + x])
+                    continue;
 
-                    canvas.setFillColor(170, 170, 255);
-                    canvas.fillRect(dx + x*10, dy + y*9, 10, 9);
-                }
+                canvas.setFillColor(170, 170, 255);
+                canvas.fillRect(dx + x*10, dy + y*9, 10, 9);
+                
+            }
+        }
+
+        // Connections
+        canvas.setFillColor(0, 255, 0, 0.67);
+        for (let c of this.connections) {
+
+            if (c == null)
+                continue;
+
+            if (!this.visited[c.y*this.width + c.x] ||
+                !this.visited[c.h*this.width + c.w])
+                continue;
+
+            canvas.drawPixelatedLine(
+                dx + c.x*10 + 5, 
+                dy + c.y*9 + 4, 
+                dx + c.w*10 + 5, 
+                dy + c.h*9 + 4);
+        }
+
+        // Icons
+        for (let y = 0; y < this.height; ++ y) {
+
+            for (let x = 0; x < this.width; ++ x) {
 
                 if (this.flickerTime < 0.5 &&
                     x == this.pos.x && y == this.pos.y) {

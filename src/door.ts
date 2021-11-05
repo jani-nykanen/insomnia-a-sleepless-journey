@@ -24,9 +24,9 @@ export class Door extends StrongInteractionTarget {
 
     constructor(x : number, y : number, id : number, inside : boolean, message : MessageBox) {
 
-        const ALWAYS_OPEN = [0, 2, 9, 10, 11, 12, 13, 16, 19];
-
         super(x, y, true);
+
+        const ALWAYS_OPEN = [0, 2, 9, 10, 11, 12, 13, 16, 19];
 
         this.spr = new Sprite(16, 32);
 
@@ -59,6 +59,8 @@ export class Door extends StrongInteractionTarget {
             if (!player.progress.doesValueExistInArray("items", 2)) {
 
                 msg = event.localization.findValue(["locked"]);
+
+                event.audio.playSample(event.assets.getSample("select"), 0.50);
             }
             else {
 
@@ -123,4 +125,7 @@ export class Door extends StrongInteractionTarget {
 
         this.open = true;
     }
+
+
+    public getPairPos = () : Vector2 => this.pair.getPos();
 }

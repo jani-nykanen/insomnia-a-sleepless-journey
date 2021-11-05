@@ -15,7 +15,7 @@ import { ProgressManager } from "./progress.js";
 import { Projectile } from "./projectile.js";
 import { Stage } from "./stage.js";
 import { Switch } from "./switch.js";
-import { Vector2 } from "./vector.js";
+import { Rect, Vector2 } from "./vector.js";
 import { SavePoint } from "./savepoint.js";
 import { SaveManager } from "./savemanager.js";
 import { TransitionEffectType } from "./transition.js";
@@ -586,6 +586,30 @@ export class ObjectManager {
                 return true;
         }
         return false;
+    }
+
+
+    public getDoorConnectionInArea(dx : number, dy : number, 
+        width : number, height : number, camera : Camera ) : Rect {
+
+        let p : Vector2;
+        let q : Vector2;
+
+        for (let d of this.doors) {
+
+            p = d.getPos();
+            q = d.getPairPos();
+            
+            if (p.x >= dx && p.y >= dy && p.x <= dx + width && p.y <= dy + height) {
+                
+                return new Rect(
+                    (p.x / camera.width) | 0, 
+                    (p.y / camera.height) | 0, 
+                    (q.x / camera.width) | 0, 
+                    (q.y / camera.height) | 0);
+            }
+        }
+        return null;
     }
 
 

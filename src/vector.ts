@@ -207,6 +207,20 @@ export class Rect {
 	}
 
 
+	// Don't ask
+	public isEqualToOpposite(r : Rect) {
+
+		const EPS = 0.0001;
+
+		if (r == null) return false;
+
+		return (Math.abs(r.x - this.w) < EPS &&
+			Math.abs(r.y - this.h) < EPS &&
+			Math.abs(r.w - this.x) < EPS &&
+			Math.abs(r.h - this.y) < EPS);
+	}
+
+
 	public clone = () : Rect => new Rect(this.x, this.y, this.w, this.h);
 }
 
