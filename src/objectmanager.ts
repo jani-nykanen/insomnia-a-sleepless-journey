@@ -590,7 +590,7 @@ export class ObjectManager {
 
 
     public getDoorConnectionInArea(dx : number, dy : number, 
-        width : number, height : number, camera : Camera ) : Rect {
+        width : number, height : number) : Rect {
 
         let p : Vector2;
         let q : Vector2;
@@ -603,10 +603,10 @@ export class ObjectManager {
             if (p.x >= dx && p.y >= dy && p.x <= dx + width && p.y <= dy + height) {
                 
                 return new Rect(
-                    (p.x / camera.width) | 0, 
-                    (p.y / camera.height) | 0, 
-                    (q.x / camera.width) | 0, 
-                    (q.y / camera.height) | 0);
+                    (p.x / 16) | 0, 
+                    (p.y / 16) | 0, 
+                    (q.x / 16) | 0, 
+                    (q.y / 16) | 0);
             }
         }
         return null;

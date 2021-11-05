@@ -101,7 +101,7 @@ export class WorldMap {
 
                 this.connections[i] = objects.getDoorConnectionInArea(
                     dx*camera.width, dy*camera.height, 
-                    camera.width, camera.height, camera);
+                    camera.width, camera.height);
             }
             else {
 
@@ -171,21 +171,32 @@ export class WorldMap {
         }
 
         // Connections
-        canvas.setFillColor(0, 255, 0, 0.67);
+        canvas.setFillColor(0, 255, 0);
+
+        let x1 : number;
+        let y1 : number;
+        let x2 : number;
+        let y2 : number;
+
         for (let c of this.connections) {
 
             if (c == null)
                 continue;
 
-            if (!this.visited[c.y*this.width + c.x] ||
-                !this.visited[c.h*this.width + c.w])
+            x1 = (c.x / 10) | 0;
+            y1 = (c.y / 9) | 0;
+            x2 = (c.w / 10) | 0;
+            y2 = (c.h / 9) | 0;
+
+            if (!this.visited[y1*this.width + x1] ||
+                !this.visited[y2*this.width + x2])
                 continue;
 
             canvas.drawPixelatedLine(
-                dx + c.x*10 + 5, 
-                dy + c.y*9 + 4, 
-                dx + c.w*10 + 5, 
-                dy + c.h*9 + 4);
+                dx + c.x, 
+                dy + c.y, 
+                dx + c.w, 
+                dy + c.h);
         }
 
         // Icons

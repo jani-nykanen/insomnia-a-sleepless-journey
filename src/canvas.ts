@@ -390,6 +390,11 @@ export class Canvas {
 
     public drawPixelatedLine(x1 : number, y1 : number, x2 : number, y2 : number) {
 
+        x1 |= 0;
+        y1 |= 0;
+        x2 |= 0;
+        y2 |= 0;
+
         let dx = Math.abs(x2 - x1);
         let sx = x1 < x2 ? 1 : -1;
         let dy = Math.abs(y2 - y1);
